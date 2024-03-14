@@ -102,7 +102,7 @@ SET (INSTALL_GTEST OFF)
 message("==========================Start fetch for ${PROJECT_NAME}=========================")
 fetch_external_library_add(googletest "${LIST_OF_LIB}" https://github.com/google/googletest release-1.12.1)
 make_external_library_available("${LIST_OF_LIB}")
-message("==============================================End fetch===========================")
+message("==========================End fetch for ${PROJECT_NAME}===========================")
 set_target_properties(gtest PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 set_target_properties(gtest_main PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 

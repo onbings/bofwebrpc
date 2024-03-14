@@ -10,7 +10,7 @@
 #   the relocatable runtime to deploy on a 
 #   machine and executes
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
-set(CPACK_PACKAGE_VENDOR "EVS Broadcast Equipment")
+set(CPACK_PACKAGE_VENDOR "OnBings")
 set(CPACK_PACKAGE_DESCRIPTION "The installer package of ${PROJECT_NAME}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${CPACK_PACKAGE_DESCRIPTION})
 
