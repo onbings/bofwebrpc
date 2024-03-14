@@ -54,7 +54,7 @@ gtest_discover_tests(${UT_NAME}
   TEST_PREFIX        ${UT_NAME}
    DISCOVERY_TIMEOUT 120
    DISCOVERY_MODE    PRE_TEST
-   WORKING_DIRECTORY $<TARGET_FILE_DIR:bofwebrpc>
+   WORKING_DIRECTORY $<TARGET_FILE_DIR:${UT_NAME}>
 )
 
 # If you plan on running your unit tests with Valgrind
