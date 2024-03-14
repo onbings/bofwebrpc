@@ -8,19 +8,19 @@
     },
     {
       "name": "libwebsockets",
-	    "platform": "!wasm32"
+      "platform": "!wasm32"
     },
     {
       "name": "libuv",
-	    "platform": "!wasm32"
+      "platform": "!wasm32"
     },
     {
       "name": "protobuf",
-	    "platform": "!wasm32"
+      "platform": "!wasm32"
     },
     {
       "name": "grpc",
-	    "platform": "!wasm32"
-    }	
+      "platform": "!wasm32"
+    }
   ]
 }
