@@ -1,0 +1,26 @@
+{
+  "name": "evs-glf",
+  "version": "1.0.0.0",
+  "description": "The OnBings Web Rpc c++ library",
+  "dependencies": [
+    {
+      "name": "bofstd"
+    },
+    {
+      "name": "libwebsockets",
+	    "platform": "!wasm32"
+    },
+    {
+      "name": "libuv",
+	    "platform": "!wasm32"
+    },
+    {
+      "name": "protobuf",
+	    "platform": "!wasm32"
+    },
+    {
+      "name": "grpc",
+	    "platform": "!wasm32"
+    }	
+  ]
+}

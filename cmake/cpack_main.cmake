@@ -1,0 +1,60 @@
+#include_guard(GLOBAL) #pragma once
+#no need to add version cpack do it automatically: C:/bld/bofstd-win/package/bofstd-5.5.2-win64-bofstd-debug.zip generated.
+#set(CPACK_PACKAGE_NAME   "${PROJECT_NAME}-${PROJECT_VERSION}")
+set(CPACK_PACKAGE_NAME   "${PROJECT_NAME}")
+message("------CPACK_PACKAGE_NAME--------->" ${CPACK_PACKAGE_NAME})
+message("------PROJECT_NAME--------->" ${PROJECT_NAME})
+message("------PROJECT_VERSION--------->" ${PROJECT_VERSION})
+set(CPACK_PACKAGE_VENDOR "Evs")
+
+#set(CPACK_PACKAGE_DESCRIPTION_FILE    "${CMAKE_CURRENT_LIST_DIR}/...")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Evs General Library Firmware")
+set(CPACK_RESOURCE_FILE_LICENSE       "${PROJECT_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_README        "${PROJECT_SOURCE_DIR}/README.MD")
+set(CPACK_PACKAGING_INSTALL_PREFIX    "")
+set(CPACK_OUTPUT_FILE_PREFIX          ${CMAKE_BINARY_DIR}/package)
+
+set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
+
+set(CPACK_SOURCE_IGNORE_FILES "${PROJECT_BINARY_DIR};/.git/;.gitignore;.svn")
+
+set(CPACK_COMPONENTS_ALL 
+   ${PROJECT_NAME}-runtime
+   ${PROJECT_NAME}-library
+   ${PROJECT_NAME}-archive
+   ${PROJECT_NAME}-headers
+   ${PROJECT_NAME}-cmake
+   ${PROJECT_NAME}-debug
+   ${PROJECT_NAME}-doc
+)
+set(CPACK_COMPONENTS_GROUPING ONE_PER_GROUP)
+#set(CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE)
+
+set(CPACK_COMPONENT_${PROJECT_NAME_UPPER}_RUNTIME_GROUP  RUNTIME)
+set(CPACK_COMPONENT_${PROJECT_NAME_UPPER}_LIBRARY_GROUP  RUNTIME)
+set(CPACK_COMPONENT_${PROJECT_NAME_UPPER}_ARCHIVE_GROUP  DEVEL)
+set(CPACK_COMPONENT_${PROJECT_NAME_UPPER}_HEADERS_GROUP  DEVEL)
+set(CPACK_COMPONENT_${PROJECT_NAME_UPPER}_CMAKE_GROUP    DEVEL)
+set(CPACK_COMPONENT_${PROJECT_NAME_UPPER}_DOC_GROUP      DEVEL)
+set(CPACK_COMPONENT_${PROJECT_NAME_UPPER}_DEBUG_GROUP    DEBUG)
+
+# Allow compression in //
+set(CPACK_THREADS 0)
+
+# Try to build relocatable packages
+set(CPACK_PACKAGE_RELOCATABLE TRUE)
+
+#if(DEFINED OS_DISTRO AND OS_DISTRO STREQUAL "centos")
+if (MSVC OR EMSCRIPTEN)
+  #include(cmake/cpack_nsis.cmake)
+  include(cmake/cpack_archive.cmake)
+else()
+#  include(cmake/cpack_archive.cmake)
+#  include(cmake/cpack_deb.cmake)
+  include(cmake/cpack_rpm.cmake)
+endif()
+
+include(CPack)
+file(WRITE ${CPACK_OUTPUT_FILE_PREFIX}/version.txt ${PROJECT_VERSION})
