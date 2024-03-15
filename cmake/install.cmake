@@ -48,7 +48,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${COMPILED_BINARIES_DIR}/lib)
 # == PACKAGING ==
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   # make package only if ${PROJECT_NAME_LOWER_MINUS} is the main project (not a submodule)
-  include(packaging.cmake)
+#  include(packaging.cmake)
 endif()
 
 # == POPULATE PROJECTS ==
