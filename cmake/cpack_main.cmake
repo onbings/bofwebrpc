@@ -2,10 +2,8 @@
 #no need to add version cpack do it automatically: C:/bld/bofstd-win/package/bofstd-5.5.2-win64-bofstd-debug.zip generated.
 #set(CPACK_PACKAGE_NAME   "${PROJECT_NAME}-${PROJECT_VERSION}")
 set(CPACK_PACKAGE_NAME   "${PROJECT_NAME}")
-message("------CPACK_PACKAGE_NAME--------->" ${CPACK_PACKAGE_NAME})
-message("------PROJECT_NAME--------->" ${PROJECT_NAME})
-message("------PROJECT_VERSION--------->" ${PROJECT_VERSION})
 set(CPACK_PACKAGE_VENDOR "OnBings")
+message("Packaging ${CPACK_PACKAGE_NAME} for ${CPACK_PACKAGE_VENDOR}")
 
 #set(CPACK_PACKAGE_DESCRIPTION_FILE    "${CMAKE_CURRENT_LIST_DIR}/...")
 set(CPACK_PACKAGE_DESCRIPTION "The installer package of ${PROJECT_NAME}")

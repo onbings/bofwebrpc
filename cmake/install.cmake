@@ -154,7 +154,7 @@ endif()
 # our dependees can find us
 include(CMakePackageConfigHelpers)
 
-set(INTERNAL_NAMESPACE EVS)
+set(INTERNAL_NAMESPACE ONBINGS)
 
 # Create and install the cmake configuration file based on our template
 configure_package_config_file(
