@@ -29,8 +29,11 @@ SET(CMAKE_VERBOSE_MAKEFILE ON)
 # set(CMAKE_DEBUG_POSTFIX _d)
 
 if ((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+if(MSVC)
+else'()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
+endif ()
 endif ()
 
 #set general thrift/grpc variable (used by cmake/grpc.cmake and cmake/thrift.cmake)
