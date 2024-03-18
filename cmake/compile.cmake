@@ -27,6 +27,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 SET(CMAKE_COLOR_MAKEFILE ON)
 SET(CMAKE_VERBOSE_MAKEFILE ON)
 # set(CMAKE_DEBUG_POSTFIX _d)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
+endif ()
+
+#set general thrift/grpc variable (used by cmake/grpc.cmake and cmake/thrift.cmake)
+set(THRIFT_GEN_DIR_CPP "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}/thrift")
+set(GRPC_PROTO_FILE_IN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/idl)
+set(GRPC_PROTO_FILE_OUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/grpc)
 
 # Make sure MSVC runtime is consistent accross
 # all languages (i.e. CXX, CUDA, etc, ...)
