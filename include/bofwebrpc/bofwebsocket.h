@@ -355,7 +355,7 @@ public:
   std::string GetClientList();
 
   int LwsCallback(struct lws *_pLws_X, enum lws_callback_reasons _LwsReason_E, void *_pLwsUser, void *_pInput, size_t _Len);
-  virtual BOFERR V_WebSocketCallback(BOF_WEB_SOCKET_LWS_CALLBACK_REASON _Reason_E, uint32_t _Nb_U32, uint8_t *_pData_U8, BOF::BOF_BUFFER &_rReply_X)=0;
+  //virtual BOFERR V_WebSocketCallback(BOF_WEB_SOCKET_LWS_CALLBACK_REASON _Reason_E, uint32_t _Nb_U32, uint8_t *_pData_U8, BOF::BOF_BUFFER &_rReply_X)=0;
   //virtual BOFERR V_WsCallback(WEB_SOCKET_LWS_CALLBACK_REASON _Reason_E, const BOF::BOF_BUFFER &_rPayload_X, BOF::BOF_BUFFER &_rReply_X) = 0;
 
 private:
