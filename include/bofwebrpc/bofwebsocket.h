@@ -89,12 +89,14 @@ struct BOF_WEB_SOCKET_PARAM
   }
   void Reset()
   {
+    pUser = nullptr;
     SocketRcvBufferSize_U32 = 0;
     SocketSndBufferSize_U32 = 0;
     NbMaxOperationPending_U32 = 0;
     RxBufferSize_U32 = 0;
     NbMaxBufferEntry_U32 = 0;
     OnOperation = nullptr;
+    OnEvent = nullptr;
     OnOpen = nullptr;
     OnClose = nullptr;
     OnError = nullptr;
