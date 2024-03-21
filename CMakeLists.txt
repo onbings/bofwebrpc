@@ -77,7 +77,7 @@ endif()
 target_include_directories(${PROJECT_NAME_LOWER_MINUS}
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> 
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>       #for flat model (.h and .cpp in source dir)
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>       #for flat model (.h and .cpp in source dir)
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>		#for bofwebrpc_export.h install (below) 
 )
 target_link_libraries(${PROJECT_NAME_LOWER_MINUS}

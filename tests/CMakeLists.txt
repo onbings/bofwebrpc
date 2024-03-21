@@ -30,6 +30,7 @@ target_include_directories(${UT_NAME}
   PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../src>       #for flat model (.h and .cpp in source dir)
 )
 
 target_link_libraries(${UT_NAME}
