@@ -1626,7 +1626,7 @@ BOFERR BofWebSocket::V_OnProcessing()
   } while ((!IsThreadLoopMustExit()) && (Rts_E == BOF_ERR_NO_ERROR));
 
   BOF_LWS_CLIENT_DISCONNECT();
-  BOF_LOG_TO_DBG("WebSocket client thread stopped...\n");
+  BOF_LOG_TO_DBG("WebSocket client thread stopped\n", 0);
   return Rts_E;
 }
 END_WEBRPC_NAMESPACE()
