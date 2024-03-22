@@ -914,7 +914,7 @@ int BofWebSocket::LwsCallback(struct lws *_pWsi_X, enum lws_callback_reasons _Lw
 
       case LWS_CALLBACK_ADD_HEADERS:
         Rts_i = -1;
-        if (lws_get_urlarg_by_name(_pWsi_X, WS_CLT_KEY_ARG, pWsCltKey_c, sizeof(pWsCltKey_c)) <= 0)
+        if (lws_get_urlarg_by_name(_pWsi_X, WS_CLT_KEY_ARG, pWsCltKey_c, sizeof(pWsCltKey_c)) == nullptr)
         {
           snprintf(pWsCltKey_c, sizeof(pWsCltKey_c), WS_CLT_KEY_VAL_FMT, S_mWsCltId_U32);
         }
