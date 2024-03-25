@@ -180,7 +180,7 @@ public:
   {
     BOFERR Rts_E;
 
-    Rts_E = LaunchBofProcessingThread(mGrpcServerParam_X.ServerThreadParam_X.Name_S, false, 0, mGrpcServerParam_X.ServerThreadParam_X.ThreadSchedulerPolicy_E, mGrpcServerParam_X.ServerThreadParam_X.ThreadPriority_E, mGrpcServerParam_X.ServerThreadParam_X.ThreadCpuCoreAffinityMask_U64, 2000, 0);
+    Rts_E = LaunchBofProcessingThread(mGrpcServerParam_X.ServerThreadParam_X.Name_S, false, false, 0, mGrpcServerParam_X.ServerThreadParam_X.ThreadSchedulerPolicy_E, mGrpcServerParam_X.ServerThreadParam_X.ThreadPriority_E, mGrpcServerParam_X.ServerThreadParam_X.ThreadCpuCoreAffinityMask_U64, 2000, 0);
     return Rts_E;
   }
   BOFERR Stop()
