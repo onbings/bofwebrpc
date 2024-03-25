@@ -1,5 +1,5 @@
 {
-  "name": "evs-glf",
+  "name": "bofwebrpc",
   "version": "1.0.0.0",
   "description": "The OnBings Web Rpc c++ library",
   "dependencies": [

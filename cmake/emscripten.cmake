@@ -31,32 +31,52 @@ set(HELLOIMGUI_EMSCRIPTEN_PTHREAD_ALLOW_MEMORY_GROWTH OFF)
 
 if (${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_GEN_HTML)
 message("===EMSCRIPTEN=== Add .html to .wasm and .js files")
-set(CMAKE_EXECUTABLE_SUFFIX ".html")   #to generate .html in addition to .js and .wasm
+	set(CMAKE_EXECUTABLE_SUFFIX ".html")   #to generate .html in addition to .js and .wasm
 else()
-message("===EMSCRIPTEN=== Generate .wasm and .js files")
+	message("===EMSCRIPTEN=== Generate .wasm and .js files")
 endif()
 
-set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -pthread")  #hang with imgui: -s NO_DISABLE_EXCEPTION_CATCHING
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")  #hang with imgui: -s NO_DISABLE_EXCEPTION_CATCHING
-if (${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_JS_EXCEPTION)
-  set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -fexceptions")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions")
+string(FIND "${CMAKE_CXX_FLAGS}" "-pthread" FLG_POS)
+if(FLG_POS EQUAL -1)
+	set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -pthread")  #hang with imgui: -s NO_DISABLE_EXCEPTION_CATCHING
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")  #hang with imgui: -s NO_DISABLE_EXCEPTION_CATCHING
 endif()
+
+if (${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_JS_EXCEPTION)
+	string(FIND "${CMAKE_CXX_FLAGS}" "-fexceptions" FLG_POS)
+	if(FLG_POS EQUAL -1)
+		set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -fexceptions")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions")
+	endif()
+endif()
+	
 if (${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_WASM_EXCEPTION)
-  set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -fwasm-exceptions")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fwasm-exceptions")
+	string(FIND "${CMAKE_CXX_FLAGS}" "-fwasm-exceptions" FLG_POS)
+	if(FLG_POS EQUAL -1)
+		set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -fwasm-exceptions")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fwasm-exceptions")
+	endif()		
 endif()
 
 #The @ symbol is needed because sometimes it is useful to package files that are not nested below the compile-time directory, and for which #there is therefore no default mapping to a location in the virtual file system.
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s TOTAL_STACK=${${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_STACK} -s TOTAL_MEMORY=${${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_MEMORY} -s PTHREAD_POOL_SIZE=${${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_THREAD_POOL} --embed-file ${${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_FS_SRC_ROOT_DIR}@${${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_FS_DST_ROOT_DIR}")    
+string(FIND "${CMAKE_EXE_LINKER_FLAGS}" "-s TOTAL_STACK=" FLG_POS)
+if(FLG_POS EQUAL -1)
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s TOTAL_STACK=${${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_STACK} -s TOTAL_MEMORY=${${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_MEMORY} -s PTHREAD_POOL_SIZE=${${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_THREAD_POOL} --embed-file ${${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_FS_SRC_ROOT_DIR}@${${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_FS_DST_ROOT_DIR}")    
+endif()
 
 if (${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_JS_EXCEPTION)
-set(CMAKE_EXE_LINKER_FLAGS   "${CMAKE_EXE_LINKER_FLAGS}   -fexceptions")  
-endif()
-if (${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_WASM_EXCEPTION)
-set(CMAKE_EXE_LINKER_FLAGS   "${CMAKE_EXE_LINKER_FLAGS}   -fwasm-exceptions")  
+	string(FIND "${CMAKE_EXE_LINKER_FLAGS}" "--fexceptions" FLG_POS)
+	if(FLG_POS EQUAL -1)
+		set(CMAKE_EXE_LINKER_FLAGS   "${CMAKE_EXE_LINKER_FLAGS}   -fexceptions")  
+	endif()
 endif()
 
+if (${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_WASM_EXCEPTION)
+	string(FIND "${CMAKE_EXE_LINKER_FLAGS}" "-fwasm-exceptions" FLG_POS)
+	if(FLG_POS EQUAL -1)
+		set(CMAKE_EXE_LINKER_FLAGS   "${CMAKE_EXE_LINKER_FLAGS}   -fwasm-exceptions")  
+	endif()
+endif()
 message("===EMSCRIPTEN=== CMAKE_EXE_LINKER_FLAGS is ${CMAKE_EXE_LINKER_FLAGS}")
 
 message("===EMSCRIPTEN=== CMAKE_CXX_FLAGS is ${CMAKE_CXX_FLAGS}")
