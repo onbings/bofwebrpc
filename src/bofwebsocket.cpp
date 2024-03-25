@@ -556,7 +556,7 @@ BOFERR BofWebSocket::Run()
   uint32_t Start_U32, OpTicket_U32;
   BOFWEBRPC::BOF_WEB_RPC_SOCKET_LISTEN_PARAM ListenParam_X;
 
-  Rts_E = LaunchBofProcessingThread(mWebSocketParam_X.WebSocketThreadParam_X.Name_S, false, 0, mWebSocketParam_X.WebSocketThreadParam_X.ThreadSchedulerPolicy_E, mWebSocketParam_X.WebSocketThreadParam_X.ThreadPriority_E, 0, 2000, 0);
+  Rts_E = LaunchBofProcessingThread(mWebSocketParam_X.WebSocketThreadParam_X.Name_S, false, false, 0, mWebSocketParam_X.WebSocketThreadParam_X.ThreadSchedulerPolicy_E, mWebSocketParam_X.WebSocketThreadParam_X.ThreadPriority_E, 0, 2000, 0);
   BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
   Sts_B = IsThreadRunning(100);
   BOF_ASSERT(Sts_B);
