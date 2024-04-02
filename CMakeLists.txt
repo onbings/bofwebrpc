@@ -20,7 +20,7 @@
 #Select VcRun::WebNode::ut_bofwebrpc in debug icon
 
 #Windows build
-#cmake -DCMAKE_INSTALL_PREFIX=C:/bld/github-win/binaries -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Debug -SC:/pro/github/bofwebrpc -BC:/bld/bofwebrpc-win
+#cmake -DCMAKE_INSTALL_PREFIX=C:/bld/github-win/binaries -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Debug -SC:/pro/evs-hwfw-xts/bofwebrpc -BC:/bld/bofwebrpc-win
 
 #Linux build
 #cmake -DCMAKE_INSTALL_PREFIX=/home/bha/bld/github-lin/binaries -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Debug -S/home/bha/pro/github/bofwebrpc -B/home/bha/bld/bofwebrpc-lin
@@ -98,7 +98,6 @@ endif()
 # depend on pthread lib. These one are get using the fetch_vcpkg_library function as
 # they must be built with a strict control of options which is not possible with vcpkg 
 # build in manifest mode 
-SET (INSTALL_GTEST OFF)
 message("==========================Start fetch for ${PROJECT_NAME}=========================")
 #fetch_external_library_add(googletest "${LIST_OF_LIB}" https://github.com/google/googletest release-1.12.1)
 #make_external_library_available("${LIST_OF_LIB}")
