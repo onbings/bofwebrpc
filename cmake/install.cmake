@@ -124,7 +124,7 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/help/html/. DESTINATION doc COMPON
 install(
   EXPORT      ${PROJECT_NAME_LOWER_MINUS}
   FILE        ${PROJECT_NAME_LOWER_MINUS}-targets.cmake
-  NAMESPACE   ONBINGS::
+  NAMESPACE   EVS::
   DESTINATION ${CMAKE_INSTALL_DATADIR}
   COMPONENT   ${PROJECT_NAME_LOWER_MINUS}-devel
 )
@@ -154,7 +154,7 @@ endif()
 # our dependees can find us
 include(CMakePackageConfigHelpers)
 
-set(INTERNAL_NAMESPACE ONBINGS)
+set(INTERNAL_NAMESPACE EVS)
 
 # Create and install the cmake configuration file based on our template
 configure_package_config_file(
@@ -188,9 +188,8 @@ install(FILES
   COMPONENT   ${PROJECT_NAME_LOWER_MINUS}-devel
 )
 
+option(INSTALL_GTEST  "Disable installation of gtest" OFF)
 if (PROJECT_IS_TOP_LEVEL)
-   set(INSTALL_GTEST OFF)
-
 	execute_process(
 		COMMAND ${CMAKE_COMMAND} -E env vcpkg list --x-install-root=./vcpkg_installed
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
