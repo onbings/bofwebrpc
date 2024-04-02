@@ -17,6 +17,7 @@ endmacro()
 # == OPTIONAL DEPENDENCIES ==
 
 # == REQUIRED DEPENDENCIES ==
+find_package(gtest CONFIG REQUIRED)
 find_package(bofstd CONFIG REQUIRED)
 if (EMSCRIPTEN)
 else()

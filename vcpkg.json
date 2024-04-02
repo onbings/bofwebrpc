@@ -4,6 +4,9 @@
   "description": "The OnBings Web Rpc c++ library",
   "dependencies": [
     {
+      "name": "gtest"
+    },
+    {
       "name": "bofstd"
     },
     {
