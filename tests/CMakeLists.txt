@@ -21,7 +21,7 @@ else()
 endif()
 
 # Create target
-set (UT_NAME ${PROJECT_NAME}-tests))
+set (UT_NAME ${PROJECT_NAME}-tests)
 add_executable(${UT_NAME}
   ${SOURCES_FILES}
 )
