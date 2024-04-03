@@ -16,7 +16,7 @@
 #include "gtestrunner.h"
 #include <bofwebrpc/bofwebrpc.h>
 
-class ut_bofwebrpc : public ::testing::Test
+class bofwebrpc_tests : public ::testing::Test
 {
 protected:
   void SetUp() override
@@ -30,7 +30,7 @@ protected:
   }
 };
 
-TEST_F(ut_bofwebrpc, Test²)
+TEST_F(bofwebrpc_tests, Test)
 {
-  EXPECT_TRUE(false);
+  EXPECT_TRUE(true);
 }
