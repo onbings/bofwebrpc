@@ -21,7 +21,7 @@ else()
 endif()
 
 # Create target
-set (UT_NAME ${PROJECT_NAME_LOWER_UNDERSCORE}_tests)
+set (UT_NAME ${PROJECT_NAME}-tests))
 add_executable(${UT_NAME}
   ${SOURCES_FILES}
 )
@@ -53,7 +53,7 @@ target_compile_definitions(${UT_NAME}
 # Add test and allow them to run in //
 gtest_discover_tests(${UT_NAME}
   XML_OUTPUT_DIR     ${CMAKE_BINARY_DIR}/GTestReports/
-  TEST_PREFIX        ${UT_NAME}
+  TEST_PREFIX        ${PROJECT_NAME_LOWER_UNDERSCORE}_tests
    DISCOVERY_TIMEOUT 120
    DISCOVERY_MODE    PRE_TEST
    WORKING_DIRECTORY $<TARGET_FILE_DIR:${UT_NAME}>
