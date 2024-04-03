@@ -21,7 +21,7 @@ else()
 endif()
 
 # Create target
-set (UT_NAME ut_webrpc)
+set (UT_NAME bofwebrpc-tests)
 add_executable(${UT_NAME}
   ${SOURCES_FILES}
 )
