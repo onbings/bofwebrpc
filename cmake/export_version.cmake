@@ -24,5 +24,5 @@ else()
 	# (e.g. EVS_GLF_EXPORT) for shared libraries. When building as static
 	# those macros are simply blank. This file will be by default generated
 	# into ${CMAKE_CURRENT_BINARY_DIR} (see target_include_directories above)
-	generate_export_header(${PROJECT_NAME_LOWER_MINUS} EXPORT_MACRO_NAME ${PROJECT_NAME_UPPER_UNDERSCORE})
+	generate_export_header(${PROJECT_NAME_LOWER_MINUS} EXPORT_MACRO_NAME ${PROJECT_NAME_UPPER_UNDERSCORE}_EXPORT)
 endif()
