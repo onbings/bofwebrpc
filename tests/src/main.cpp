@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 #else
   std::string Buffer_S;
   std::cout << "\nPress any key followed by enter to to quit ..." << std::endl;
-  std::getline(std::cin, Buffer_S);
+  //std::getline(std::cin, Buffer_S);
 #endif
 
   return Rts_i;
