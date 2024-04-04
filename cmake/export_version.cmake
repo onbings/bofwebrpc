@@ -19,10 +19,10 @@ else()
 	# == API management ==
 	include(GenerateExportHeader)
 
-	# This CMake function generates a header file (i.e. evs-gfl_export.h)
+	# This CMake function generates a header file (i.e. bofwebrpc_export.h)
 	# that contains all the proper 'defines' to import/export symbols
-	# (e.g. EVS_GLF_EXPORT) for shared libraries. When building as static
+	# (e.g. BOFWEBRPC_EXPORT) for shared libraries. When building as static
 	# those macros are simply blank. This file will be by default generated
 	# into ${CMAKE_CURRENT_BINARY_DIR} (see target_include_directories above)
-	generate_export_header(${PROJECT_NAME_LOWER_MINUS} EXPORT_MACRO_NAME ${PROJECT_NAME_UPPER_UNDERSCORE}_EXPORT)
+	generate_export_header(${PROJECT_NAME_LOWER_MINUS} BASE_NAME ${PROJECT_NAME_LOWER_UNDERSCORE} EXPORT_MACRO_NAME ${PROJECT_NAME_UPPER_UNDERSCORE})
 endif()
