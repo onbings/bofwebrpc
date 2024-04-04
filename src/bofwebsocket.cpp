@@ -25,9 +25,9 @@ constexpr const char *WS_CLT_KEY_VAL_FMT = "BofWsClt_%08X";
 // #define WS_CLT_KEY_ARG "bof_ws_clt_key="
 //#define DBG_PROTO
 #if defined(_WIN32)
-#define BOF_LOG_TO_DBG(pFormat,...)  {std::string Dbg;Dbg=BOF::Bof_Sprintf(pFormat, __VA_ARGS__);OutputDebugString(Dbg.c_str());}
+#define BOF_LOG_TO_DBG(pFormat,...)  {std::string Dbg;Dbg=BOF::Bof_Sprintf(pFormat, ##__VA_ARGS__);OutputDebugString(Dbg.c_str());}
 #else
-#define BOF_LOG_TO_DBG(pFormat,...)  {printf(pFormat, __VA_ARGS__);}
+#define BOF_LOG_TO_DBG(pFormat,...)  {printf(pFormat, ##__VA_ARGS__);}
 #endif
 #define DBG_LOG lwsl_info
 
@@ -1626,7 +1626,7 @@ BOFERR BofWebSocket::V_OnProcessing()
   } while ((!IsThreadLoopMustExit()) && (Rts_E == BOF_ERR_NO_ERROR));
 
   BOF_LWS_CLIENT_DISCONNECT();
-  BOF_LOG_TO_DBG("WebSocket client thread stopped\n", 0);
+  BOF_LOG_TO_DBG("WebSocket client thread stopped\n");
   return Rts_E;
 }
 END_WEBRPC_NAMESPACE()

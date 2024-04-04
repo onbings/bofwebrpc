@@ -288,7 +288,7 @@ struct BOF_WEB_RPC_SOCKET_WRITE_OP
 
 #define BOF_LWS_SPRINT_BUFFER(buf, ...)                    \
   {                                                    \
-    int len = sprintf((char *)buf.Pos(), __VA_ARGS__); \
+    int len = sprintf((char *)buf.Pos(), ##__VA_ARGS__); \
     buf.Size_U64 += len;                               \
   }
 #define BOF_LWS_CLEAR_BUFFER(buf, remain) \
