@@ -1,52 +1,52 @@
 include(FetchContent)
 
-#first call this one for each lib AND AFTER cal ONCE fetch_external_library_generate
-function(fetch_external_library_add LIB_NAME LIST_OF_LIB GIT_URL GIT_TAG)
-    message(STATUS "Start of fetch external library '${LIB_NAME}' from ${GIT_URL} at tag ${GIT_TAG}:")
-    set(LIB_DIR "${CMAKE_CURRENT_LIST_DIR}/${LIB_NAME}")
-	list(FIND LIST_OF_LIB ${LIB_NAME} INDEX)
+#first call this one for each component AND AFTER call ONCE make_external_component_available
+function(fetch_external_component_add COMPONENT_NAME LIST_OF_COMPONENT GIT_URL GIT_TAG)
+    message(STATUS "Start of fetch external component '${COMPONENT_NAME}' from ${GIT_URL} at tag ${GIT_TAG}:")
+    set(COMPONENT_DIR "${CMAKE_CURRENT_LIST_DIR}/${COMPONENT_NAME}")
+	list(FIND LIST_OF_COMPONENT ${COMPONENT_NAME} INDEX)
 	if(INDEX EQUAL -1)
-		if(EXISTS "${LIB_DIR}/.git")
+		if(EXISTS "${COMPONENT_DIR}/.git")
 			execute_process(
-				COMMAND git -C "${LIB_DIR}" status --porcelain --untracked-files=no
+				COMMAND git -C "${COMPONENT_DIR}" status --porcelain  --untracked-files=no
 				OUTPUT_VARIABLE GIT_STATUS
 				RESULT_VARIABLE GIT_STATUS_RESULT
 			)
 
 			if(GIT_STATUS_RESULT EQUAL 0 AND NOT "${GIT_STATUS}" STREQUAL "")
-				message(FATAL_ERROR "Uncommitted changes ddd found in: ${LIB_DIR}\n${GIT_STATUS}")
+				message(FATAL_ERROR "Uncommitted changes ddd found in: ${COMPONENT_DIR}\n${GIT_STATUS}")
 			endif()
 		endif()
 	
 		set(FETCHCONTENT_QUIET OFF)
 		FetchContent_Declare(
-			${LIB_NAME}
+			${COMPONENT_NAME}
 			GIT_REPOSITORY ${GIT_URL}
 			GIT_TAG ${GIT_TAG}
-			SOURCE_DIR "${LIB_DIR}"
+			SOURCE_DIR "${COMPONENT_DIR}"
 		)
-		list(LENGTH LIST_OF_LIB LIST_SIZE)
+		list(LENGTH LIST_OF_COMPONENT LIST_SIZE)
 		if(LIST_SIZE EQUAL 0)
 			file(APPEND ${CMAKE_BINARY_DIR}/DepManifest.txt "FetchContent Dependencies for ${PROJECT_NAME}:\n")
 		endif()
-		file(APPEND ${CMAKE_BINARY_DIR}/DepManifest.txt "${LIB_NAME}\t${GIT_TAG}\t${GIT_URL}\n")
-		list(APPEND LIST_OF_LIB ${LIB_NAME})  # Append library name to the provided list
-		set(LIST_OF_LIB "${LIST_OF_LIB}" PARENT_SCOPE)
-		message(STATUS "The lib '${LIB_NAME}' has been added to the list")
+		file(APPEND ${CMAKE_BINARY_DIR}/DepManifest.txt "${COMPONENT_NAME}\t${GIT_TAG}\t${GIT_URL}\n")
+		list(APPEND LIST_OF_COMPONENT ${COMPONENT_NAME})  # Append component name to the provided list
+		set(LIST_OF_COMPONENT "${LIST_OF_COMPONENT}" PARENT_SCOPE)
+		message(STATUS "The component '${COMPONENT_NAME}' has been added to the list")
 	else()
-	   message(STATUS "The lib '${LIB_NAME}' is already present in the list")
+	   message(STATUS "The component '${COMPONENT_NAME}' is already present in the list")
 	endif()
-    message(STATUS "End of of fetch external library add '${LIB_NAME}'")
+    message(STATUS "End of of fetch external component add '${COMPONENT_NAME}'")
 endfunction()
 
-function(make_external_library_available LIST_OF_LIB)
-    message(STATUS "make_external_library_available for the following lib:")
-    foreach(LIB_NAME ${LIST_OF_LIB})
-        message("${LIB_NAME}")
-#		FetchContent_GetProperties(${LIB_NAME})
-#		message(STATUS "----------make_external_library_available------->${LIB_NAME}_POPULATED")
+function(make_external_component_available LIST_OF_COMPONENT)
+    message(STATUS "make_external_component_available for the following component:")
+    foreach(COMPONENT_NAME ${LIST_OF_COMPONENT})
+        message("${COMPONENT_NAME}")
+#		FetchContent_GetProperties(${COMPONENT_NAME})
+#		message(STATUS "----------make_external_component_available------->${COMPONENT_NAME}_POPULATED")
     endforeach()
-    FetchContent_MakeAvailable("${LIST_OF_LIB}")
+    FetchContent_MakeAvailable("${LIST_OF_COMPONENT}")
 endfunction()
 
 # Function to list CMake variables with a given prefix
