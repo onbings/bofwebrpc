@@ -1,9 +1,5 @@
 include(GoogleTest)
 
-# == SOURCES ==
-set(DATA_FILES
-)
-
 set(SOURCES_FILES
 	include/gtestrunner.h
 	src/main.cpp

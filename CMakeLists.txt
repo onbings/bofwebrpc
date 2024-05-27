@@ -47,10 +47,6 @@ option(${PROJECT_NAME_UPPER_UNDERSCORE}_ENABLE_VERSIONING "Enable library versio
 option(${PROJECT_NAME_UPPER_UNDERSCORE}_FORCE_EXPORT_ALL  "Force exporting all symbols of ${PROJECT_NAME_LOWER} libraries (for shared library)" OFF)
 set(${PROJECT_NAME_UPPER_UNDERSCORE}_EMSCRIPTEN_WASM_EXCEPTION ON)
 
-set(DATA_FILES
-#  ./assets/font/cour.ttf
-)
-
 # == BUILD ==
 add_library(${PROJECT_NAME_LOWER_MINUS}
    ./include/bofwebrpc/bofgrpc.h
