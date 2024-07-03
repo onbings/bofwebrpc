@@ -242,22 +242,26 @@ public:
 #endif
     // Finally assemble the server.
     mpuServer = builder.BuildAndStart();
-
-    // Run server
-    GRPC_DBG_LOG("Server listening on %s\n", mGrpcServerParam_X.Ip_X.ToString(true, true).c_str());
+    Rts_E = BOF_ERR_INIT;
+    BOF_ASSERT(mpuServer != nullptr);
+    if (mpuServer)
+    {
+      // Run server
+      GRPC_DBG_LOG("Server listening on %s\n", mGrpcServerParam_X.Ip_X.ToString(true, true).c_str());
 #if defined(ASYNC)
-    if (mGrpcServerParam_X.Async_B)
-    {
-      HandleRpc();
-    }
-    else
+      if (mGrpcServerParam_X.Async_B)
+      {
+        HandleRpc();
+      }
+      else
 #endif
-    {
-      // Wait for the server to shutdown. Note that some other thread must be
-      // responsible for shutting down the server for this call to ever return.
-      mpuServer->Wait();
+      {
+        // Wait for the server to shutdown. Note that some other thread must be
+        // responsible for shutting down the server for this call to ever return.
+        mpuServer->Wait();
+      }
+      Rts_E = BOF_ERR_EXIT_THREAD;
     }
-    Rts_E = BOF_ERR_EXIT_THREAD;
 
     GRPC_DBG_LOG("GrpcServer thread stopped...\n");
     return Rts_E;
