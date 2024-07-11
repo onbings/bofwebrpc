@@ -79,8 +79,9 @@ target_include_directories(${PROJECT_NAME_LOWER_MINUS}
 target_link_libraries(${PROJECT_NAME_LOWER_MINUS}
   PRIVATE
     ONBINGS::bofstd
-	websockets
-	$<IF:$<TARGET_EXISTS:libuv::uv_a>,libuv::uv_a,libuv::uv>
+    httplib::httplib
+	  websockets
+	  $<IF:$<TARGET_EXISTS:libuv::uv_a>,libuv::uv_a,libuv::uv>
     protobuf::libprotoc protobuf::libprotobuf protobuf::libprotobuf-lite
     gRPC::gpr gRPC::grpc gRPC::grpc++ gRPC::grpc++_alts		
 )

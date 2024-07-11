@@ -14,7 +14,6 @@
 #include "bofwebrpc/bofgrpc.h"
 #include <grpcpp/impl/codegen/interceptor.h>
 
-
 BEGIN_WEBRPC_NAMESPACE()
 /*
 GRPC with post man:

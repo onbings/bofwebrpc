@@ -18,6 +18,12 @@
       "platform": "!wasm32"
     },
     {
+      "name": "nlohmann-json"
+    },
+    {
+      "name": "cpp-httplib"
+    },      
+    {
       "name": "protobuf",
       "platform": "!wasm32"
     },
