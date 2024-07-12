@@ -21,8 +21,13 @@
       "name": "nlohmann-json"
     },
     {
-      "name": "cpp-httplib"
-    },      
+      "name": "cpp-httplib",
+      "features": [
+        "brotli",
+        "zlib",
+        "openssl"
+      ]
+    },
     {
       "name": "protobuf",
       "platform": "!wasm32"
