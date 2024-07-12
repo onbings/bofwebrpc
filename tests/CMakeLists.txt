@@ -4,7 +4,7 @@ set(SOURCES_FILES
 	include/gtestrunner.h
 	src/main.cpp
 
-	src/ut_webrpc.cpp
+	src/ut_webapp.cpp
 )
 
 # For Visual Studio
@@ -68,3 +68,10 @@ if(MEMORYCHECK_SUPPRESSIONS_FILE)
   file(READ   valgrind_suppression.txt           CONTENT)
   file(APPEND ${MEMORYCHECK_SUPPRESSIONS_FILE} ${CONTENT})
 endif()
+
+#message("=============>cp 1:${CMAKE_INSTALL_PREFIX} 2:${CMAKE_CURRENT_BINARY_DIR}" 3:${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+#add_custom_command(TARGET ${TargetName} POST_BUILD
+add_custom_command(TARGET ${UT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${UT_NAME}.json" ${CMAKE_CURRENT_BINARY_DIR}
+)

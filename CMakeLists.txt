@@ -54,6 +54,15 @@ add_library(${PROJECT_NAME_LOWER_MINUS}
    ./include/bofwebrpc/bofwebrpc.h
    ./include/bofwebrpc/bofwebsocket.h
    ./src/bofwebsocket.cpp
+
+   ./include/bofwebrpc/bofwebapp.h
+   ./src/bofwebapp.cpp   
+   ./include/bofwebrpc/bofwebserver.h
+   ./src/bofwebserver.cpp
+   ./include/bofwebrpc/bofwebclient.h
+   ./src/bofwebclient.cpp
+   ./include/bofwebrpc/bofwebrest.h
+   ./src/bofwebrest.cpp         
 )
 # Alias with the namespaced version (consistency)
 add_library(ONBINGS::${PROJECT_NAME_LOWER_MINUS} ALIAS ${PROJECT_NAME_LOWER_MINUS})
@@ -79,11 +88,11 @@ target_include_directories(${PROJECT_NAME_LOWER_MINUS}
 target_link_libraries(${PROJECT_NAME_LOWER_MINUS}
   PRIVATE
     ONBINGS::bofstd
-    httplib::httplib
 	  websockets
 	  $<IF:$<TARGET_EXISTS:libuv::uv_a>,libuv::uv_a,libuv::uv>
     protobuf::libprotoc protobuf::libprotobuf protobuf::libprotobuf-lite
     gRPC::gpr gRPC::grpc gRPC::grpc++ gRPC::grpc++_alts		
+    httplib::httplib
 )
 
 if(${PROJECT_NAME_UPPER_UNDERSCORE}_BUILD_TESTS)
