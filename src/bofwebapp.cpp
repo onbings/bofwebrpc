@@ -27,6 +27,14 @@ uint32_t BofWebApp::S_mInstanceId_U32 = 0;
 
 BofWebApp::BofWebApp(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory, bool _Server_B, const BOF_WEB_APP_PARAM &_rWebAppParam_X)
 {
+  /*
+    json foo;
+    std::string f = "hello";
+    char *p = "world";
+    foo["flex"] = 0.2;
+    foo["awesome_str"] = "bleh";
+    foo["nested"] = {{"bar", "barz"}};
+  */
   mServer_B = _Server_B;
   mWebAppParam_X = _rWebAppParam_X;
   S_mInstanceId_U32++;
@@ -43,7 +51,7 @@ bool BofWebApp::Initialize(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
 
   srand((unsigned)time(0));
   ConfigureLogger(_psLoggerFactory);
-  mConfig = ReadConfig();
+  mWebAppConfig = ReadConfig(true);
 
   Rts_B = true;
 
@@ -55,11 +63,11 @@ bool BofWebApp::Initialize(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
         try
         {
           std::this_thread::sleep_for(std::chrono::milliseconds(mWebAppParam_X.ConfigThreadPollTimeInMs_U32));
-          json Config = ReadConfig();
-          if (Config != mConfig)
+          json Config = ReadConfig(false);
+          if (Config != mWebAppConfig)
           {
             V_OnConfigUpdate(Config);
-            mConfig = Config;
+            mWebAppConfig = Config;
           }
         }
         catch (...)
@@ -83,12 +91,8 @@ bool BofWebApp::Shutdown()
 
   return Rts_B;
 }
-const json &BofWebApp::GetConfig() const
-{
-  return mConfig;
-}
 
-json BofWebApp::ReadConfig()
+json BofWebApp::ReadConfig(bool _LogIt_B)
 {
   json Rts;
   std::string Cwd_S, CfgPath_S;
@@ -97,8 +101,11 @@ json BofWebApp::ReadConfig()
   {
     BOF::Bof_GetCurrentDirectory(Cwd_S);
     CfgPath_S = Cwd_S + mWebAppParam_X.AppName_S + ".json";
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cwd is %s, reading configuration from %s\n", Cwd_S.c_str(),
-             CfgPath_S.c_str());
+    if (_LogIt_B)
+    {
+      LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cwd is %s, reading configuration from %s\n", Cwd_S.c_str(),
+               CfgPath_S.c_str());
+    }
     std::ifstream ConfigFile(CfgPath_S);
     if (ConfigFile.std::ios::eof())
     {
@@ -134,7 +141,7 @@ void BofWebApp::ConfigureLogger(std::shared_ptr<BOF::IBofLoggerFactory> _psLogge
   }
   if (_psLoggerFactory)
   {
-    sprintf(pLibName_c, "%s_BofWebApp_%04d", mServer_B ? "Srv" : "Clt", S_mInstanceId_U32);
+    sprintf(pLibName_c, "%s_BofWebApp_%04d_", mServer_B ? "Srv" : "Clt", S_mInstanceId_U32);
 
     S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP] = _psLoggerFactory->V_Create(pLibName_c, "APP");
     S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_REST] = _psLoggerFactory->V_Create(pLibName_c, "REST");

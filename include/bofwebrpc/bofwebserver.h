@@ -10,18 +10,15 @@
     V 1.00  August 24 2013  BHA : Original version
 */
 #pragma once
+#include <atomic>
 #include "bofwebrpc/bofwebapp.h"
 
-namespace httplib
-{
-class Server;
-class SSLServer;
-} // namespace httplib
-
 BEGIN_WEBRPC_NAMESPACE()
+class IBofWebServerProxy;
 
 struct BOF_WEB_SERVER_PARAM
 {
+  uint32_t ServerStartStopTimeoutInMs_U32;
   std::string CertificatePath_S; // If empty create an HTTP server instead of an HTTPS
   std::string PrivateKeyPath_S;
   // Also possible, const char *client_ca_cert_file_path = nullptr, const char *client_ca_cert_dir_path = nullptr, const char *private_key_password = nullptr
@@ -33,11 +30,13 @@ struct BOF_WEB_SERVER_PARAM
   }
   void Reset()
   {
+    ServerStartStopTimeoutInMs_U32 = 0;
     CertificatePath_S = "";
     PrivateKeyPath_S = "";
     WebAppParam_X.Reset();
   }
 };
+
 class BofWebServer : public BofWebApp
 {
 public:
@@ -45,10 +44,17 @@ public:
   virtual ~BofWebServer();
   bool Start();
   bool Stop();
+  bool Get(const std::string &_rPattern_S, httplib::Server::Handler _Handler);
+  bool Post(const std::string &_rPattern_S, httplib::Server::HandlerWithContentReader _Handler);
+  bool Put(const std::string &_rPattern_S, httplib::Server::HandlerWithContentReader _Handler);
+  bool Patch(const std::string &_rPattern_S, httplib::Server::HandlerWithContentReader _Handler);
+  bool Delete(const std::string &_rPattern_S, httplib::Server::HandlerWithContentReader _Handler);
+  bool Options(const std::string &_rPattern_S, httplib::Server::Handler _Handler);
 
 private:
-  bool mUseHttps_B = false;
-  std::unique_ptr<httplib::Server> mpuHttpSvr;     // HTTP
-  std::unique_ptr<httplib::SSLServer> mpuHttpsSvr; // HTTPS
+  std::unique_ptr<IBofWebServerProxy> mpuWebServerProxy;
+  std::atomic<bool> mStopServerThread;
+  std::thread mServerThread;
+  BOF_WEB_SERVER_PARAM mWebServerParam_X;
 };
 END_WEBRPC_NAMESPACE()

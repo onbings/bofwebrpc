@@ -87,19 +87,18 @@ protected:
   virtual void V_OnConfigUpdate(const json &_rConfig);
   bool Initialize(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory);
   bool Shutdown();
-  const json &GetConfig() const;
   std::string LogRequest(const httplib::Request &_rReq, const httplib::Response &_rRes);
 
+  BOF_WEB_APP_PARAM mWebAppParam_X;
+  json mWebAppConfig;
   static std::array<std::shared_ptr<BOF::IBofLogger>, WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_MAX> S_mpsWebAppLoggerCollection;
 
 private:
-  json ReadConfig();
+  json ReadConfig(bool _LogIt_B);
   void ConfigureLogger(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory);
   std::string DumpHeader(const httplib::Headers &_rHeader);
 
   static uint32_t S_mInstanceId_U32;
-  BOF_WEB_APP_PARAM mWebAppParam_X;
-  json mConfig;
   std::thread mCheckConfigThread;
   bool mServer_B = false;
 };
