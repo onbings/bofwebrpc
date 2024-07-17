@@ -19,7 +19,6 @@
 #include <bofstd/bofbasicloggerfactory.h>
 #include <bofstd/bofsystem.h>
 #include <bofstd/boffs.h>
-// #include "httplib.h"
 
 class AppSrvRest : public BOFWEBRPC::BofWebServer
 {
@@ -242,17 +241,25 @@ httplib::Result f()
 TEST_F(bofwebapp_tests, Test)
 {
   std::multimap<std::string, std::string, httplib::detail::ci> HeaderCollection;
-
+  /*
+  #include <sys/resource.h>
+    rlimit rlim;
+    if (getrlimit(RLIMIT_STACK, &rlim))
+    {
+      return;
+    }
+    rlim.rlim_cur = rlim.rlim_max;
+    // You can set the fixed value instead of max value, e.g. rlim.rlim_cur = 1024 * 1024 * 1024
+    // will set your stack size to 1 GiB
+    if (setrlimit(RLIMIT_STACK, &rlim))
+    {
+      return;
+    }
+  */
   EXPECT_TRUE(mpuAppSrvRest->SetSocketOptions(SocketOptions));
-
-  // HeaderCollection.insert(std::make_pair("User-Agent", "BofWebRpc/1.0.0"));
-  //  cli.set_default_headers({{"Accept-Encoding", "gzip, deflate"}});
-  // EXPECT_TRUE(mpuAppSrvRest->SetDefaultHeaders(HeaderCollection));
-
   EXPECT_TRUE(mpuAppSrvRest->Get("/", GetRoot));
   EXPECT_TRUE(mpuAppSrvRest->Get("/hi", GetHi));
 
-#if 1
   // Match the request path against a regular expression and extract its captures
   EXPECT_TRUE(mpuAppSrvRest->Get(R"(/numbers/(\d+))", GetNumber));
   // Capture the second segment of the request path as "id" path param
@@ -283,13 +290,12 @@ TEST_F(bofwebapp_tests, Test)
   EXPECT_TRUE(mpuAppSrvRest->SetWriteTimeout(20000));
   EXPECT_TRUE(mpuAppSrvRest->SetIdleInterval(50000));
   EXPECT_TRUE(mpuAppSrvRest->SetPayloadMaxLength(0x100000));
-#endif
+
   // EXPECT_TRUE(mpuAppSrvRest->Start("", 0));
   EXPECT_TRUE(mpuAppSrvRest->Start("10.129.170.29", 8090));
   EXPECT_TRUE(mpuAppSrvRest->IsRunning());
 
   httplib::Result Res;
-#if 1
 #if 1
   // Res = f();
 
@@ -306,39 +312,19 @@ TEST_F(bofwebapp_tests, Test)
   WebClientParam_X.WebAppParam_X.ConfigThreadPollTimeInMs_U32 = 2000;
   puWebClient = std::make_unique<BOFWEBRPC::BofWebClient>(nullptr, WebClientParam_X);
   EXPECT_TRUE(puWebClient->Connect("10.129.170.29", 8090));
-  std::string Url_S = "/hi";
-
   //  Res = puWebClient->G();
-  Res = puWebClient->Get("/hi", true, false);
+  Res = puWebClient->Get("/hi", true, true);
   //    std::unique_ptr<httplib::Client> mpuWebClientProxy;
   //    mpuWebClientProxy = std::make_unique<httplib::Client>("10.129.170.29", 8090); //_rIpAddress_S, _Port_U16);
   //    printf("call in client G %p (/hi)\n", mpuWebClientProxy.get());
   //    Res = mpuWebClientProxy->Get("/hi");
-#else
-  std::unique_ptr<BOFWEBRPC::BofWebClient> puWebClient;
-  BOFWEBRPC::BOF_WEB_CLIENT_PARAM WebClientParam_X;
-  WebClientParam_X.WebAppParam_X.AppName_S = "bofwebrpc-tests";
-  WebClientParam_X.WebAppParam_X.ConfigThreadPollTimeInMs_U32 = 2000;
-  puWebClient = std::make_unique<BOFWEBRPC::BofWebClient>(nullptr, WebClientParam_X);
-  // Res = puWebClient->G();
-  EXPECT_TRUE(puWebClient->Connect("10.129.170.29", 8090));
-  Res = puWebClient->Get("/hi", false, false);
 
-  printf("111111111111\n");
-
-  // Res = puWebClient->Get("/hi", false, false);
-  // printf("222222222222\n");
-  // Res = puWebClient->Get("/hi", false, false);
-  // printf("333333333333\n");
-
-  // printf("call in ut %p (%s)\n", puWebClient->GetPtr(), Url_S.c_str());
-  // Res = puWebClient->GetPtr()->Get(Url_S);
-  // printf("44444444444\n");
-#endif
 #else
   std::unique_ptr<httplib::Client> puWebClientProxy;
   puWebClientProxy = std::make_unique<httplib::Client>("10.129.170.29", 8090);
-  puWebClientProxy->set_default_headers({{"User-Agent", "BofWebRpcAgent/1.0"}});
+  HeaderCollection.insert(std::make_pair("User-Agent", "BofWebRpcAgent/1.0.0"));
+  puWebClientProxy->set_default_headers(HeaderCollection);
+  // puWebClientProxy->set_default_headers({{"User-Agent", "BofWebRpcAgent/1.0"}});
   Res = puWebClientProxy->Get("/hi");
 #endif
   //  httplib::Client cli("10.129.170.29", 8090);
@@ -367,6 +353,7 @@ TEST_F(bofwebapp_tests, Test)
     httplib::Error Err_E = Res.error();
     printf("HTTP error: %s\n", httplib::to_string(Err_E).c_str());
   }
+
   Res = puWebClient->Get("/hi", false, false);
   if (Res)
   {
@@ -376,6 +363,7 @@ TEST_F(bofwebapp_tests, Test)
   {
     printf("BAD !!!\n");
   }
+
   BOF::Bof_MsSleep(99999999);
 
   BOF::Bof_MsSleep(1000);

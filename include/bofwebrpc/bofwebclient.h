@@ -18,14 +18,6 @@ class Client;
 }
 
 BEGIN_WEBRPC_NAMESPACE()
-// class IBofWebClientProxy;
-class BofWeb
-{
-public:
-  httplib::Result G();
-  std::unique_ptr<httplib::Client> mpuWebClientProxy;
-};
-
 struct BOF_WEB_CLIENT_PARAM
 {
   std::string CertificatePath_S; // If empty create an HTTP server instead of an HTTPS
@@ -55,14 +47,9 @@ public:
   httplib::Result Get(const std::string &_rUrl_S, bool _Compress_B, bool _KeepAlive_B);
   httplib::Result Post(const std::string &_rUrl_S, bool _Compress_B);
   bool Upload(const std::string _rFilePathToUpload_S, const std::string _rDestinationUrl_S, uint32_t _ChunkSizeInByte_U32);
-  httplib::Client *GetPtr()
-  {
-    return mpuWebClientProxy.get();
-  }
 
 private:
   BOF_WEB_CLIENT_PARAM mWebClientParam_X;
-  // std::unique_ptr<IBofWebClientProxy> mpuWebClientProxy;
   std::unique_ptr<httplib::Client> mpuWebClientProxy;
 };
 
