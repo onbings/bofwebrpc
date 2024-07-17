@@ -17,7 +17,57 @@ using json = nlohmann::json;
 
 #include <bofstd/bofbasicloggerfactory.h>
 #include "bofwebrpc/bofwebrpc.h"
+// #define CPPHTTPLIB_OPENSSL_SUPPORT: done by vcpkg
 #include "httplib.h"
+
+#if 0
+// https://stackoverflow.com/questions/63584828/making-https-request-using-cpp-httplib
+#include "stdafx.h"
+>>> #define CPPHTTPLIB_OPENSSL_SUPPORT
+#include <httplib.h>
+#include <Windows.h>
+#include <iostream>
+
+#define CA_CERT_FILE "./ca-bundle.crt"
+using namespace std;
+
+
+int main()
+{
+
+#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
+        httplib::SSLClient cli("localhost", 8000);
+        //httplib::SSLClient cli("google.com");
+        // httplib::SSLClient cli("www.youtube.com");
+        cli.set_ca_cert_path(CA_CERT_FILE);
+        cli.enable_server_certificate_verification(true);
+#else
+        httplib::Client cli("localhost", 8000);
+#endif
+        char* x = { "hello world" };
+        httplib::Params params{
+            { "key", x }
+        };
+
+        auto res = cli.Post("/postReq/", params);
+        if (res) {
+            cout << res->status << endl;
+            cout << res->get_header_value("Content-Type") << endl;
+            cout << res->body << endl;
+        }
+        else {
+#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
+            auto result = cli.get_openssl_verify_result();
+            if (result) {
+                cout << "error";
+                cout << "verify error: " << X509_verify_cert_error_string(result)    << endl;
+            }
+#endif
+        }
+    system("pause");
+    return 0;
+}
+#endif
 
 BEGIN_WEBRPC_NAMESPACE()
 // Logger Channel Definition
@@ -42,19 +92,20 @@ struct BOF_WEB_APP_PARAM
     ConfigThreadPollTimeInMs_U32 = 0; // 0 to disable config thread
   }
 };
-struct WEB_APP_HOST
+struct BOF_WEB_APP_HOST
 {
   std::string IpAddress_S{};
   uint16_t Port_U16;
   std::unordered_set<std::string> BannedIpAddressCollection;
 
-  WEB_APP_HOST()
+  BOF_WEB_APP_HOST()
   {
     Reset();
   }
-  WEB_APP_HOST(const json &_rConfig)
+  BOF_WEB_APP_HOST(const json &_rConfig)
   {
     IpAddress_S = _rConfig.at("ip");
+
     Port_U16 = _rConfig.at("port");
     if (_rConfig.contains("bannedIps"))
     {
@@ -88,6 +139,7 @@ protected:
   bool Initialize(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory);
   bool Shutdown();
   std::string LogRequest(const httplib::Request &_rReq, const httplib::Response &_rRes);
+  std::string GenerateSessionId(uint32_t _SessionIdLen_U32);
 
   BOF_WEB_APP_PARAM mWebAppParam_X;
   json mWebAppConfig;

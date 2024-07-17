@@ -49,7 +49,7 @@ bool BofWebApp::Initialize(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
 {
   bool Rts_B = false;
 
-  srand((unsigned)time(0));
+  srand((unsigned int)time(nullptr));
   ConfigureLogger(_psLoggerFactory);
   mWebAppConfig = ReadConfig(true);
 
@@ -177,7 +177,7 @@ std::string BofWebApp::LogRequest(const httplib::Request &_rReq, const httplib::
   char pBuffer_c[0x4000];
   std::string Query_S;
 
-  Rts_S += "================================\n";
+  Rts_S += "===Begin=============================\n";
 
   snprintf(pBuffer_c, sizeof(pBuffer_c), "%s %s %s", _rReq.method.c_str(), _rReq.version.c_str(), _rReq.path.c_str());
   Rts_S += pBuffer_c;
@@ -206,8 +206,21 @@ std::string BofWebApp::LogRequest(const httplib::Request &_rReq, const httplib::
   }
 
   Rts_S += "\n";
+  Rts_S += "===End===============================\n";
 
   return Rts_S;
 }
 
+std::string BofWebApp::GenerateSessionId(uint32_t _SessionIdLen_U32)
+{
+  std::string Rts_S;
+  static std::string S_CharToUse_S = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  uint32_t i_U32;
+
+  for (i_U32 = 0; i_U32 < _SessionIdLen_U32; i_U32++)
+  {
+    Rts_S += S_CharToUse_S[rand() % S_CharToUse_S.size()];
+  }
+  return Rts_S;
+}
 END_WEBRPC_NAMESPACE()
