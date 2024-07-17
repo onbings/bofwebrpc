@@ -85,8 +85,14 @@ void GetRoot(const httplib::Request &_rReq_X, httplib::Response &_rRes_X)
 }
 void GetHi(const httplib::Request &_rReq_X, httplib::Response &_rRes_X)
 {
-  printf("=================gethi================\n");
-  _rRes_X.set_content("Hello World!\n", "text/plain");
+  // printf("=================gethi================\n");
+  // _rRes_X.set_content("Hello World!\n", "text/plain");
+
+  static int S_Id_i = 0;
+  char pRes_c[0x1000];
+  int Len_i = sprintf(pRes_c, "Hello %d\n", ++S_Id_i);
+  printf("=================gethi================%d:%s\n", Len_i, pRes_c);
+  _rRes_X.set_content(pRes_c, Len_i, "text/plain");
 }
 
 // Match the request path against a regular expression and extract its captures
@@ -245,10 +251,8 @@ TEST_F(bofwebapp_tests, Test)
 
   EXPECT_TRUE(mpuAppSrvRest->Get("/", GetRoot));
   EXPECT_TRUE(mpuAppSrvRest->Get("/hi", GetHi));
-  EXPECT_TRUE(mpuAppSrvRest->SetReadTimeout(20000));
-  EXPECT_TRUE(mpuAppSrvRest->SetWriteTimeout(20000));
 
-#if 0
+#if 1
   // Match the request path against a regular expression and extract its captures
   EXPECT_TRUE(mpuAppSrvRest->Get(R"(/numbers/(\d+))", GetNumber));
   // Capture the second segment of the request path as "id" path param
@@ -304,9 +308,8 @@ TEST_F(bofwebapp_tests, Test)
   EXPECT_TRUE(puWebClient->Connect("10.129.170.29", 8090));
   std::string Url_S = "/hi";
 
-  printf("111111111111\n");
-  Res = puWebClient->G();
-
+  //  Res = puWebClient->G();
+  Res = puWebClient->Get("/hi", true, false);
   //    std::unique_ptr<httplib::Client> mpuWebClientProxy;
   //    mpuWebClientProxy = std::make_unique<httplib::Client>("10.129.170.29", 8090); //_rIpAddress_S, _Port_U16);
   //    printf("call in client G %p (/hi)\n", mpuWebClientProxy.get());
@@ -363,6 +366,15 @@ TEST_F(bofwebapp_tests, Test)
   {
     httplib::Error Err_E = Res.error();
     printf("HTTP error: %s\n", httplib::to_string(Err_E).c_str());
+  }
+  Res = puWebClient->Get("/hi", false, false);
+  if (Res)
+  {
+    printf("Ok again\n");
+  }
+  else
+  {
+    printf("BAD !!!\n");
   }
   BOF::Bof_MsSleep(99999999);
 

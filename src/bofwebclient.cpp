@@ -132,8 +132,8 @@ httplib::Result BofWebClient::Get(const std::string &_rUrl_S, bool _Compress_B, 
     {
       HeaderCollection = {{"Accept-Encoding", "gzip, deflate"}};
     }
-    //    Rts = mpuWebClientProxy->Get(_rUrl_S, HeaderCollection);
-    Rts = mpuWebClientProxy->Get(_rUrl_S);
+    Rts = mpuWebClientProxy->Get(_rUrl_S, HeaderCollection);
+    // Rts = mpuWebClientProxy->Get(_rUrl_S);
   }
   // Rts_B = mpuWebServerProxy->Stop();
   // cli.set_keep_alive(true);
