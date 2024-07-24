@@ -71,6 +71,7 @@ public:
   bool SetMountPoint(const std::string &_rMountPoint_S, const std::string &_rDir_S, httplib::Headers _rHeaderCollection = httplib::Headers());
   bool RemoveMountPoint(const std::string &_rMountPoint_S);
   bool SetFileExtensionAndMimetypeMapping(const std::string &_rExt_S, const std::string &_rMime_S);
+  bool IsRunning() const;
 
   virtual void V_OnFileRequest(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes)
   {
@@ -112,7 +113,6 @@ public:
   virtual void V_OnSetSocketOption(BOF_WEB_SOCKET _Socket)
   {
   }
-  bool IsRunning() const;
 
 private:
   BOF_WEB_HANDLER_RESPONSE OnPreRouting(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes);

@@ -103,8 +103,8 @@ public:
   BofWebApp &operator=(BofWebApp &&) = delete;
 
 protected:
-  bool Start(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory);
-  bool Stop();
+  bool Initialize(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory);
+  bool Shutdown();
   std::string LogRequestAndResponse(const httplib::Request &_rReq, const httplib::Response &_rRes);
   std::string GenerateSessionId(uint32_t _SessionIdLen_U32);
 

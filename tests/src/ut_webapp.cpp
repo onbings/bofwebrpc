@@ -247,9 +247,9 @@ TEST_F(bofwebapp_tests, Test)
     printf("BAD !!!\n");
   }
 
+  printf("Sleep Forever\n");
   BOF::Bof_MsSleep(99999999);
 
-  BOF::Bof_MsSleep(1000);
   EXPECT_TRUE(mpuAppSrvRest->Stop());
   EXPECT_FALSE(mpuAppSrvRest->IsRunning());
 

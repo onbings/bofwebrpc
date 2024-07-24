@@ -26,36 +26,30 @@ BofWebClient ::~BofWebClient()
 bool BofWebClient::Connect(uint32_t _TimeOutInMs_U32, const std::string &_rIpAddress_S, uint16_t _Port_U16)
 {
   bool Rts_B = false;
-  bool CreateHttpsClient_B;
-  //
-  CreateHttpsClient_B = mWebClientParam_X.CertificatePath_S.empty() ? false : true;
-  if (CreateHttpsClient_B)
+  char pIpAddress_c[0x100];
+  BOF_WEB_HEADER HeaderCollection;
+
+  if (mWebClientParam_X.IsHttpsClient_B)
   {
-    CreateHttpsClient_B = mWebClientParam_X.PrivateKeyPath_S.empty() ? false : true;
-  }
-  if (CreateHttpsClient_B)
-  {
-    mpuWebClientProxy = std::make_unique<httplib::Client>(_rIpAddress_S, _Port_U16, mWebClientParam_X.CertificatePath_S, mWebClientParam_X.PrivateKeyPath_S);
+    sprintf(pIpAddress_c, "https://%s:%d", _rIpAddress_S.c_str(), _Port_U16);
+    mpuHttpClient = std::make_unique<httplib::Client>(pIpAddress_c);
   }
   else
   {
-    mpuWebClientProxy = std::make_unique<httplib::Client>(_rIpAddress_S, _Port_U16);
+    mpuHttpClient = std::make_unique<httplib::Client>(_rIpAddress_S, _Port_U16);
   }
   // Rts_B = mpuWebServerProxy->Start(_rIpAddress_S, _Port_U16);
-  Rts_B = (mpuWebClientProxy != nullptr);
+  Rts_B = (mpuHttpClient != nullptr);
   if (Rts_B)
   {
-
-    // mpHttpServer->set_ca_cert_path(CA_CERT_FILE);
-    // cli.enable_server_certificate_verification(true);
-
-    // HeaderCollection.insert(std::make_pair("User-Agent", "BofWebRpcAgent/1.0.0"));
-    // puWebClientProxy->set_default_headers(HeaderCollection);
-
-    // Hand the app under linux/gcc13 if used here, do it in get, pots,...
-    //  HeaderCollection.insert(std::make_pair("User-Agent", "BofWebRpcAgent/1.0.0"));
-    //   mpuWebClientProxy->set_default_headers(HeaderCollection);
-    //     mpuWebClientProxy->set_default_headers({{"User-Agent", "BofWebRpcAgent/1.0.0"}});
+    mpuHttpClient->set_socket_options([this](BOF_WEB_SOCKET _Socket) { this->V_OnSetSocketOption(_Socket); });
+    mpuHttpClient->set_connection_timeout(std::chrono::milliseconds(_TimeOutInMs_U32));
+    mpuHttpClient->set_read_timeout(std::chrono::milliseconds(mWebClientParam_X.ReadTimeoutInMs_U32));
+    mpuHttpClient->set_write_timeout(std::chrono::milliseconds(mWebClientParam_X.WriteTimeoutInMs_U32));
+    mpuHttpClient->set_ca_cert_path(mWebClientParam_X.CertificateAuthorityPath_S);
+    mpuHttpClient->enable_server_certificate_verification(mWebClientParam_X.DisableServerCertificateVerification_B);
+    HeaderCollection.insert(std::make_pair("User-Agent", "BofWebRpcAgent/1.0.0"));
+    mpuHttpClient->set_default_headers(HeaderCollection);
   }
   return Rts_B;
 }
@@ -63,24 +57,89 @@ bool BofWebClient::Disconnect()
 {
   bool Rts_B = false;
 
-  // Rts_B = mpuWebServerProxy->Stop();
-
+  if (mpuHttpClient)
+  {
+    mpuHttpClient->stop();
+    Rts_B = true;
+  }
   return Rts_B;
 }
 
 BOF_WEB_RESULT BofWebClient::Get(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B)
 {
-  httplib::Result Rts;
-  httplib::Headers HeaderCollection;
+  BOF_WEB_RESULT Rts;
 
-  if (mpuWebClientProxy)
+  if (mpuHttpClient)
   {
-    mpuWebClientProxy->set_keep_alive(_KeepAlive_B);
-    if (_Compress_B)
-    {
-      HeaderCollection.insert(std::make_pair("Accept-Encoding", "gzip, deflate"));
-    }
-    Rts = mpuWebClientProxy->Get(_rUri_S, HeaderCollection);
+    mpuHttpClient->set_keep_alive(_KeepAlive_B);
+    mpuHttpClient->set_compress(_Compress_B);
+    mpuHttpClient->set_decompress(_Compress_B);
+    Rts = mpuHttpClient->Get(_rUri_S);
+  }
+  return Rts;
+}
+BOF_WEB_RESULT BofWebClient::Post(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B)
+{
+  BOF_WEB_RESULT Rts;
+
+  if (mpuHttpClient)
+  {
+    mpuHttpClient->set_keep_alive(_KeepAlive_B);
+    mpuHttpClient->set_compress(_Compress_B);
+    mpuHttpClient->set_decompress(_Compress_B);
+    Rts = mpuHttpClient->Post(_rUri_S);
+  }
+  return Rts;
+}
+BOF_WEB_RESULT BofWebClient::Put(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B)
+{
+  BOF_WEB_RESULT Rts;
+
+  if (mpuHttpClient)
+  {
+    mpuHttpClient->set_keep_alive(_KeepAlive_B);
+    mpuHttpClient->set_compress(_Compress_B);
+    mpuHttpClient->set_decompress(_Compress_B);
+    Rts = mpuHttpClient->Put(_rUri_S);
+  }
+  return Rts;
+}
+BOF_WEB_RESULT BofWebClient::Patch(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B)
+{
+  BOF_WEB_RESULT Rts;
+
+  if (mpuHttpClient)
+  {
+    mpuHttpClient->set_keep_alive(_KeepAlive_B);
+    mpuHttpClient->set_compress(_Compress_B);
+    mpuHttpClient->set_decompress(_Compress_B);
+    Rts = mpuHttpClient->Patch(_rUri_S);
+  }
+  return Rts;
+}
+BOF_WEB_RESULT BofWebClient::Delete(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B)
+{
+  BOF_WEB_RESULT Rts;
+
+  if (mpuHttpClient)
+  {
+    mpuHttpClient->set_keep_alive(_KeepAlive_B);
+    mpuHttpClient->set_compress(_Compress_B);
+    mpuHttpClient->set_decompress(_Compress_B);
+    Rts = mpuHttpClient->Delete(_rUri_S);
+  }
+  return Rts;
+}
+BOF_WEB_RESULT BofWebClient::Options(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B)
+{
+  BOF_WEB_RESULT Rts;
+
+  if (mpuHttpClient)
+  {
+    mpuHttpClient->set_keep_alive(_KeepAlive_B);
+    mpuHttpClient->set_compress(_Compress_B);
+    mpuHttpClient->set_decompress(_Compress_B);
+    Rts = mpuHttpClient->Options(_rUri_S);
   }
   return Rts;
 }
@@ -127,7 +186,7 @@ bool BofWebClient ::Upload(const std::string _rFilePathToUpload_S, const std::st
             HeaderCollection.emplace("final_chunk", "true");
           }
 
-          Res = mpuWebClientProxy->Post(_rDestinationUri_S, HeaderCollection, (const char *)pChunk_U8, BytesRead, "application/octet-stream");
+          Res = mpuHttpClient->Post(_rDestinationUri_S, HeaderCollection, (const char *)pChunk_U8, BytesRead, "application/octet-stream");
 
           if ((!Res) || (Res->status != httplib::StatusCode::OK_200))
           {

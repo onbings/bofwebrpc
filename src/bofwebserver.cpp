@@ -126,9 +126,10 @@ private:
 class BofWebServerTaskQueue : public httplib::TaskQueue
 {
 public:
-  BofWebServerTaskQueue(size_t _PoolSize)
+  BofWebServerTaskQueue(BofWebServer *_pBofWebServer, size_t _PoolSize)
   {
     BOF_THREAD_POOL_PARAM ThreadPoolParam_X;
+    mpBofWebServer = _pBofWebServer;
 
     ThreadPoolParam_X.PoolSize_U32 = _PoolSize;
     ThreadPoolParam_X.MaxQueuedRequests_U32 = (_PoolSize / 2);
@@ -141,20 +142,28 @@ public:
     mpuThreadPool = std::make_unique<BofThreadPool>(ThreadPoolParam_X);
   }
 
-  virtual bool enqueue(std::function<void()> _Fn) override
+  bool enqueue(std::function<void()> _Fn) override
   {
     /* Return true if the task was actually enqueued, or false
      * if the caller must drop the corresponding connection. */
     return mpuThreadPool->Enqueue(_Fn);
   }
 
-  virtual void shutdown() override
+  void shutdown() override
   {
     mpuThreadPool.reset(nullptr);
   }
 
+  void on_idle() override
+  {
+    if (mpBofWebServer)
+    {
+    }
+  }
+
 private:
   std::unique_ptr<BofThreadPool> mpuThreadPool = nullptr;
+  BofWebServer *mpBofWebServer = nullptr;
 };
 BofWebServer::BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory, const BOF_WEB_SERVER_PARAM &_rWebServerParam_X)
     : BofWebApp(_psLoggerFactory, true, _rWebServerParam_X.WebAppParam_X)
@@ -187,7 +196,7 @@ BofWebServer::BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
     {
       mWebServerParam_X.ThreadPoolSize_U32 = 4;
     }
-    mpHttpServer->new_task_queue = [this]() { return new BofWebServerTaskQueue(this->mWebServerParam_X.ThreadPoolSize_U32); };
+    mpHttpServer->new_task_queue = [this]() { return new BofWebServerTaskQueue(this, this->mWebServerParam_X.ThreadPoolSize_U32); };
     HeaderCollection.insert(std::make_pair("User-Agent", "BofWebRpcAgent/1.0.0"));
     mpHttpServer->set_default_headers(HeaderCollection);
 
@@ -396,6 +405,15 @@ bool BofWebServer::SetFileExtensionAndMimetypeMapping(const std::string &_rExt_S
   {
     mpHttpServer->set_file_extension_and_mimetype_mapping(_rExt_S, _rMime_S);
     Rts_B = true;
+  }
+  return Rts_B;
+}
+bool BofWebServer::IsRunning() const
+{
+  bool Rts_B = false;
+  if (mpHttpServer)
+  {
+    Rts_B = mpHttpServer->is_running();
   }
   return Rts_B;
 }

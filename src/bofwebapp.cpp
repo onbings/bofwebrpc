@@ -26,13 +26,13 @@ BofWebApp::BofWebApp(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory, b
   mWebAppParam_X = _rWebAppParam_X;
   S_mInstanceId_U32++;
 
-  Start(_psLoggerFactory);
+  Initialize(_psLoggerFactory);
 }
 BofWebApp::~BofWebApp()
 {
-  Stop();
+  Shutdown();
 }
-bool BofWebApp::Start(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
+bool BofWebApp::Initialize(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
 {
   bool Rts_B = false;
 
@@ -45,7 +45,7 @@ bool BofWebApp::Start(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
   return Rts_B;
 }
 
-bool BofWebApp::Stop()
+bool BofWebApp::Shutdown()
 {
   bool Rts_B = true;
   return Rts_B;
