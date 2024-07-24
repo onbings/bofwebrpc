@@ -38,7 +38,7 @@ bool BofWebApp::Start(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
 
   srand((unsigned int)time(nullptr));
   ConfigureLogger(_psLoggerFactory);
-  mWebAppConfig = ReadConfig(true);
+  mWebAppConfig = ReadConfig();
 
   Rts_B = true;
 
@@ -51,7 +51,7 @@ bool BofWebApp::Stop()
   return Rts_B;
 }
 
-BOF_WEB_JSON BofWebApp::ReadConfig(bool _LogIt_B)
+BOF_WEB_JSON BofWebApp::ReadConfig()
 {
   BOF_WEB_JSON Rts;
   std::string Cwd_S, CfgPath_S;
@@ -60,11 +60,8 @@ BOF_WEB_JSON BofWebApp::ReadConfig(bool _LogIt_B)
   {
     BOF::Bof_GetCurrentDirectory(Cwd_S);
     CfgPath_S = Cwd_S + mWebAppParam_X.AppName_S + ".json";
-    if (_LogIt_B)
-    {
-      LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cwd is %s, reading configuration from %s\n", Cwd_S.c_str(),
-               CfgPath_S.c_str());
-    }
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cwd is %s, reading configuration from %s\n", Cwd_S.c_str(),
+             CfgPath_S.c_str());
     std::ifstream ConfigFile(CfgPath_S);
     if (ConfigFile.std::ios::eof())
     {
@@ -101,13 +98,11 @@ void BofWebApp::ConfigureLogger(std::shared_ptr<BOF::IBofLoggerFactory> _psLogge
   if (_psLoggerFactory)
   {
     sprintf(pLibName_c, "%s_BofWebApp_%04d_", mServer_B ? "Srv" : "Clt", S_mInstanceId_U32);
-
     S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP] = _psLoggerFactory->V_Create(pLibName_c, "APP");
-    S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_REST] = _psLoggerFactory->V_Create(pLibName_c, "REST");
   }
 }
 
-std::string BofWebApp::DumpHeader(const httplib::Headers &_rHeader)
+std::string BofWebApp::DumpHeader(const BOF_WEB_HEADER &_rHeader)
 {
   std::string Rts_S;
   char pBuffer_c[0x4000];
@@ -122,10 +117,10 @@ std::string BofWebApp::DumpHeader(const httplib::Headers &_rHeader)
   return Rts_S;
 }
 
-std::string BofWebApp::LogRequest(const httplib::Request &_rReq, const httplib::Response &_rRes)
+std::string BofWebApp::LogRequestAndResponse(const BOF_WEB_REQUEST &_rReq, const BOF_WEB_RESPONSE &_rRes)
 {
   std::string Rts_S;
-  char pBuffer_c[0x4000];
+  char pBuffer_c[0x1000];
   std::string Query_S;
 
   Rts_S += "===Begin=============================\n";
@@ -158,7 +153,7 @@ std::string BofWebApp::LogRequest(const httplib::Request &_rReq, const httplib::
 
   Rts_S += "\n";
   Rts_S += "===End===============================\n";
-
+  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "%s", Rts_S.c_str());
   return Rts_S;
 }
 

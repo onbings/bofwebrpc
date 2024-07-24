@@ -14,14 +14,21 @@
 #include "bofwebrpc/bofwebapp.h"
 
 BEGIN_WEBRPC_NAMESPACE()
-class IBofWebServerProxy;
-
 struct BOF_WEB_SERVER_PARAM
 {
   uint32_t ServerStartStopTimeoutInMs_U32;
   std::string CertificatePath_S; // If empty create an HTTP server instead of an HTTPS
   std::string PrivateKeyPath_S;
-  // Also possible, const char *client_ca_cert_file_path = nullptr, const char *client_ca_cert_dir_path = nullptr, const char *private_key_password = nullptr
+
+  bool LogRequestAndResponse_B;
+  uint32_t KeepAliveMaxCount_U32;
+  uint32_t KeepAliveTimeoutInMs_U32;
+  uint32_t ReadTimeoutInMs_U32;
+  uint32_t WriteTimeoutInMs_U32;
+  uint32_t IdleIntervalInMs_U32;
+  uint32_t PayloadMaxLengthInByte_U32;
+  uint32_t ThreadPoolSize_U32;
+  std::string RootDir_S;
   BOF_WEB_APP_PARAM WebAppParam_X;
 
   BOF_WEB_SERVER_PARAM()
@@ -33,6 +40,16 @@ struct BOF_WEB_SERVER_PARAM
     ServerStartStopTimeoutInMs_U32 = 0;
     CertificatePath_S = "";
     PrivateKeyPath_S = "";
+
+    LogRequestAndResponse_B = false;
+    KeepAliveMaxCount_U32 = 0;
+    KeepAliveTimeoutInMs_U32 = 0;
+    ReadTimeoutInMs_U32 = 0;
+    WriteTimeoutInMs_U32 = 0;
+    IdleIntervalInMs_U32 = 0;
+    PayloadMaxLengthInByte_U32 = 0;
+    ThreadPoolSize_U32 = 0;
+    RootDir_S = "";
     WebAppParam_X.Reset();
   }
 };
@@ -45,38 +62,63 @@ public:
   bool Start(const std::string &_rIpAddress_S, uint16_t _Port_U16);
   bool Stop();
 
-  bool Get(const std::string &_rPattern_S, httplib::Server::Handler _Handler);
-  bool Post(const std::string &_rPattern_S, httplib::Server::HandlerWithContentReader _Handler);
-  bool Put(const std::string &_rPattern_S, httplib::Server::HandlerWithContentReader _Handler);
-  bool Patch(const std::string &_rPattern_S, httplib::Server::HandlerWithContentReader _Handler);
-  bool Delete(const std::string &_rPattern_S, httplib::Server::HandlerWithContentReader _Handler);
-  bool Options(const std::string &_rPattern_S, httplib::Server::Handler _Handler);
+  bool Get(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler);
+  bool Post(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler);
+  bool Put(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler);
+  bool Patch(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler);
+  bool Delete(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler);
+  bool Options(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler);
   bool SetMountPoint(const std::string &_rMountPoint_S, const std::string &_rDir_S, httplib::Headers _rHeaderCollection = httplib::Headers());
   bool RemoveMountPoint(const std::string &_rMountPoint_S);
   bool SetFileExtensionAndMimetypeMapping(const std::string &_rExt_S, const std::string &_rMime_S);
-  bool SetDefaultFileMimetype(const std::string &_rMime_S);
-  bool SetFileRequestHandler(httplib::Server::Handler _Handler);
-  bool SetErrorHandler(httplib::Server::Handler _Handler);
-  bool SetExceptionHandler(httplib::Server::ExceptionHandler _Handler);
-  bool SetPreRoutingHandler(httplib::Server::HandlerWithResponse _Handler);
-  bool SetPostRoutingHandler(httplib::Server::Handler _Handler);
-  bool SetExpect100ContinueHandler(httplib::Server::Expect100ContinueHandler _Handler);
-  bool SetLogger(httplib::Logger _Logger);
-  bool SetAddressFamily(int _Family_i);
-  bool SetTcpNoDelay(bool _On_B);
-  bool SetSocketOptions(httplib::SocketOptions _SocketOptions);
-  bool SetDefaultHeaders(httplib::Headers _Headers);
-  bool SetHeaderWriter(std::function<ssize_t(httplib::Stream &, httplib::Headers &)> const &_rWriter);
-  bool SetKeepAliveMaxCount(size_t _Count);
-  bool SetKeepAliveTimeout(uint32_t _TimeInMs_U32);
-  bool SetReadTimeout(uint32_t _TimeInMs_U32);
-  bool SetWriteTimeout(uint32_t _TimeInMs_U32);
-  bool SetIdleInterval(uint32_t _TimeInMs_U32);
-  bool SetPayloadMaxLength(size_t _Length);
+
+  virtual void V_OnFileRequest(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes)
+  {
+  }
+  virtual void V_OnError(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes)
+  {
+  }
+  virtual void V_OnException(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes, std::exception_ptr ep)
+  {
+    auto fmt = "<h1>Error 500</h1><p>%s</p>";
+    char pBuffer_c[0x100];
+    try
+    {
+      std::rethrow_exception(ep);
+    }
+    catch (std::exception &rE)
+    {
+      snprintf(pBuffer_c, sizeof(pBuffer_c), "<h1>Error 500</h1><p>%s</p>", rE.what());
+    }
+    catch (...)
+    { // See the following NOTE
+      snprintf(pBuffer_c, sizeof(pBuffer_c), "<h1>Error 500</h1><p>%s</p>", "Unknown Exception");
+    }
+    _rRes.set_content(pBuffer_c, "text/html");
+    _rRes.status = BOF_WEB_STATUS::InternalServerError_500;
+  }
+  virtual bool V_OnPreRouting(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes)
+  {
+    return false;
+  }
+  virtual void V_OnPostRouting(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes)
+  {
+  }
+  // By default, the server sends a 100 Continue response for an Expect: 100-continue header.
+  virtual BOF_WEB_STATUS V_OnExpect100Continue(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes)
+  {
+    return BOF_WEB_STATUS::Continue_100;
+  }
+  virtual void V_OnSetSocketOption(BOF_WEB_SOCKET _Socket)
+  {
+  }
   bool IsRunning() const;
 
 private:
-  std::unique_ptr<IBofWebServerProxy> mpuWebServerProxy;
+  BOF_WEB_HANDLER_RESPONSE OnPreRouting(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes);
+
+  BOF_HTTPS_SERVER *mpHttpsServer = nullptr; // No unique_ptr as we need both pointer for HTTPS
+  BOF_HTTP_SERVER *mpHttpServer = nullptr;   // No unique_ptr as we need both pointer for HTTPS
   std::atomic<bool> mStopServerThread;
   std::thread mServerThread;
   BOF_WEB_SERVER_PARAM mWebServerParam_X;

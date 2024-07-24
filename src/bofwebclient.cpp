@@ -23,7 +23,7 @@ BofWebClient ::~BofWebClient()
   Disconnect();
 }
 
-bool BofWebClient::Connect(const std::string &_rIpAddress_S, uint16_t _Port_U16)
+bool BofWebClient::Connect(uint32_t _TimeOutInMs_U32, const std::string &_rIpAddress_S, uint16_t _Port_U16)
 {
   bool Rts_B = false;
   bool CreateHttpsClient_B;
@@ -45,6 +45,13 @@ bool BofWebClient::Connect(const std::string &_rIpAddress_S, uint16_t _Port_U16)
   Rts_B = (mpuWebClientProxy != nullptr);
   if (Rts_B)
   {
+
+    // mpHttpServer->set_ca_cert_path(CA_CERT_FILE);
+    // cli.enable_server_certificate_verification(true);
+
+    // HeaderCollection.insert(std::make_pair("User-Agent", "BofWebRpcAgent/1.0.0"));
+    // puWebClientProxy->set_default_headers(HeaderCollection);
+
     // Hand the app under linux/gcc13 if used here, do it in get, pots,...
     //  HeaderCollection.insert(std::make_pair("User-Agent", "BofWebRpcAgent/1.0.0"));
     //   mpuWebClientProxy->set_default_headers(HeaderCollection);
@@ -61,7 +68,7 @@ bool BofWebClient::Disconnect()
   return Rts_B;
 }
 
-httplib::Result BofWebClient::Get(const std::string &_rUrl_S, bool _Compress_B, bool _KeepAlive_B)
+BOF_WEB_RESULT BofWebClient::Get(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B)
 {
   httplib::Result Rts;
   httplib::Headers HeaderCollection;
@@ -69,30 +76,16 @@ httplib::Result BofWebClient::Get(const std::string &_rUrl_S, bool _Compress_B, 
   if (mpuWebClientProxy)
   {
     mpuWebClientProxy->set_keep_alive(_KeepAlive_B);
-    HeaderCollection.insert(std::make_pair("User-Agent", "BofWebRpcAgent/1.0.0"));
     if (_Compress_B)
     {
       HeaderCollection.insert(std::make_pair("Accept-Encoding", "gzip, deflate"));
     }
-    Rts = mpuWebClientProxy->Get(_rUrl_S, HeaderCollection);
+    Rts = mpuWebClientProxy->Get(_rUri_S, HeaderCollection);
   }
   return Rts;
 }
 
-httplib::Result BofWebClient::Post(const std::string &_rUrl_S, bool _Compress_B)
-{
-  httplib::Result Rts;
-
-  // Rts_B = mpuWebServerProxy->Stop();
-  // cli.set_keep_alive(true);
-  // cli.Get("/world");
-  // httplib::Params params{{"name", "john"}, {"note", "coder"}};
-
-  // auto res = cli.Post("/post", params);
-  return Rts;
-}
-
-bool BofWebClient ::Upload(const std::string _rFilePathToUpload_S, const std::string _rDestinationUrl_S, uint32_t _ChunkSizeInByte_U32)
+bool BofWebClient ::Upload(const std::string _rFilePathToUpload_S, const std::string _rDestinationUri_S, uint32_t _ChunkSizeInByte_U32)
 {
   bool Rts_B = false;
   FILE *pIo_X;
@@ -134,7 +127,7 @@ bool BofWebClient ::Upload(const std::string _rFilePathToUpload_S, const std::st
             HeaderCollection.emplace("final_chunk", "true");
           }
 
-          Res = mpuWebClientProxy->Post(_rDestinationUrl_S, HeaderCollection, (const char *)pChunk_U8, BytesRead, "application/octet-stream");
+          Res = mpuWebClientProxy->Post(_rDestinationUri_S, HeaderCollection, (const char *)pChunk_U8, BytesRead, "application/octet-stream");
 
           if ((!Res) || (Res->status != httplib::StatusCode::OK_200))
           {

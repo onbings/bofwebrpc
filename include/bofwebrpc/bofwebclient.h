@@ -22,7 +22,8 @@ struct BOF_WEB_CLIENT_PARAM
 {
   std::string CertificatePath_S; // If empty create an HTTP server instead of an HTTPS
   std::string PrivateKeyPath_S;
-  // Also possible, const char *client_ca_cert_file_path = nullptr, const char *client_ca_cert_dir_path = nullptr, const char *private_key_password = nullptr
+  std::string CertificateAuthorityPath_S;
+  bool DisableServerCertificateVerification_B;
   BOF_WEB_APP_PARAM WebAppParam_X;
 
   BOF_WEB_CLIENT_PARAM()
@@ -33,6 +34,8 @@ struct BOF_WEB_CLIENT_PARAM
   {
     CertificatePath_S = "";
     PrivateKeyPath_S = "";
+    CertificateAuthorityPath_S = "";
+    DisableServerCertificateVerification_B = false;
     WebAppParam_X.Reset();
   }
 };
@@ -41,11 +44,9 @@ class BofWebClient : public BofWebApp
 public:
   BofWebClient(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory, const BOF_WEB_CLIENT_PARAM &_rWebClientParam_X);
   virtual ~BofWebClient();
-  bool Connect(const std::string &_rIpAddress_S, uint16_t _Port_U16);
+  bool Connect(uint32_t _TimeOutInMs_U32, const std::string &_rIpAddress_S, uint16_t _Port_U16);
   bool Disconnect();
-  httplib::Result G();
-  httplib::Result Get(const std::string &_rUrl_S, bool _Compress_B, bool _KeepAlive_B);
-  httplib::Result Post(const std::string &_rUrl_S, bool _Compress_B);
+  BOF_WEB_RESULT Get(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B);
   bool Upload(const std::string _rFilePathToUpload_S, const std::string _rDestinationUrl_S, uint32_t _ChunkSizeInByte_U32);
 
 private:

@@ -17,64 +17,34 @@ using BOF_WEB_JSON = nlohmann::json;
 
 #include <bofstd/bofbasicloggerfactory.h>
 #include "bofwebrpc/bofwebrpc.h"
-// #define CPPHTTPLIB_OPENSSL_SUPPORT: done by vcpkg
-#include "httplib.h"
 
-#if 0
-// https://stackoverflow.com/questions/63584828/making-https-request-using-cpp-httplib
-#include "stdafx.h"
->>> #define CPPHTTPLIB_OPENSSL_SUPPORT
+#if !defined(CPPHTTPLIB_OPENSSL_SUPPORT)
+#define CPPHTTPLIB_OPENSSL_SUPPORT
+#endif
+#if !defined(CPPHTTPLIB_ZLIB_SUPPORT)
+#define CPPHTTPLIB_ZLIB_SUPPORT
+#endif
+#if !defined(CPPHTTPLIB_BROTLI_SUPPORT)
+#define CPPHTTPLIB_BROTLI_SUPPORT
+#endif
 #include <httplib.h>
-#include <Windows.h>
-#include <iostream>
-
-#define CA_CERT_FILE "./ca-bundle.crt"
-using namespace std;
-
-
-int main()
-{
-
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-        httplib::SSLClient cli("localhost", 8000);
-        //httplib::SSLClient cli("google.com");
-        // httplib::SSLClient cli("www.youtube.com");
-        cli.set_ca_cert_path(CA_CERT_FILE);
-        cli.enable_server_certificate_verification(true);
-#else
-        httplib::Client cli("localhost", 8000);
-#endif
-        char* x = { "hello world" };
-        httplib::Params params{
-            { "key", x }
-        };
-
-        auto res = cli.Post("/postReq/", params);
-        if (res) {
-            cout << res->status << endl;
-            cout << res->get_header_value("Content-Type") << endl;
-            cout << res->body << endl;
-        }
-        else {
-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
-            auto result = cli.get_openssl_verify_result();
-            if (result) {
-                cout << "error";
-                cout << "verify error: " << X509_verify_cert_error_string(result)    << endl;
-            }
-#endif
-        }
-    system("pause");
-    return 0;
-}
-#endif
 
 BEGIN_WEBRPC_NAMESPACE()
+using BOF_WEB_HEADER = httplib::Headers;
+using BOF_WEB_REQUEST = httplib::Request;
+using BOF_WEB_RESPONSE = httplib::Response;
+using BOF_WEB_HANDLER_RESPONSE = httplib::Server::HandlerResponse;
+using BOF_WEB_RESULT = httplib::Result;
+using BOF_WEB_HANDLER = httplib::Server::Handler;
+using BOF_HTTP_SERVER = httplib::Server;
+using BOF_HTTPS_SERVER = httplib::SSLServer;
+using BOF_HTTP_CLIENT = httplib::Client;
+using BOF_WEB_STATUS = httplib::StatusCode;
+using BOF_WEB_SOCKET = socket_t;
 // Logger Channel Definition
 enum WEB_APP_LOGGER_CHANNEL : uint32_t
 {
   WEB_APP_LOGGER_CHANNEL_APP = 0,
-  WEB_APP_LOGGER_CHANNEL_REST,
   WEB_APP_LOGGER_CHANNEL_MAX
 };
 struct BOF_WEB_APP_PARAM
@@ -135,7 +105,7 @@ public:
 protected:
   bool Start(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory);
   bool Stop();
-  std::string LogRequest(const httplib::Request &_rReq, const httplib::Response &_rRes);
+  std::string LogRequestAndResponse(const httplib::Request &_rReq, const httplib::Response &_rRes);
   std::string GenerateSessionId(uint32_t _SessionIdLen_U32);
 
   BOF_WEB_APP_PARAM mWebAppParam_X;
@@ -143,9 +113,9 @@ protected:
   static std::array<std::shared_ptr<BOF::IBofLogger>, WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_MAX> S_mpsWebAppLoggerCollection;
 
 private:
-  BOF_WEB_JSON ReadConfig(bool _LogIt_B);
+  BOF_WEB_JSON ReadConfig();
   void ConfigureLogger(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory);
-  std::string DumpHeader(const httplib::Headers &_rHeader);
+  std::string DumpHeader(const BOF_WEB_HEADER &_rHeader);
 
   static uint32_t S_mInstanceId_U32;
   bool mServer_B = false;
