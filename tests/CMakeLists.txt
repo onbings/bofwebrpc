@@ -73,5 +73,5 @@ endif()
 #add_custom_command(TARGET ${TargetName} POST_BUILD
 add_custom_command(TARGET ${UT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${UT_NAME}.json" ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/web-srv.json" ${CMAKE_CURRENT_BINARY_DIR}
 )

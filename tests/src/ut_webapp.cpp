@@ -28,6 +28,8 @@ public:
   {
     EXPECT_TRUE(Get("/", [this](const BOFWEBRPC::BOF_WEB_REQUEST &_rReq, BOFWEBRPC::BOF_WEB_RESPONSE &_rRes) { this->GetRoot(_rReq, _rRes); }));
     EXPECT_TRUE(Get("/hi", [this](const BOFWEBRPC::BOF_WEB_REQUEST &_rReq, BOFWEBRPC::BOF_WEB_RESPONSE &_rRes) { this->GetHi(_rReq, _rRes); }));
+    EXPECT_TRUE(Get("/:dir/:file", [this](const BOFWEBRPC::BOF_WEB_REQUEST &_rReq, BOFWEBRPC::BOF_WEB_RESPONSE &_rRes) { this->GetDownload(_rReq, _rRes); }));
+    EXPECT_TRUE(Post("/:dir/:file", [this](const BOFWEBRPC::BOF_WEB_REQUEST &_rReq, BOFWEBRPC::BOF_WEB_RESPONSE &_rRes) { this->PostUpload(_rReq, _rRes); }));
 
     // Match the request path against a regular expression and extract its captures
     EXPECT_TRUE(
@@ -148,6 +150,13 @@ private:
     auto UserId = _rReq.path_params.at("id");
     _rRes.set_content(UserId, "text/plain");
   }
+
+  void GetDownload(const BOFWEBRPC::BOF_WEB_REQUEST &_rReq, BOFWEBRPC::BOF_WEB_RESPONSE &_rRes)
+  {
+  }
+  void PostUpload(const BOFWEBRPC::BOF_WEB_REQUEST &_rReq, BOFWEBRPC::BOF_WEB_RESPONSE &_rRes)
+  {
+  }
 };
 
 class bofwebapp_tests : public ::testing::Test
@@ -160,17 +169,29 @@ protected:
 
     WebServerParam_X.ServerStartStopTimeoutInMs_U32 = 5000;
 
-    // WebServerParam_X.CertificatePath_S = "/home/bha/pro/evs-hwfw-sb-xts/cert.pem";
-    // WebServerParam_X.PrivateKeyPath_S = "/home/bha/pro/evs-hwfw-sb-xts/key.pem";
-    WebServerParam_X.WebAppParam_X.AppName_S = "bofwebrpc-tests";
+    WebServerParam_X.CertificatePath_S = "/home/bha/pro/evs-hwfw-sb-xts/cert.pem";
+    WebServerParam_X.PrivateKeyPath_S = "/home/bha/pro/evs-hwfw-sb-xts/key.pem";
+    WebServerParam_X.LogRequestAndResponse_B = true;
+    WebServerParam_X.KeepAliveMaxCount_U32 = 25000;
+    WebServerParam_X.KeepAliveTimeoutInMs_U32 = 1000;
+    WebServerParam_X.ReadTimeoutInMs_U32 = 1000;
+    WebServerParam_X.WriteTimeoutInMs_U32 = 1000;
+    WebServerParam_X.IdleIntervalInMs_U32 = 2000;
+    WebServerParam_X.PayloadMaxLengthInByte_U32 = 0x100000;
+    WebServerParam_X.ThreadPoolSize_U32 = 12;
+    WebServerParam_X.RootDir_S = "/home/bha/www/xts";
+    WebServerParam_X.WebAppParam_X.AppName_S = "web-srv";
 
     std::shared_ptr<BOF::IBofLoggerFactory> psLoggerFactory = std::make_shared<BOF::BofBasicLoggerFactory>(true, false, true, ".");
     mpuAppSrvRest = std::make_unique<AppSrvRest>(psLoggerFactory, WebServerParam_X);
 
-    // WebClientParam_X.CertificatePath_S = "/home/bha/pro/evs-hwfw-sb-xts/cert.pem";
-    // WebClientParam_X.PrivateKeyPath_S = "/home/bha/pro/evs-hwfw-sb-xts/key.pem";
-    WebClientParam_X.WebAppParam_X.AppName_S = "bofwebrpc-tests";
-    //    mpuWebClient = std::make_unique<BOFWEBRPC::BofWebClient>(psLoggerFactory, WebClientParam_X);
+    WebClientParam_X.IsHttpsClient_B = true;
+    WebClientParam_X.CertificateAuthorityPath_S = "";
+    WebClientParam_X.DisableServerCertificateVerification_B = true;
+    WebClientParam_X.ReadTimeoutInMs_U32 = 1000;
+    WebClientParam_X.WriteTimeoutInMs_U32 = 1000;
+    WebClientParam_X.WebAppParam_X.AppName_S = "web-clt";
+    mpuWebClient = std::make_unique<BOFWEBRPC::BofWebClient>(psLoggerFactory, WebClientParam_X);
   }
 
   void TearDown() override
@@ -180,48 +201,22 @@ protected:
 
 public:
   std::unique_ptr<AppSrvRest> mpuAppSrvRest = nullptr;
-  //  std::unique_ptr<BOFWEBRPC::BofWebClient> mpuWebClient = nullptr;
+  std::unique_ptr<BOFWEBRPC::BofWebClient> mpuWebClient = nullptr;
 };
 
 TEST_F(bofwebapp_tests, Test)
 {
+  BOFWEBRPC::BOF_WEB_RESULT Res;
+
   EXPECT_TRUE(mpuAppSrvRest->Start("10.129.170.29", 8090));
   EXPECT_TRUE(mpuAppSrvRest->IsRunning());
-
-  httplib::Result Res;
-  // Res = f();
-
-  // BOFWEBRPC::BofWeb b;
-  // Res = b.G();
-
-  // std::unique_ptr<BOFWEBRPC::BofWeb> puWeb;
-  // puWeb = std::make_unique<BOFWEBRPC::BofWeb>();
-  // Res = puWeb->G();
 
   std::unique_ptr<BOFWEBRPC::BofWebClient> puWebClient;
   BOFWEBRPC::BOF_WEB_CLIENT_PARAM WebClientParam_X;
   WebClientParam_X.WebAppParam_X.AppName_S = "bofwebrpc-tests";
   puWebClient = std::make_unique<BOFWEBRPC::BofWebClient>(nullptr, WebClientParam_X);
   EXPECT_TRUE(puWebClient->Connect(2000, "10.129.170.29", 8090));
-  //  Res = puWebClient->G();
   Res = puWebClient->Get("/hi", true, true);
-  //    std::unique_ptr<httplib::Client> mpuWebClientProxy;
-  //    mpuWebClientProxy = std::make_unique<httplib::Client>("10.129.170.29", 8090); //_rIpAddress_S, _Port_U16);
-  //    printf("call in client G %p (/hi)\n", mpuWebClientProxy.get());
-  //    Res = mpuWebClientProxy->Get("/hi");
-
-  //  httplib::Client cli("10.129.170.29", 8090);
-  //  auto Res = cli.Get("/hi");
-  // BOF::Bof_MsSleep(99999999);
-
-  // EXPECT_TRUE(mpuWebClient->Connect("10.129.170.29", 8090));
-
-  // HTTPS
-  // httplib::Client WebClient("https://cpp-httplib-server.yhirose.repl.co");
-  // httplib::Result Res = mpuWebClient->Get("/hi", false, false);
-  // BOF::Bof_MsSleep(99999999);
-
-  // auto res = WebClient.Get("/hi");
   if (Res)
   {
     if (Res->status == BOFWEBRPC::BOF_WEB_STATUS::OK_200)
