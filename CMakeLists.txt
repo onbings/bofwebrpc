@@ -61,8 +61,6 @@ add_library(${PROJECT_NAME_LOWER_MINUS}
    ./src/bofwebserver.cpp
    ./include/bofwebrpc/bofwebclient.h
    ./src/bofwebclient.cpp
-   ./include/bofwebrpc/bofwebrest.h
-   ./src/bofwebrest.cpp         
 )
 # Alias with the namespaced version (consistency)
 add_library(ONBINGS::${PROJECT_NAME_LOWER_MINUS} ALIAS ${PROJECT_NAME_LOWER_MINUS})

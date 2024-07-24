@@ -13,7 +13,7 @@
 #include <thread>
 #include <unordered_set>
 #include <nlohmann/json.hpp>
-using json = nlohmann::json;
+using BOF_WEB_JSON = nlohmann::json;
 
 #include <bofstd/bofbasicloggerfactory.h>
 #include "bofwebrpc/bofwebrpc.h"
@@ -80,7 +80,6 @@ enum WEB_APP_LOGGER_CHANNEL : uint32_t
 struct BOF_WEB_APP_PARAM
 {
   std::string AppName_S;
-  uint32_t ConfigThreadPollTimeInMs_U32;
 
   BOF_WEB_APP_PARAM()
   {
@@ -89,7 +88,6 @@ struct BOF_WEB_APP_PARAM
   void Reset()
   {
     AppName_S = "";
-    ConfigThreadPollTimeInMs_U32 = 0; // 0 to disable config thread
   }
 };
 struct BOF_WEB_APP_HOST
@@ -102,7 +100,7 @@ struct BOF_WEB_APP_HOST
   {
     Reset();
   }
-  BOF_WEB_APP_HOST(const json &_rConfig)
+  BOF_WEB_APP_HOST(const BOF_WEB_JSON &_rConfig)
   {
     IpAddress_S = _rConfig.at("ip");
 
@@ -135,23 +133,21 @@ public:
   BofWebApp &operator=(BofWebApp &&) = delete;
 
 protected:
-  virtual void V_OnConfigUpdate(const json &_rConfig);
-  bool Initialize(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory);
-  bool Shutdown();
+  bool Start(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory);
+  bool Stop();
   std::string LogRequest(const httplib::Request &_rReq, const httplib::Response &_rRes);
   std::string GenerateSessionId(uint32_t _SessionIdLen_U32);
 
   BOF_WEB_APP_PARAM mWebAppParam_X;
-  json mWebAppConfig;
+  BOF_WEB_JSON mWebAppConfig;
   static std::array<std::shared_ptr<BOF::IBofLogger>, WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_MAX> S_mpsWebAppLoggerCollection;
 
 private:
-  json ReadConfig(bool _LogIt_B);
+  BOF_WEB_JSON ReadConfig(bool _LogIt_B);
   void ConfigureLogger(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory);
   std::string DumpHeader(const httplib::Headers &_rHeader);
 
   static uint32_t S_mInstanceId_U32;
-  std::thread mCheckConfigThread;
   bool mServer_B = false;
 };
 

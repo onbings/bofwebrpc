@@ -15,37 +15,24 @@
 #include <iostream>
 #include <chrono>
 #include <bofstd/boffs.h>
-/*
-/usr/bin/c++  -ggdb -g "CMakeFiles/evs-hwfw-hws-tests.dir/src/main.cpp.o" "CMakeFiles/evs-hwfw-hws-tests.dir/src/ut_oal.cpp.o"
-"CMakeFiles/evs-hwfw-hws-tests.dir/src/ut_hws.cpp.o" -o evs-hwfw-hws-tests  ../libevs-hwfw-hws.a ../../evs-hwfw-cms-build/libevs-hwfw-cms.a
-../../../vcpkg_installed/x64-linux/debug/lib/libgtest.a ../../../vcpkg_installed/x64-linux/debug/lib/libbofstd.a ../../../output/lib/libevs-hwfw-mailboxapi.a
-../../../vcpkg_installed/x64-linux/debug/lib/libdate-tz.a ../../../vcpkg_installed/x64-linux/debug/lib/libjsoncpp.a -lrt
-*/
+
 BEGIN_WEBRPC_NAMESPACE()
 std::array<std::shared_ptr<BOF::IBofLogger>, WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_MAX> BofWebApp::S_mpsWebAppLoggerCollection;
 uint32_t BofWebApp::S_mInstanceId_U32 = 0;
 
 BofWebApp::BofWebApp(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory, bool _Server_B, const BOF_WEB_APP_PARAM &_rWebAppParam_X)
 {
-  /*
-    json foo;
-    std::string f = "hello";
-    char *p = "world";
-    foo["flex"] = 0.2;
-    foo["awesome_str"] = "bleh";
-    foo["nested"] = {{"bar", "barz"}};
-  */
   mServer_B = _Server_B;
   mWebAppParam_X = _rWebAppParam_X;
   S_mInstanceId_U32++;
 
-  Initialize(_psLoggerFactory);
+  Start(_psLoggerFactory);
 }
 BofWebApp::~BofWebApp()
 {
-  Shutdown();
+  Stop();
 }
-bool BofWebApp::Initialize(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
+bool BofWebApp::Start(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
 {
   bool Rts_B = false;
 
@@ -55,46 +42,18 @@ bool BofWebApp::Initialize(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
 
   Rts_B = true;
 
-  if (mWebAppParam_X.ConfigThreadPollTimeInMs_U32)
-  {
-    mCheckConfigThread = std::thread([&]() {
-      while (mWebAppParam_X.ConfigThreadPollTimeInMs_U32)
-      {
-        try
-        {
-          std::this_thread::sleep_for(std::chrono::milliseconds(mWebAppParam_X.ConfigThreadPollTimeInMs_U32));
-          json Config = ReadConfig(false);
-          if (Config != mWebAppConfig)
-          {
-            V_OnConfigUpdate(Config);
-            mWebAppConfig = Config;
-          }
-        }
-        catch (...)
-        {
-        }
-      }
-    });
-  }
   return Rts_B;
 }
 
-bool BofWebApp::Shutdown()
+bool BofWebApp::Stop()
 {
-  bool Rts_B = false;
-
-  mWebAppParam_X.ConfigThreadPollTimeInMs_U32 = 0;
-
-  mCheckConfigThread.join();
-
-  Rts_B = true;
-
+  bool Rts_B = true;
   return Rts_B;
 }
 
-json BofWebApp::ReadConfig(bool _LogIt_B)
+BOF_WEB_JSON BofWebApp::ReadConfig(bool _LogIt_B)
 {
-  json Rts;
+  BOF_WEB_JSON Rts;
   std::string Cwd_S, CfgPath_S;
 
   try
@@ -146,14 +105,6 @@ void BofWebApp::ConfigureLogger(std::shared_ptr<BOF::IBofLoggerFactory> _psLogge
     S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP] = _psLoggerFactory->V_Create(pLibName_c, "APP");
     S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_REST] = _psLoggerFactory->V_Create(pLibName_c, "REST");
   }
-}
-
-void BofWebApp::V_OnConfigUpdate(const json &_rConfig)
-{
-  //  bool dumpReset = _rConfig["dumps"]["on"].get<bool>();
-  //  if (dumpReset != Logger::dump())
-  //  {
-  //  }
 }
 
 std::string BofWebApp::DumpHeader(const httplib::Headers &_rHeader)

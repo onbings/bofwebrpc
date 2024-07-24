@@ -36,9 +36,6 @@ public:
   }
 
 private:
-  void V_OnConfigUpdate(const json &_rConfig) override
-  {
-  }
 };
 
 class bofwebapp_tests : public ::testing::Test
@@ -55,7 +52,6 @@ protected:
     // WebServerParam_X.CertificatePath_S = "/home/bha/pro/evs-hwfw-sb-xts/cert.pem";
     // WebServerParam_X.PrivateKeyPath_S = "/home/bha/pro/evs-hwfw-sb-xts/key.pem";
     WebServerParam_X.WebAppParam_X.AppName_S = "bofwebrpc-tests";
-    WebServerParam_X.WebAppParam_X.ConfigThreadPollTimeInMs_U32 = 2000;
 
     std::shared_ptr<BOF::IBofLoggerFactory> psLoggerFactory = std::make_shared<BOF::BofBasicLoggerFactory>(true, false, true, ".");
     mpuAppSrvRest = std::make_unique<AppSrvRest>(psLoggerFactory, WebServerParam_X);
@@ -63,7 +59,6 @@ protected:
     // WebClientParam_X.CertificatePath_S = "/home/bha/pro/evs-hwfw-sb-xts/cert.pem";
     // WebClientParam_X.PrivateKeyPath_S = "/home/bha/pro/evs-hwfw-sb-xts/key.pem";
     WebClientParam_X.WebAppParam_X.AppName_S = "bofwebrpc-tests";
-    WebClientParam_X.WebAppParam_X.ConfigThreadPollTimeInMs_U32 = 2000;
     //    mpuWebClient = std::make_unique<BOFWEBRPC::BofWebClient>(psLoggerFactory, WebClientParam_X);
   }
 
@@ -309,7 +304,6 @@ TEST_F(bofwebapp_tests, Test)
   std::unique_ptr<BOFWEBRPC::BofWebClient> puWebClient;
   BOFWEBRPC::BOF_WEB_CLIENT_PARAM WebClientParam_X;
   WebClientParam_X.WebAppParam_X.AppName_S = "bofwebrpc-tests";
-  WebClientParam_X.WebAppParam_X.ConfigThreadPollTimeInMs_U32 = 2000;
   puWebClient = std::make_unique<BOFWEBRPC::BofWebClient>(nullptr, WebClientParam_X);
   EXPECT_TRUE(puWebClient->Connect("10.129.170.29", 8090));
   //  Res = puWebClient->G();
