@@ -47,7 +47,7 @@ bool BofWebClient::Connect(uint32_t _TimeOutInMs_U32, const std::string &_rIpAdd
     mpuHttpClient->set_read_timeout(std::chrono::milliseconds(mWebClientParam_X.ReadTimeoutInMs_U32));
     mpuHttpClient->set_write_timeout(std::chrono::milliseconds(mWebClientParam_X.WriteTimeoutInMs_U32));
     mpuHttpClient->set_ca_cert_path(mWebClientParam_X.CertificateAuthorityPath_S);
-    mpuHttpClient->enable_server_certificate_verification(mWebClientParam_X.DisableServerCertificateVerification_B);
+    mpuHttpClient->enable_server_certificate_verification(!mWebClientParam_X.DisableServerCertificateVerification_B);
     HeaderCollection.insert(std::make_pair("User-Agent", "BofWebRpcAgent/1.0.0"));
     mpuHttpClient->set_default_headers(HeaderCollection);
   }
@@ -60,6 +60,7 @@ bool BofWebClient::Disconnect()
   if (mpuHttpClient)
   {
     mpuHttpClient->stop();
+    mpuHttpClient.reset(nullptr);
     Rts_B = true;
   }
   return Rts_B;
@@ -143,7 +144,19 @@ BOF_WEB_RESULT BofWebClient::Options(const std::string &_rUri_S, bool _Compress_
   }
   return Rts;
 }
+BOF_WEB_RESULT BofWebClient::Head(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B)
+{
+  BOF_WEB_RESULT Rts;
 
+  if (mpuHttpClient)
+  {
+    mpuHttpClient->set_keep_alive(_KeepAlive_B);
+    mpuHttpClient->set_compress(_Compress_B);
+    mpuHttpClient->set_decompress(_Compress_B);
+    Rts = mpuHttpClient->Head(_rUri_S);
+  }
+  return Rts;
+}
 bool BofWebClient ::Upload(const std::string _rFilePathToUpload_S, const std::string _rDestinationUri_S, uint32_t _ChunkSizeInByte_U32)
 {
   bool Rts_B = false;
@@ -203,5 +216,10 @@ bool BofWebClient ::Upload(const std::string _rFilePathToUpload_S, const std::st
     fclose(pIo_X);
   } // if (pIo_X)
   return Rts_B;
+}
+
+bool Download(const std::string _rSourceUri_S, const std::string _rFilePathWhereToStore_S, uint32_t _ChunkSizeInByte_U32)
+{
+  return false;
 }
 END_WEBRPC_NAMESPACE()

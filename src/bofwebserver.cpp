@@ -158,6 +158,7 @@ public:
   {
     if (mpBofWebServer)
     {
+      mpBofWebServer->V_OnIdle();
     }
   }
 
@@ -190,7 +191,7 @@ BofWebServer::BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
   {
     mpHttpServer = new BOF_HTTP_SERVER();
   }
-  if (mpHttpsServer)
+  if (mpHttpServer)
   {
     if (mWebServerParam_X.ThreadPoolSize_U32 == 0)
     {
@@ -235,8 +236,14 @@ BofWebServer::BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
 BofWebServer ::~BofWebServer()
 {
   Stop();
-  delete mpHttpsServer;
-  delete mpHttpServer;
+  if (mpHttpsServer)
+  {
+    delete mpHttpsServer;
+  }
+  else
+  {
+    delete mpHttpServer;
+  }
 }
 BOF_WEB_HANDLER_RESPONSE BofWebServer::OnPreRouting(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes)
 {
@@ -275,7 +282,10 @@ bool BofWebServer::Start(const std::string &_rIpAddress_S, uint16_t _Port_U16)
   {
     Stop();
   }
-  mServerThread = std::thread([this]() { mpHttpServer->listen(mHost_X.IpAddress_S.c_str(), mHost_X.Port_U16, 0); });
+  mServerThread = std::thread([this]() {
+    mpHttpsServer ? mpHttpsServer->listen(mHost_X.IpAddress_S.c_str(), mHost_X.Port_U16, 0)
+                  : mpHttpServer->listen(mHost_X.IpAddress_S.c_str(), mHost_X.Port_U16, 0);
+  });
   Start_U32 = BOF::Bof_GetMsTickCount();
   do
   {

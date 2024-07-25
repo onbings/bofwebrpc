@@ -4,7 +4,7 @@ int main(int argc, char *argv[])
 {
   int Rts_i;
   testing::InitGoogleTest(&argc, argv);
-  ::testing::GTEST_FLAG(filter) = "bofwebapp_tests.Test";
+  //::testing::GTEST_FLAG(filter) = "bofwebapp_tests.StartConnectGetStopDisconnectHttp";
   Rts_i = RUN_ALL_TESTS();
 
 #if defined(NDEBUG) // We are in Release compil

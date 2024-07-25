@@ -38,10 +38,7 @@ bool BofWebApp::Initialize(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
 
   srand((unsigned int)time(nullptr));
   ConfigureLogger(_psLoggerFactory);
-  mWebAppConfig = ReadConfig();
-
-  Rts_B = true;
-
+  Rts_B = ReadConfig(mWebAppConfig);
   return Rts_B;
 }
 
@@ -51,9 +48,9 @@ bool BofWebApp::Shutdown()
   return Rts_B;
 }
 
-BOF_WEB_JSON BofWebApp::ReadConfig()
+bool BofWebApp::ReadConfig(BOF_WEB_JSON &_rConfig)
 {
-  BOF_WEB_JSON Rts;
+  bool Rts_B = false;
   std::string Cwd_S, CfgPath_S;
 
   try
@@ -74,17 +71,20 @@ BOF_WEB_JSON BofWebApp::ReadConfig()
       throw std::runtime_error("Can't open config");
     }
 
-    ConfigFile >> Rts;
+    ConfigFile >> _rConfig;
+    Rts_B = true;
   }
   catch (std::exception &e)
   {
     throw std::string(e.what());
   }
+  /*
   catch (...)
   {
     throw "Can't open config";
   }
-  return Rts;
+  */
+  return Rts_B;
 }
 
 void BofWebApp::ConfigureLogger(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)

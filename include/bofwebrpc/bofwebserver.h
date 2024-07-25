@@ -81,7 +81,6 @@ public:
   }
   virtual void V_OnException(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes, std::exception_ptr ep)
   {
-    auto fmt = "<h1>Error 500</h1><p>%s</p>";
     char pBuffer_c[0x100];
     try
     {
@@ -113,6 +112,13 @@ public:
   virtual void V_OnSetSocketOption(BOF_WEB_SOCKET _Socket)
   {
   }
+  virtual void V_OnIdle()
+  {
+  }
+
+protected:
+  BOF_WEB_SERVER_PARAM mWebServerParam_X;
+  BOF_WEB_APP_HOST mHost_X;
 
 private:
   BOF_WEB_HANDLER_RESPONSE OnPreRouting(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes);
@@ -121,7 +127,5 @@ private:
   BOF_HTTP_SERVER *mpHttpServer = nullptr;   // No unique_ptr as we need both pointer for HTTPS
   std::atomic<bool> mStopServerThread;
   std::thread mServerThread;
-  BOF_WEB_SERVER_PARAM mWebServerParam_X;
-  BOF_WEB_APP_HOST mHost_X;
 };
 END_WEBRPC_NAMESPACE()
