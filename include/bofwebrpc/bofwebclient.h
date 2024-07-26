@@ -12,11 +12,6 @@
 #pragma once
 #include "bofwebrpc/bofwebapp.h"
 
-namespace httplib
-{
-class Client;
-}
-
 BEGIN_WEBRPC_NAMESPACE()
 struct BOF_WEB_CLIENT_PARAM
 {
@@ -58,8 +53,9 @@ public:
   BOF_WEB_RESULT Options(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B);
   BOF_WEB_RESULT Head(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B);
 
-  bool Upload(const std::string _rFilePathToUpload_S, const std::string _rDestinationUrl_S, uint32_t _ChunkSizeInByte_U32);
-  bool Download(const std::string _rSourceUri_S, const std::string _rFilePathWhereToStore_S, uint32_t _ChunkSizeInByte_U32);
+  bool Upload(const std::string _rFilePathToUpload_S, const std::string _rDestinationUrl_S, bool _Compress_B, bool _KeepAlive_B, uint32_t _ChunkSizeInByte_U32);
+  bool Download(const std::string _rSourceUri_S, const std::string _rFilePathWhereToStore_S, bool _Compress_B, bool _KeepAlive_B,
+                uint32_t _ChunkSizeInByte_U32);
 
   virtual void V_OnSetSocketOption(BOF_WEB_SOCKET _Socket)
   {

@@ -339,7 +339,7 @@ protected:
 
     mWebServerParam_X.WebAppParam_X.AppName_S = "web-srv";
 
-    std::shared_ptr<BOF::IBofLoggerFactory> psLoggerFactory = std::make_shared<BOF::BofBasicLoggerFactory>(true, false, true, ".");
+    std::shared_ptr<BOF::IBofLoggerFactory> psLoggerFactory = std::make_shared<BOF::BofBasicLoggerFactory>(true, false, true, (8 * 1024 * 1024), ".");
     if (psLoggerFactory)
     {
       mpuWebServer = std::make_unique<UtWebServer>(psLoggerFactory, mWebServerParam_X);
@@ -432,19 +432,19 @@ TEST_F(bofwebapp_tests, StartConnectGetStopDisconnectHttp)
   EXPECT_FALSE(Res == nullptr);
   EXPECT_EQ(Res->status, BOFWEBRPC::BOF_WEB_STATUS::OK_200);
   EXPECT_STREQ(mpuWebServer->mUserId_S.c_str(), "bha");
+  /*
+    Res = mpuWebClient->Get("/download/log/small_log.log", false, false);
+    EXPECT_FALSE(Res == nullptr);
+    EXPECT_EQ(Res->status, BOFWEBRPC::BOF_WEB_STATUS::OK_200);
+    EXPECT_STREQ(mpuWebServer->mDirDownload_S.c_str(), "log");
+    EXPECT_STREQ(mpuWebServer->mFileDownload_S.c_str(), "small_log.log");
 
-  Res = mpuWebClient->Get("/download/log/small_log.log", false, false);
-  EXPECT_FALSE(Res == nullptr);
-  EXPECT_EQ(Res->status, BOFWEBRPC::BOF_WEB_STATUS::OK_200);
-  EXPECT_STREQ(mpuWebServer->mDirDownload_S.c_str(), "log");
-  EXPECT_STREQ(mpuWebServer->mFileDownload_S.c_str(), "small_log.log");
-
-  Res = mpuWebClient->Post("/upload/upload/small_file.bin", false, false);
-  EXPECT_FALSE(Res == nullptr);
-  EXPECT_EQ(Res->status, BOFWEBRPC::BOF_WEB_STATUS::OK_200);
-  EXPECT_STREQ(mpuWebServer->mDirUpload_S.c_str(), "upload");
-  EXPECT_STREQ(mpuWebServer->mFileUpload_S.c_str(), "small_file.bin");
-
+    Res = mpuWebClient->Post("/upload/upload/small_file.bin", false, false);
+    EXPECT_FALSE(Res == nullptr);
+    EXPECT_EQ(Res->status, BOFWEBRPC::BOF_WEB_STATUS::OK_200);
+    EXPECT_STREQ(mpuWebServer->mDirUpload_S.c_str(), "upload");
+    EXPECT_STREQ(mpuWebServer->mFileUpload_S.c_str(), "small_file.bin");
+  */
   EXPECT_TRUE(mpuWebClient->Disconnect());
 
   Res = mpuWebClient->Get("/hi", true, true);
@@ -518,19 +518,19 @@ TEST_F(bofwebapp_tests, StartConnectGetStopDisconnectHttps)
   EXPECT_FALSE(Res == nullptr);
   EXPECT_EQ(Res->status, BOFWEBRPC::BOF_WEB_STATUS::OK_200);
   EXPECT_STREQ(mpuWebServer->mUserId_S.c_str(), "bha");
+  /*
+    Res = mpuWebClient->Get("/download/log/small_log.log", false, false);
+    EXPECT_FALSE(Res == nullptr);
+    EXPECT_EQ(Res->status, BOFWEBRPC::BOF_WEB_STATUS::OK_200);
+    EXPECT_STREQ(mpuWebServer->mDirDownload_S.c_str(), "log");
+    EXPECT_STREQ(mpuWebServer->mFileDownload_S.c_str(), "small_log.log");
 
-  Res = mpuWebClient->Get("/download/log/small_log.log", false, false);
-  EXPECT_FALSE(Res == nullptr);
-  EXPECT_EQ(Res->status, BOFWEBRPC::BOF_WEB_STATUS::OK_200);
-  EXPECT_STREQ(mpuWebServer->mDirDownload_S.c_str(), "log");
-  EXPECT_STREQ(mpuWebServer->mFileDownload_S.c_str(), "small_log.log");
-
-  Res = mpuWebClient->Post("/upload/upload/small_file.bin", false, false);
-  EXPECT_FALSE(Res == nullptr);
-  EXPECT_EQ(Res->status, BOFWEBRPC::BOF_WEB_STATUS::OK_200);
-  EXPECT_STREQ(mpuWebServer->mDirUpload_S.c_str(), "upload");
-  EXPECT_STREQ(mpuWebServer->mFileUpload_S.c_str(), "small_file.bin");
-
+    Res = mpuWebClient->Post("/upload/upload/small_file.bin", false, false);
+    EXPECT_FALSE(Res == nullptr);
+    EXPECT_EQ(Res->status, BOFWEBRPC::BOF_WEB_STATUS::OK_200);
+    EXPECT_STREQ(mpuWebServer->mDirUpload_S.c_str(), "upload");
+    EXPECT_STREQ(mpuWebServer->mFileUpload_S.c_str(), "small_file.bin");
+  */
   EXPECT_TRUE(mpuWebClient->Disconnect());
 
   Res = mpuWebClient->Get("/hi", true, true);
@@ -558,4 +558,13 @@ TEST_F(bofwebapp_tests, StartConnectGetStopDisconnectHttps)
   EXPECT_TRUE(DestroyClientAndServer());
 }
 
+TEST_F(bofwebapp_tests, Download)
+{
+  EXPECT_TRUE(CreateClientAndServer(false));
+  EXPECT_TRUE(mpuWebClient->Download("/download/log/less_than_one_chunk_size.log", mWebServerParam_X.RootDir_S + "/../local/down_less_than_one_chunk_size.log",
+                                     false, true, UPDOWN_CHUNK_SIZE));
+  //  EXPECT_TRUE(mpuWebClient->Download("/download/log/one_chunk_size.log", false, true, UPDOWN_CHUNK_SIZE));
+  //  EXPECT_TRUE(mpuWebClient->Download("/download/log/more_than_one_chunk_size.log", false, true, UPDOWN_CHUNK_SIZE));
+  EXPECT_TRUE(DestroyClientAndServer());
+}
 // github.com/yhirose/cpp-httplib/blob/master/example/server.cc

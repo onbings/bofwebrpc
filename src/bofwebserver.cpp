@@ -15,120 +15,12 @@
 
 BEGIN_WEBRPC_NAMESPACE()
 
-struct BOF_THREAD_POOL_PARAM
-{
-  uint32_t PoolSize_U32;
-  uint32_t MaxQueuedRequests_U32;
-  std::string BaseName_S;
-  bool PriorityInversionAware_B;
-  BOF::BOF_THREAD_SCHEDULER_POLICY ThreadSchedulerPolicy_E;
-  BOF::BOF_THREAD_PRIORITY ThreadPriority_E;
-  uint64_t ThreadCpuCoreAffinityMask_U64;
-  uint32_t StackSize_U32;
-
-  BOF_THREAD_POOL_PARAM()
-  {
-    Reset();
-  }
-
-  void Reset()
-  {
-    PoolSize_U32 = 0;
-    MaxQueuedRequests_U32 = 0;
-    BaseName_S = "";
-    PriorityInversionAware_B = false;
-    ThreadSchedulerPolicy_E = BOF::BOF_THREAD_SCHEDULER_POLICY::BOF_THREAD_SCHEDULER_POLICY_MAX;
-    ThreadPriority_E = BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000;
-    ThreadCpuCoreAffinityMask_U64 = 0;
-    StackSize_U32 = 0;
-  }
-};
-class BofThreadPool
-{
-public:
-  BofThreadPool(const BOF_THREAD_POOL_PARAM &_rThreadPoolParam_X)
-  {
-    uint32_t i_U32;
-
-    mThreadPoolParam_X = _rThreadPoolParam_X;
-    for (i_U32 = 0; i_U32 < mThreadPoolParam_X.PoolSize_U32; i_U32++)
-    {
-      std::unique_ptr<BOF::BofThread> puThread = std::make_unique<BOF::BofThread>();
-      puThread->SetThreadCallback(nullptr, BOF_BIND_0_ARG_TO_METHOD(this, BofThreadPool::OnProcessing), nullptr);
-      puThread->LaunchBofProcessingThread(mThreadPoolParam_X.BaseName_S + "_" + std::to_string(i_U32), mThreadPoolParam_X.PriorityInversionAware_B, false, 0,
-                                          mThreadPoolParam_X.ThreadSchedulerPolicy_E, mThreadPoolParam_X.ThreadPriority_E,
-                                          mThreadPoolParam_X.ThreadCpuCoreAffinityMask_U64, 1000, mThreadPoolParam_X.StackSize_U32);
-      mThreadCollection.emplace_back(std::move(puThread));
-    }
-  }
-
-  BofThreadPool(const BofThreadPool &) = delete;
-  ~BofThreadPool()
-  {
-    // Stop all worker threads...
-    {
-      std::unique_lock<std::mutex> Lock(mMtx);
-      mDoShutdown_B = true;
-    }
-    mDoShedulCv.notify_all();
-    // Join...
-    for (auto &puThread : mThreadCollection)
-    {
-      puThread.reset(nullptr);
-    }
-  }
-  bool Enqueue(std::function<void()> _Fn)
-  {
-    bool Rts_B = false;
-    {
-      std::unique_lock<std::mutex> Lock(mMtx);
-      if ((mThreadPoolParam_X.MaxQueuedRequests_U32 == 0) || (mJobCollection.size() < mThreadPoolParam_X.MaxQueuedRequests_U32))
-      {
-        mJobCollection.push_back(std::move(_Fn));
-        Rts_B = true;
-      }
-    }
-    mDoShedulCv.notify_one();
-    return Rts_B;
-  }
-
-private:
-  BOFERR OnProcessing()
-  {
-    BOFERR Rts_E = BOF_ERR_NO_ERROR;
-
-    while (1)
-    {
-      std::function<void()> Fn;
-      {
-        std::unique_lock<std::mutex> Lock(mMtx);
-        mDoShedulCv.wait(Lock, [&] { return ((!mJobCollection.empty()) || (mDoShutdown_B)); });
-        if ((mDoShutdown_B) && (mJobCollection.empty()))
-        {
-          break;
-        }
-        Fn = mJobCollection.front();
-        mJobCollection.pop_front();
-      }
-      // assert(true == static_cast<bool>(Fn));
-      Fn();
-    }
-    return Rts_E;
-  }
-  BOF_THREAD_POOL_PARAM mThreadPoolParam_X;
-  std::vector<std::unique_ptr<BOF::BofThread>> mThreadCollection;
-  std::list<std::function<void()>> mJobCollection;
-  bool mDoShutdown_B = false;
-  std::condition_variable mDoShedulCv;
-  std::mutex mMtx;
-};
-
 class BofWebServerTaskQueue : public httplib::TaskQueue
 {
 public:
   BofWebServerTaskQueue(BofWebServer *_pBofWebServer, size_t _PoolSize)
   {
-    BOF_THREAD_POOL_PARAM ThreadPoolParam_X;
+    BOF::BOF_THREAD_POOL_PARAM ThreadPoolParam_X;
     mpBofWebServer = _pBofWebServer;
 
     ThreadPoolParam_X.PoolSize_U32 = _PoolSize;
@@ -139,14 +31,15 @@ public:
     ThreadPoolParam_X.ThreadPriority_E = BOF::BOF_THREAD_PRIORITY::BOF_THREAD_PRIORITY_000;
     ThreadPoolParam_X.ThreadCpuCoreAffinityMask_U64 = 0;
     ThreadPoolParam_X.StackSize_U32 = 0;
-    mpuThreadPool = std::make_unique<BofThreadPool>(ThreadPoolParam_X);
+    mpuThreadPool = std::make_unique<BOF::BofThreadPool>(ThreadPoolParam_X);
   }
 
   bool enqueue(std::function<void()> _Fn) override
   {
     /* Return true if the task was actually enqueued, or false
      * if the caller must drop the corresponding connection. */
-    return mpuThreadPool->Enqueue(_Fn);
+    std::function<void(void *)> HttpLibHandler = [_Fn](void *) { _Fn(); };
+    return mpuThreadPool->Enqueue(HttpLibHandler, nullptr);
   }
 
   void shutdown() override
@@ -163,7 +56,7 @@ public:
   }
 
 private:
-  std::unique_ptr<BofThreadPool> mpuThreadPool = nullptr;
+  std::unique_ptr<BOF::BofThreadPool> mpuThreadPool = nullptr;
   BofWebServer *mpBofWebServer = nullptr;
 };
 BofWebServer::BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory, const BOF_WEB_SERVER_PARAM &_rWebServerParam_X)
@@ -231,10 +124,39 @@ BofWebServer::BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
     }
     mpHttpServer->set_payload_max_length(mWebServerParam_X.PayloadMaxLengthInByte_U32);
     mpHttpServer->set_base_dir("/", mWebServerParam_X.RootDir_S);
+
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Create %s Http server '%s' with:\n",
+             mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str());
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  RootDir:                '%s'\n",
+             mWebServerParam_X.RootDir_S.c_str());
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  ThreadPoolSize:         '%d'\n",
+             mWebServerParam_X.ThreadPoolSize_U32);
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], " LogRequestAndResponse:   '%s'\n",
+             mWebServerParam_X.LogRequestAndResponse_B ? "True" : "False");
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  CertificatePath_S:      '%s'\n",
+             mWebServerParam_X.CertificatePath_S.c_str());
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  PrivateKeyPath:         '%s'\n",
+             mWebServerParam_X.PrivateKeyPath_S.c_str());
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  ServerStartStopTimeout: %d ms\n",
+             mWebServerParam_X.ServerStartStopTimeoutInMs_U32);
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  KeepAliveMaxCount:      %d\n",
+             mWebServerParam_X.KeepAliveMaxCount_U32);
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  KeepAliveTimeout:       %d ms\n",
+             mWebServerParam_X.KeepAliveTimeoutInMs_U32);
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  ReadTimeout:            %d ms\n",
+             mWebServerParam_X.ReadTimeoutInMs_U32);
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  WriteTimeout:           %d ms\n",
+             mWebServerParam_X.WriteTimeoutInMs_U32);
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  IdleInterval:           %d ms\n",
+             mWebServerParam_X.IdleIntervalInMs_U32);
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], " PayloadMaxLength:        %d B\n",
+             mWebServerParam_X.PayloadMaxLengthInByte_U32);
   }
 }
 BofWebServer ::~BofWebServer()
 {
+  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Destroy %s Http server '%s'\n",
+           mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str());
   Stop();
   if (mpHttpsServer)
   {
@@ -269,8 +191,8 @@ bool BofWebServer::Start(const std::string &_rIpAddress_S, uint16_t _Port_U16)
     mHost_X.Port_U16 = _Port_U16;
   }
 
-  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Starting Server on %s:%d\n", mHost_X.IpAddress_S.c_str(),
-           mHost_X.Port_U16);
+  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Starting %s Http Server '%s' on %s:%d\n",
+           mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str(), mHost_X.IpAddress_S.c_str(), mHost_X.Port_U16);
 
   for (auto &rBannedIp : mHost_X.BannedIpAddressCollection)
   {
@@ -282,10 +204,13 @@ bool BofWebServer::Start(const std::string &_rIpAddress_S, uint16_t _Port_U16)
   {
     Stop();
   }
+  /*
   mServerThread = std::thread([this]() {
     mpHttpsServer ? mpHttpsServer->listen(mHost_X.IpAddress_S.c_str(), mHost_X.Port_U16, 0)
                   : mpHttpServer->listen(mHost_X.IpAddress_S.c_str(), mHost_X.Port_U16, 0);
   });
+*/
+  mServerThread = std::thread([this]() { mpHttpServer->listen(mHost_X.IpAddress_S.c_str(), mHost_X.Port_U16, 0); });
   Start_U32 = BOF::Bof_GetMsTickCount();
   do
   {
@@ -300,6 +225,11 @@ bool BofWebServer::Start(const std::string &_rIpAddress_S, uint16_t _Port_U16)
     Delta_U32 = BOF::Bof_ElapsedMsTime(Start_U32);
   } while (Delta_U32 < mWebServerParam_X.ServerStartStopTimeoutInMs_U32);
   Rts_B = IsRunning();
+  if (!Rts_B)
+  {
+    LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot start %s Http Server '%s' on %s:%d\n",
+              mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str(), mHost_X.IpAddress_S.c_str(), mHost_X.Port_U16);
+  }
   return Rts_B;
 }
 
@@ -308,6 +238,8 @@ bool BofWebServer::Stop()
   bool Rts_B = false;
   uint32_t Start_U32, Delta_U32;
 
+  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Stopping %s Http Server '%s'\n",
+           mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str());
   mpHttpServer->stop();
   Start_U32 = BOF::Bof_GetMsTickCount();
   do
@@ -323,6 +255,11 @@ bool BofWebServer::Stop()
     Delta_U32 = BOF::Bof_ElapsedMsTime(Start_U32);
   } while (Delta_U32 < mWebServerParam_X.ServerStartStopTimeoutInMs_U32);
   Rts_B = !IsRunning();
+  if (!Rts_B)
+  {
+    LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot stop %s Http Server '%s'\n",
+              mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str());
+  }
   mStopServerThread.store(true);
   if (mServerThread.joinable())
   {

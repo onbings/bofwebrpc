@@ -57,8 +57,8 @@ bool BofWebApp::ReadConfig(BOF_WEB_JSON &_rConfig)
   {
     BOF::Bof_GetCurrentDirectory(Cwd_S);
     CfgPath_S = Cwd_S + mWebAppParam_X.AppName_S + ".json";
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cwd is %s, reading configuration from %s\n", Cwd_S.c_str(),
-             CfgPath_S.c_str());
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Reading configuration from %s (Cwd is %s)\n", CfgPath_S.c_str(),
+             Cwd_S.c_str());
     std::ifstream ConfigFile(CfgPath_S);
     if (ConfigFile.std::ios::eof())
     {
@@ -84,6 +84,11 @@ bool BofWebApp::ReadConfig(BOF_WEB_JSON &_rConfig)
     throw "Can't open config";
   }
   */
+  if (!Rts_B)
+  {
+    LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot read configuration from %s (Cwd is %s)\n",
+              CfgPath_S.c_str(), Cwd_S.c_str());
+  }
   return Rts_B;
 }
 
