@@ -74,15 +74,15 @@ BofWebServer::BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
   }
   if (CreateHttpsServer_B)
   {
-    mpHttpsServer = new BOF_HTTPS_SERVER(mWebServerParam_X.CertificatePath_S.c_str(), mWebServerParam_X.PrivateKeyPath_S.c_str());
+    mpHttpsServer = new BOF_WEB_HTTPS_SERVER(mWebServerParam_X.CertificatePath_S.c_str(), mWebServerParam_X.PrivateKeyPath_S.c_str());
     if (mpHttpsServer)
     {
-      mpHttpServer = reinterpret_cast<BOF_HTTPS_SERVER *>(mpHttpsServer);
+      mpHttpServer = reinterpret_cast<BOF_WEB_HTTPS_SERVER *>(mpHttpsServer);
     }
   }
   else
   {
-    mpHttpServer = new BOF_HTTP_SERVER();
+    mpHttpServer = new BOF_WEB_HTTP_SERVER();
   }
   if (mpHttpServer)
   {
@@ -129,9 +129,9 @@ BofWebServer::BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
              mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str());
     LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  RootDir:                '%s'\n",
              mWebServerParam_X.RootDir_S.c_str());
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  ThreadPoolSize:         '%d'\n",
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  ThreadPoolSize:         %d\n",
              mWebServerParam_X.ThreadPoolSize_U32);
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], " LogRequestAndResponse:   '%s'\n",
+    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  LogRequestAndResponse:  '%s'\n",
              mWebServerParam_X.LogRequestAndResponse_B ? "True" : "False");
     LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  CertificatePath_S:      '%s'\n",
              mWebServerParam_X.CertificatePath_S.c_str());

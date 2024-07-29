@@ -123,8 +123,8 @@ protected:
 private:
   BOF_WEB_HANDLER_RESPONSE OnPreRouting(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes);
 
-  BOF_HTTPS_SERVER *mpHttpsServer = nullptr; // No unique_ptr as we need both pointer for HTTPS
-  BOF_HTTP_SERVER *mpHttpServer = nullptr;   // No unique_ptr as we need both pointer for HTTPS
+  BOF_WEB_HTTPS_SERVER *mpHttpsServer = nullptr; // No unique_ptr as we need both pointer for HTTPS
+  BOF_WEB_HTTP_SERVER *mpHttpServer = nullptr;   // No unique_ptr as we need both pointer for HTTPS
   std::atomic<bool> mStopServerThread;
   std::thread mServerThread;
 };

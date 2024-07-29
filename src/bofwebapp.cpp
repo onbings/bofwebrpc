@@ -174,4 +174,30 @@ std::string BofWebApp::GenerateSessionId(uint32_t _SessionIdLen_U32)
   }
   return Rts_S;
 }
+
+bool BofWebApp::ParseContentRangeRequest(const std::string &_rContentRangeRequest_S, size_t &_rRangeMin, size_t &_rRangeMax, size_t &_rDataSize)
+{
+  bool Rts_B = false;
+  std::regex RegExContentRange(R"(bytes (\d+)-(\d+)/(\d+))");
+  std::smatch Match;
+
+  if (std::regex_match(_rContentRangeRequest_S, Match, RegExContentRange))
+  {
+    if (Match.size() == 4)
+    {
+      try
+      {
+        _rRangeMin = std::stoul(Match[1].str());
+        _rRangeMax = std::stoul(Match[2].str());
+        _rDataSize = std::stoul(Match[3].str());
+        Rts_B = true;
+      }
+      catch (const std::exception &e)
+      {
+        printf("Error parsing Content-Range: %s\n", e.what());
+      }
+    }
+  }
+  return Rts_B;
+}
 END_WEBRPC_NAMESPACE()

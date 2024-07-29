@@ -45,13 +45,15 @@ public:
   bool Connect(uint32_t _TimeOutInMs_U32, const std::string &_rIpAddress_S, uint16_t _Port_U16);
   bool Disconnect();
 
-  BOF_WEB_RESULT Get(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B);
-  BOF_WEB_RESULT Post(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B);
-  BOF_WEB_RESULT Put(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B);
-  BOF_WEB_RESULT Patch(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B);
-  BOF_WEB_RESULT Delete(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B);
-  BOF_WEB_RESULT Options(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B);
-  BOF_WEB_RESULT Head(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B);
+  BOF_WEB_RESULT Get(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X);
+  BOF_WEB_RESULT Post(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X);
+  BOF_WEB_RESULT Put(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X, size_t _BodyLength,
+                     const char *_pBody_c, const std::string &_rBodyType_S);
+  BOF_WEB_RESULT Patch(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X, size_t _BodyLength,
+                       const char *_pBody_c, const std::string &_rBodyType_S);
+  BOF_WEB_RESULT Delete(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X);
+  BOF_WEB_RESULT Options(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X);
+  BOF_WEB_RESULT Head(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X);
 
   bool Upload(const std::string _rFilePathToUpload_S, const std::string _rDestinationUrl_S, bool _Compress_B, bool _KeepAlive_B, uint32_t _ChunkSizeInByte_U32);
   bool Download(const std::string _rSourceUri_S, const std::string _rFilePathWhereToStore_S, bool _Compress_B, bool _KeepAlive_B,
@@ -63,7 +65,7 @@ public:
 
 private:
   BOF_WEB_CLIENT_PARAM mWebClientParam_X;
-  std::unique_ptr<BOF_HTTP_CLIENT> mpuHttpClient;
+  std::unique_ptr<BOF_WEB_HTTP_CLIENT> mpuHttpClient;
 };
 
 END_WEBRPC_NAMESPACE()

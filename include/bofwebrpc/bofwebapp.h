@@ -102,15 +102,16 @@ using BOF_WEB_JSON = nlohmann::json;
 #include <httplib.h>
 
 BEGIN_WEBRPC_NAMESPACE()
+#define BOF_WEB_LIB httplib
 using BOF_WEB_HEADER = httplib::Headers;
 using BOF_WEB_REQUEST = httplib::Request;
 using BOF_WEB_RESPONSE = httplib::Response;
 using BOF_WEB_HANDLER_RESPONSE = httplib::Server::HandlerResponse;
 using BOF_WEB_RESULT = httplib::Result;
 using BOF_WEB_HANDLER = httplib::Server::Handler;
-using BOF_HTTP_SERVER = httplib::Server;
-using BOF_HTTPS_SERVER = httplib::SSLServer;
-using BOF_HTTP_CLIENT = httplib::Client;
+using BOF_WEB_HTTP_SERVER = httplib::Server;
+using BOF_WEB_HTTPS_SERVER = httplib::SSLServer;
+using BOF_WEB_HTTP_CLIENT = httplib::Client;
 using BOF_WEB_STATUS = httplib::StatusCode;
 using BOF_WEB_SOCKET = socket_t;
 // Logger Channel Definition
@@ -183,6 +184,7 @@ protected:
   BOF_WEB_APP_PARAM mWebAppParam_X;
   BOF_WEB_JSON mWebAppConfig;
   static std::array<std::shared_ptr<BOF::IBofLogger>, WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_MAX> S_mpsWebAppLoggerCollection;
+  bool ParseContentRangeRequest(const std::string &_rContentRangeRequest_S, size_t &_rRangeMin, size_t &_rRangeMax, size_t &_rDataSize);
 
 private:
   bool ReadConfig(BOF_WEB_JSON &_rConfig);
