@@ -5,7 +5,8 @@ int main(int argc, char *argv[])
   int Rts_i;
   testing::InitGoogleTest(&argc, argv);
   //::testing::GTEST_FLAG(filter) = "bofwebapp_tests.StartConnectGetStopDisconnectHttp";
-  ::testing::GTEST_FLAG(filter) = "bofwebapp_tests.Download";
+  //::testing::GTEST_FLAG(filter) = "bofwebapp_tests.Upload";
+  //::testing::GTEST_FLAG(filter) = "bofwebapp_tests.Download";
   Rts_i = RUN_ALL_TESTS();
 
 #if defined(NDEBUG) // We are in Release compil

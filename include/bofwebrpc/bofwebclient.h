@@ -46,7 +46,8 @@ public:
   bool Disconnect();
 
   BOF_WEB_RESULT Get(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X);
-  BOF_WEB_RESULT Post(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X);
+  BOF_WEB_RESULT Post(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X, size_t _BodyLength,
+                      const char *_pBody_c, const std::string &_rBodyType_S);
   BOF_WEB_RESULT Put(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X, size_t _BodyLength,
                      const char *_pBody_c, const std::string &_rBodyType_S);
   BOF_WEB_RESULT Patch(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X, size_t _BodyLength,

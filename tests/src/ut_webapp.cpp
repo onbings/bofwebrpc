@@ -382,17 +382,122 @@ private:
   }
   void PostUpload(const BOFWEBRPC::BOF_WEB_REQUEST &_rReq, BOFWEBRPC::BOF_WEB_RESPONSE &_rRes)
   {
-    auto pIt = _rReq.path_params.find("dir");
-    if (pIt != _rReq.path_params.end())
+    bool Continue_B = false;
+    std::string SessionId_S, ContentRange_S, Dir_S, File_S, Path_S;
+    size_t RangeMin, RangeMax, DataSize, WriteSize;
+    char pRangeRequest_c[0x100];
+    UPDOWN_TASK UpDownTask_X;
+    std::map<std::string, UPDOWN_TASK>::iterator It;
+    try
     {
-      mDirUpload_S = pIt->second;
+      SessionId_S = _rReq.get_header_value("Session-Id");
+      ContentRange_S = _rReq.get_header_value("Content-Range");
+      Dir_S = _rReq.path_params.at("dir");
+      File_S = _rReq.path_params.at("file");
+      Path_S = mWebServerParam_X.RootDir_S + "/" + Dir_S + "/" + File_S;
+      if (Path_S.find("..") == std::string::npos)
+      {
+        if (ParseContentRangeRequest(ContentRange_S, RangeMin, RangeMax, DataSize))
+        {
+          Continue_B = true;
+        }
+        else
+        {
+          TerminateUpDownTask(UpDownTask_X, BOFWEBRPC::BOF_WEB_STATUS::BadRequest_400, _rRes, It); // Missing or erronous Header item
+        }
+      }
+      else
+      {
+        TerminateUpDownTask(UpDownTask_X, BOFWEBRPC::BOF_WEB_STATUS::Unauthorized_401, _rRes, It); // Missing or erronous Header item
+      }
     }
-    pIt = _rReq.path_params.find("file");
-    if (pIt != _rReq.path_params.end())
+    catch (const std::exception &e)
     {
-      mFileUpload_S = pIt->second;
+      printf("Error parsing GetDownload: %s\n", e.what());
     }
-    printf("=================PostUpload================%s/%s\n", mDirUpload_S.c_str(), mFileUpload_S.c_str());
+
+    if (Continue_B)
+    {
+      Continue_B = false;
+      It = mUpDownTaskCollection.find(SessionId_S);
+      if (It == mUpDownTaskCollection.end())
+      {
+        if ((!RangeMin) && (RangeMax) && (DataSize) && (RangeMax < DataSize)) // First request
+        {
+          UpDownTask_X.pIo_X = fopen(Path_S.c_str(), "wb");
+          if (UpDownTask_X.pIo_X)
+          {
+            UpDownTask_X.Start_U32 = BOF::Bof_GetMsTickCount();
+            UpDownTask_X.pBuffer_U8 = nullptr;
+            UpDownTask_X.RangeMin = RangeMin;
+            UpDownTask_X.RangeMax = RangeMax;
+            UpDownTask_X.DataSize = DataSize;
+            UpDownTask_X.ChunkSize_U32 = UpDownTask_X.RangeMax + 1;
+            WriteSize = (UpDownTask_X.DataSize <= UpDownTask_X.ChunkSize_U32) ? UpDownTask_X.DataSize : UpDownTask_X.ChunkSize_U32;
+            Continue_B = true;
+          }
+          else
+          {
+            TerminateUpDownTask(UpDownTask_X, BOFWEBRPC::BOF_WEB_STATUS::Unauthorized_401, _rRes, It); // File not found
+          }
+        }
+        else
+        {
+          TerminateUpDownTask(UpDownTask_X, BOFWEBRPC::BOF_WEB_STATUS::NotAcceptable_406, _rRes, It); // First range must be formatted as 0-chunksize/0
+        }
+      }
+      else
+      {
+        UpDownTask_X = It->second;
+        assert(UpDownTask_X.pIo_X != nullptr);
+        assert(UpDownTask_X.pBuffer_U8 == nullptr);
+        WriteSize = std::min(UpDownTask_X.ChunkSize_U32, static_cast<uint32_t>(UpDownTask_X.DataSize - UpDownTask_X.RangeMin));
+        if ((RangeMin == UpDownTask_X.RangeMin) && (RangeMax == UpDownTask_X.RangeMax) && (RangeMax <= UpDownTask_X.DataSize) &&
+            (DataSize == UpDownTask_X.DataSize))
+        {
+          Continue_B = true;
+        }
+        else
+        {
+          TerminateUpDownTask(UpDownTask_X, BOFWEBRPC::BOF_WEB_STATUS::NotAcceptable_406, _rRes, It); // Range mismatch
+        }
+      }
+      if (Continue_B)
+      {
+        Continue_B = false;
+        if (WriteSize == _rReq.body.size())
+        {
+          if (fwrite(_rReq.body.c_str(), WriteSize, 1, UpDownTask_X.pIo_X) == 1)
+          {
+            sprintf(pRangeRequest_c, "bytes %zu-%zu/%zu", UpDownTask_X.RangeMin, UpDownTask_X.RangeMax, UpDownTask_X.DataSize);
+            _rRes.set_header("Content-Range", std::string(pRangeRequest_c));
+            if (RangeMax >= (UpDownTask_X.DataSize - 1))
+            {
+              TerminateUpDownTask(UpDownTask_X, BOFWEBRPC::BOF_WEB_STATUS::OK_200, _rRes, It);
+            }
+            else
+            {
+              _rRes.status = BOFWEBRPC::BOF_WEB_STATUS::PartialContent_206;
+              UpDownTask_X.RangeMin = UpDownTask_X.RangeMax + 1;
+              UpDownTask_X.RangeMax = UpDownTask_X.RangeMax + WriteSize;
+              if (UpDownTask_X.RangeMax >= (UpDownTask_X.DataSize - 1))
+              {
+                UpDownTask_X.RangeMax = UpDownTask_X.DataSize - 1;
+              }
+              mUpDownTaskCollection[SessionId_S] = UpDownTask_X;
+            }
+          }
+          else
+          {
+            TerminateUpDownTask(UpDownTask_X, BOFWEBRPC::BOF_WEB_STATUS::InsufficientStorage_507, _rRes, It); // I/O mismatch
+          }
+        }
+        else
+        {
+          TerminateUpDownTask(UpDownTask_X, BOFWEBRPC::BOF_WEB_STATUS::InternalServerError_500, _rRes, It); // Range mismatch
+        }
+      }
+    }
   }
 
 private:
@@ -614,8 +719,8 @@ TEST_F(bofwebapp_tests, StartConnectGetStopDisconnectHttp)
   EXPECT_EQ(mpuWebServer->mOnFileRequest_U32, 0);
   EXPECT_EQ(mpuWebServer->mOnError_U32, 1);
   EXPECT_EQ(mpuWebServer->mOnException_U32, 0);
-  EXPECT_EQ(mpuWebServer->mOnPreRouting_U32, 7);
-  EXPECT_EQ(mpuWebServer->mOnPostRouting_U32, 7);
+  EXPECT_EQ(mpuWebServer->mOnPreRouting_U32, 5);
+  EXPECT_EQ(mpuWebServer->mOnPostRouting_U32, 5);
   EXPECT_EQ(mpuWebServer->mOnExpect100Continue_U32, 0);
   EXPECT_EQ(mpuWebServer->mOnSetSocketOption_U32, 1);
   EXPECT_EQ(mpuWebServer->mGetRoot_U32, 1);
@@ -623,7 +728,7 @@ TEST_F(bofwebapp_tests, StartConnectGetStopDisconnectHttp)
   EXPECT_EQ(mpuWebServer->mGetNumber_U32, 1);
   EXPECT_EQ(mpuWebServer->mGetUser_U32, 1);
 
-  EXPECT_EQ(mpuWebClient->mOnSetSocketOption_U32, 6);
+  EXPECT_EQ(mpuWebClient->mOnSetSocketOption_U32, 4);
   EXPECT_TRUE(DestroyClientAndServer());
 }
 TEST_F(bofwebapp_tests, StartConnectGetStopDisconnectHttps)
@@ -707,6 +812,7 @@ TEST_F(bofwebapp_tests, Download)
   EXPECT_TRUE(CreateClientAndServer(false));
   EXPECT_TRUE(mpuWebServer->Start(WEB_SERVER_IP_ADDRESS, WEB_SERVER_PORT));
   EXPECT_TRUE(mpuWebClient->Connect(mWebClientParam_X.ReadTimeoutInMs_U32, WEB_SERVER_IP_ADDRESS, WEB_SERVER_PORT));
+
   EXPECT_TRUE(mpuWebClient->Download("/download/log/less_than_one_chunk_size.log", mWebServerParam_X.RootDir_S + "/../local/down_less_than_one_chunk_size.log",
                                      false, true, UPDOWN_CHUNK_SIZE));
   FileSize1_U64 = BOF::Bof_GetFileSize(mWebServerParam_X.RootDir_S + "/log/less_than_one_chunk_size.log");
@@ -728,18 +834,36 @@ TEST_F(bofwebapp_tests, Download)
   EXPECT_TRUE(mpuWebClient->Disconnect());
   EXPECT_TRUE(mpuWebServer->Stop());
   EXPECT_TRUE(DestroyClientAndServer());
-  /*
-  Res = mpuWebClient->Get("/download/log/small_log.log", false, false, HeaderCollection_X);
-  EXPECT_FALSE(Res == nullptr);
-  EXPECT_EQ(Res->status, BOFWEBRPC::BOF_WEB_STATUS::OK_200);
-  EXPECT_STREQ(mpuWebServer->mDirDownload_S.c_str(), "log");
-  EXPECT_STREQ(mpuWebServer->mFileDownload_S.c_str(), "small_log.log");
-
-  Res = mpuWebClient->Post("/upload/upload/small_file.bin", false, false,HeaderCollection_X);
-  EXPECT_FALSE(Res == nullptr);
-  EXPECT_EQ(Res->status, BOFWEBRPC::BOF_WEB_STATUS::OK_200);
-  EXPECT_STREQ(mpuWebServer->mDirUpload_S.c_str(), "upload");
-  EXPECT_STREQ(mpuWebServer->mFileUpload_S.c_str(), "small_file.bin");
-*/
 }
+
+TEST_F(bofwebapp_tests, Upload)
+{
+  uint64_t FileSize1_U64, FileSize2_U64;
+
+  EXPECT_TRUE(CreateClientAndServer(false));
+  EXPECT_TRUE(mpuWebServer->Start(WEB_SERVER_IP_ADDRESS, WEB_SERVER_PORT));
+  EXPECT_TRUE(mpuWebClient->Connect(mWebClientParam_X.ReadTimeoutInMs_U32, WEB_SERVER_IP_ADDRESS, WEB_SERVER_PORT));
+  EXPECT_TRUE(mpuWebClient->Upload(mWebServerParam_X.RootDir_S + "/../local/less_than_one_chunk_size.bin", "/upload/update/up_less_than_one_chunk_size.bin",
+                                   false, true, UPDOWN_CHUNK_SIZE));
+  FileSize1_U64 = BOF::Bof_GetFileSize(mWebServerParam_X.RootDir_S + "/../local/less_than_one_chunk_size.bin");
+  FileSize2_U64 = BOF::Bof_GetFileSize(mWebServerParam_X.RootDir_S + "/update/up_less_than_one_chunk_size.bin");
+  EXPECT_EQ(FileSize1_U64, FileSize2_U64);
+
+  EXPECT_TRUE(mpuWebClient->Upload(mWebServerParam_X.RootDir_S + "/../local/one_chunk_size.bin", "/upload/update/up_one_chunk_size.bin", false, true,
+                                   UPDOWN_CHUNK_SIZE));
+  FileSize1_U64 = BOF::Bof_GetFileSize(mWebServerParam_X.RootDir_S + "/../local/one_chunk_size.bin");
+  FileSize2_U64 = BOF::Bof_GetFileSize(mWebServerParam_X.RootDir_S + "/update/up_one_chunk_size.bin");
+  EXPECT_EQ(FileSize1_U64, FileSize2_U64);
+
+  EXPECT_TRUE(mpuWebClient->Upload(mWebServerParam_X.RootDir_S + "/../local/more_than_one_chunk_size.bin", "/upload/update/up_more_than_one_chunk_size.bin",
+                                   false, true, UPDOWN_CHUNK_SIZE));
+  FileSize1_U64 = BOF::Bof_GetFileSize(mWebServerParam_X.RootDir_S + "/../local/more_than_one_chunk_size.bin");
+  FileSize2_U64 = BOF::Bof_GetFileSize(mWebServerParam_X.RootDir_S + "/update/up_more_than_one_chunk_size.bin");
+  EXPECT_EQ(FileSize1_U64, FileSize2_U64);
+
+  EXPECT_TRUE(mpuWebClient->Disconnect());
+  EXPECT_TRUE(mpuWebServer->Stop());
+  EXPECT_TRUE(DestroyClientAndServer());
+}
+
 // github.com/yhirose/cpp-httplib/blob/master/example/server.cc

@@ -102,7 +102,8 @@ BOF_WEB_RESULT BofWebClient::Get(const std::string &_rUri_S, bool _Compress_B, b
   }
   return Rts;
 }
-BOF_WEB_RESULT BofWebClient::Post(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeaderCollection_X)
+BOF_WEB_RESULT BofWebClient::Post(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeaderCollection_X,
+                                  size_t _BodyLength, const char *_pBody_c, const std::string &_rBodyType_S)
 {
   BOF_WEB_RESULT Rts;
 
@@ -111,7 +112,7 @@ BOF_WEB_RESULT BofWebClient::Post(const std::string &_rUri_S, bool _Compress_B, 
     mpuHttpClient->set_keep_alive(_KeepAlive_B);
     mpuHttpClient->set_compress(_Compress_B);
     mpuHttpClient->set_decompress(_Compress_B);
-    Rts = mpuHttpClient->Post(_rUri_S, _rHeaderCollection_X);
+    Rts = mpuHttpClient->Post(_rUri_S, _rHeaderCollection_X, _pBody_c, _BodyLength, _rBodyType_S);
   }
   return Rts;
 }
@@ -187,60 +188,109 @@ bool BofWebClient ::Upload(const std::string _rFilePathToUpload_S, const std::st
 {
   bool Rts_B = false;
   FILE *pIo_X;
-  size_t FileSize, TotalByteSent, BytesRead;
+  std::string SessionId_S, ContentRange_S;
+  BOF_WEB_HEADER HeaderCollection_X;
+  size_t RangeMin, RangeMax, DataSize, ReadSize, NewRangeMin, NewRangeMax, NewDataSize;
+  char pRangeRequest_c[0x100];
+  uint32_t ChunkSize_U32;
   uint8_t *pChunk_U8;
-  std::string SessionId_S;
-  httplib::Headers HeaderCollection;
-  httplib::Result Res;
-  float Progress_f;
+  BOF_WEB_RESULT Res;
 
-  pIo_X = fopen(_rFilePathToUpload_S.c_str(), "rb");
-  if (pIo_X)
+  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Upload '%s' in '%s': Compress %s KeepAlive %s ChunkSize %d B\n",
+           _rFilePathToUpload_S.c_str(), _rDestinationUri_S.c_str(), _Compress_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
+  if (mpuHttpClient)
   {
-    fseek(pIo_X, 0, SEEK_END);
-    FileSize = ftell(pIo_X);
-    fseek(pIo_X, 0, SEEK_SET);
-    _ChunkSizeInByte_U32 = (_ChunkSizeInByte_U32 == 0) ? (64 * 1024) : _ChunkSizeInByte_U32;
-
-    pChunk_U8 = new uint8_t[_ChunkSizeInByte_U32];
-    if (pChunk_U8)
+    pIo_X = fopen(_rFilePathToUpload_S.c_str(), "rb");
+    if (pIo_X != nullptr)
     {
-      TotalByteSent = 0;
-      SessionId_S = GenerateSessionId(16);
-      HeaderCollection.clear();
-      HeaderCollection.emplace("session_id", SessionId_S);
-      Rts_B = true;
-      while (!feof(pIo_X))
+      fseek(pIo_X, 0, SEEK_END);
+      DataSize = ftell(pIo_X);
+      fseek(pIo_X, 0, SEEK_SET);
+      _ChunkSizeInByte_U32 = (_ChunkSizeInByte_U32 == 0) ? (64 * 1024) : _ChunkSizeInByte_U32;
+      pChunk_U8 = new uint8_t[_ChunkSizeInByte_U32];
+      if (pChunk_U8)
       {
-        BytesRead = fread(pChunk_U8, 1, _ChunkSizeInByte_U32, pIo_X);
-        if (BytesRead < 0)
+        SessionId_S = GenerateSessionId(38); // Like guid
+        RangeMin = 0;
+        if (DataSize <= _ChunkSizeInByte_U32)
         {
-          Rts_B = false;
-          break;
+          RangeMax = DataSize - 1;
         }
         else
         {
-          if (feof(pIo_X))
+          RangeMax = _ChunkSizeInByte_U32 - 1;
+        }
+        while (1)
+        {
+          ReadSize = RangeMax - RangeMin + 1;
+          if (fread(pChunk_U8, ReadSize, 1, pIo_X) == 1)
           {
-            HeaderCollection.emplace("final_chunk", "true");
+            HeaderCollection_X.clear();
+            HeaderCollection_X.insert(std::make_pair("Session-Id", SessionId_S));
+            sprintf(pRangeRequest_c, "bytes %zu-%zu/%zu", RangeMin, RangeMax, DataSize);
+            HeaderCollection_X.insert(std::make_pair("Content-Range", std::string(pRangeRequest_c)));
+            Res = Post(_rDestinationUri_S, _Compress_B, _KeepAlive_B, HeaderCollection_X, ReadSize, (const char *)pChunk_U8, "application/octet-stream");
+            if ((!Res) || ((Res->status != BOF_WEB_STATUS::OK_200) && (Res->status != BOF_WEB_STATUS::PartialContent_206)))
+            {
+              if (Res)
+              {
+                LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Upload error %d: %s\n", Res->status,
+                          BOF_WEB_LIB::status_message(Res->status));
+              }
+              break;
+            }
+            ContentRange_S = Res->get_header_value("Content-Range");
+            if (ParseContentRangeRequest(ContentRange_S, NewRangeMin, NewRangeMax, NewDataSize) && (RangeMin == NewRangeMin) && (RangeMax == NewRangeMax) &&
+                (DataSize == NewDataSize))
+            {
+              if (Res->status == BOF_WEB_STATUS::OK_200)
+              {
+                Rts_B = (RangeMax >= (DataSize - 1));
+                break;
+              }
+              if (Res->status == BOF_WEB_STATUS::PartialContent_206)
+              {
+                RangeMin = RangeMax + 1;
+                RangeMax = RangeMin + ReadSize - 1;
+                if (RangeMax >= (DataSize - 1))
+                {
+                  RangeMax = DataSize - 1;
+                }
+              }
+            }
+            else
+            {
+              LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Bad control data %zu/%zu,%zu/%zu,%zu/%zu\n", RangeMin,
+                        NewRangeMin, RangeMax, NewRangeMax, DataSize, NewDataSize);
+              break;
+            }
           }
-
-          Res = mpuHttpClient->Post(_rDestinationUri_S, HeaderCollection, (const char *)pChunk_U8, BytesRead, "application/octet-stream");
-
-          if ((!Res) || (Res->status != httplib::StatusCode::OK_200))
+          else
           {
-            Rts_B = false;
+            LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot read buffer %d:%p\n", Res->body.size(),
+                      Res->body.c_str());
             break;
           }
-
-          TotalByteSent += BytesRead;
-          Progress_f = static_cast<float>(TotalByteSent) / static_cast<float>(FileSize) * 100.0f;
-        }
+        } // while(1)
+        delete[] pChunk_U8;
       }
-      delete[] pChunk_U8;
-    } // if (pChunk_U8)
-    fclose(pIo_X);
-  } // if (pIo_X)
+      else
+      {
+        LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot allocate %d byte of memory\n", _ChunkSizeInByte_U32);
+      }
+      fclose(pIo_X);
+    }
+    else
+    {
+      LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot open file '%s'\n", _rFilePathToUpload_S.c_str());
+    }
+  }
+  if (!Rts_B)
+  {
+    LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP],
+              "Cannot upload '%s' in '%s': Compress %s KeepAlive %s ChunkSize %d B\n", _rFilePathToUpload_S.c_str(), _rDestinationUri_S.c_str(),
+              _Compress_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
+  }
   return Rts_B;
 }
 
@@ -251,88 +301,98 @@ bool BofWebClient::Download(const std::string _rSourceUri_S, const std::string _
   FILE *pIo_X;
   std::string SessionId_S, ContentRange_S;
   BOF_WEB_HEADER HeaderCollection_X;
-  size_t RangeMin, RangeMax, DataSize;
+  size_t RangeMin, RangeMax, DataSize, NewRangeMin, NewRangeMax, NewDataSize;
   char pRangeRequest_c[0x100];
   BOF_WEB_RESULT Res;
   uint32_t ChunkSize_U32;
 
   LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Download '%s' in '%s': Compress %s KeepAlive %s ChunkSize %d B\n",
            _rSourceUri_S.c_str(), _rFilePathWhereToStore_S.c_str(), _Compress_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
-  pIo_X = fopen(_rFilePathWhereToStore_S.c_str(), "wb");
-  if (pIo_X != nullptr)
+  if (mpuHttpClient)
   {
-    SessionId_S = GenerateSessionId(38); // Like guid
-    RangeMin = 0;
-    RangeMax = _ChunkSizeInByte_U32 - 1;
-    DataSize = 0;
-
-    while (1)
+    pIo_X = fopen(_rFilePathWhereToStore_S.c_str(), "wb");
+    if (pIo_X != nullptr)
     {
-      HeaderCollection_X.clear();
-      HeaderCollection_X.insert(std::make_pair("Session-Id", SessionId_S));
-      sprintf(pRangeRequest_c, "bytes %zu-%zu/%zu", RangeMin, RangeMax, DataSize);
-      HeaderCollection_X.insert(std::make_pair("Content-Range", std::string(pRangeRequest_c)));
-      Res = Get(_rSourceUri_S, _Compress_B, _KeepAlive_B, HeaderCollection_X);
-      if ((!Res) || ((Res->status != BOF_WEB_STATUS::OK_200) && (Res->status != BOF_WEB_STATUS::PartialContent_206)))
+      SessionId_S = GenerateSessionId(38); // Like guid
+      RangeMin = 0;
+      RangeMax = _ChunkSizeInByte_U32 - 1;
+      DataSize = 0;
+
+      while (1)
       {
-        if (Res)
+        HeaderCollection_X.clear();
+        HeaderCollection_X.insert(std::make_pair("Session-Id", SessionId_S));
+        sprintf(pRangeRequest_c, "bytes %zu-%zu/%zu", RangeMin, RangeMax, DataSize);
+        HeaderCollection_X.insert(std::make_pair("Content-Range", std::string(pRangeRequest_c)));
+        Res = Get(_rSourceUri_S, _Compress_B, _KeepAlive_B, HeaderCollection_X);
+        if ((!Res) || ((Res->status != BOF_WEB_STATUS::OK_200) && (Res->status != BOF_WEB_STATUS::PartialContent_206)))
         {
-          LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Download error %d: %s\n", Res->status,
-                    BOF_WEB_LIB::status_message(Res->status));
-        }
-        break;
-      }
-      if (Res->body.size())
-      {
-        ContentRange_S = Res->get_header_value("Content-Range");
-        if (ParseContentRangeRequest(ContentRange_S, RangeMin, RangeMax, DataSize))
-        {
-          ChunkSize_U32 = (RangeMax - RangeMin + 1);
-          if (ChunkSize_U32 != Res->body.size())
+          if (Res)
           {
-            LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Data size mismatch %d != %d\n", RangeMax - RangeMin,
-                      Res->body.size());
-            break;
+            LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Download error %d: %s\n", Res->status,
+                      BOF_WEB_LIB::status_message(Res->status));
           }
-          else
+          break;
+        }
+        if (Res->body.size())
+        {
+          ContentRange_S = Res->get_header_value("Content-Range");
+          if (ParseContentRangeRequest(ContentRange_S, NewRangeMin, NewRangeMax, NewDataSize) && (RangeMin == NewRangeMin) && (RangeMax == NewRangeMax) &&
+              (DataSize == NewDataSize))
           {
-            if (fwrite(Res->body.c_str(), Res->body.size(), 1, pIo_X) == 1)
+            ChunkSize_U32 = (RangeMax - RangeMin + 1);
+            if (ChunkSize_U32 != Res->body.size())
             {
-              RangeMin = RangeMax + 1;
-              RangeMax = RangeMin + ChunkSize_U32 - 1;
-              if (RangeMax >= (DataSize - 1))
-              {
-                RangeMax = DataSize - 1;
-              }
+              LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Data size mismatch %d != %d\n", RangeMax - RangeMin,
+                        Res->body.size());
+              break;
             }
             else
             {
-              LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot write buffer %d:%p\n", Res->body.size(),
-                        Res->body.c_str());
-              break;
+              if (fwrite(Res->body.c_str(), Res->body.size(), 1, pIo_X) == 1)
+              {
+                RangeMin = RangeMax + 1;
+                RangeMax = RangeMin + ChunkSize_U32 - 1;
+                if (RangeMax >= (DataSize - 1))
+                {
+                  RangeMax = DataSize - 1;
+                }
+              }
+              else
+              {
+                LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot write buffer %d:%p\n", Res->body.size(),
+                          Res->body.c_str());
+                break;
+              }
             }
           }
+          else
+          {
+            LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Bad control data %zu/%zu,%zu/%zu,%zu/%zu\n", RangeMin,
+                      NewRangeMin, RangeMax, NewRangeMax, DataSize, NewDataSize);
+            break;
+          }
+        }
+        else
+        {
+          LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "No data received\n");
+          break;
+        }
+        if (Res->status == BOF_WEB_STATUS::OK_200)
+        {
+          Rts_B = (RangeMax >= (DataSize - 1));
+          break;
+        }
+        if (Res->status == BOF_WEB_STATUS::PartialContent_206)
+        {
         }
       }
-      else
-      {
-        LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "No data received\n");
-        break;
-      }
-      if (Res->status == BOF_WEB_STATUS::OK_200)
-      {
-        Rts_B = (RangeMax >= (DataSize - 1));
-        break;
-      }
-      if (Res->status == BOF_WEB_STATUS::PartialContent_206)
-      {
-      }
+      fclose(pIo_X);
     }
-    fclose(pIo_X);
-  }
-  else
-  {
-    LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot create file '%s'\n", _rFilePathWhereToStore_S.c_str());
+    else
+    {
+      LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot create file '%s'\n", _rFilePathWhereToStore_S.c_str());
+    }
   }
   if (!Rts_B)
   {
