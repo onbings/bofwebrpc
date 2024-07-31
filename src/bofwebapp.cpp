@@ -56,27 +56,16 @@ bool BofWebApp::ReadConfig(BOF_WEB_JSON &_rConfig)
   try
   {
     BOF::Bof_GetCurrentDirectory(Cwd_S);
-    CfgPath_S = Cwd_S + mWebAppParam_X.AppName_S + ".json";
+    CfgPath_S = Cwd_S + "/assets/" + mWebAppParam_X.AppName_S + (mServer_B ? "-clt.json" : "-srv.json");
     LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Reading configuration from %s (Cwd is %s)\n", CfgPath_S.c_str(),
              Cwd_S.c_str());
     std::ifstream ConfigFile(CfgPath_S);
-    if (ConfigFile.std::ios::eof())
-    {
-      throw std::runtime_error("Config file is empty");
-    }
-
-    // Make sure the config is open
-    if (!ConfigFile.is_open())
-    {
-      throw std::runtime_error("Can't open config");
-    }
 
     ConfigFile >> _rConfig;
     Rts_B = true;
   }
   catch (std::exception &e)
   {
-    throw std::string(e.what());
   }
   /*
   catch (...)
@@ -162,20 +151,7 @@ std::string BofWebApp::LogRequestAndResponse(const BOF_WEB_REQUEST &_rReq, const
   return Rts_S;
 }
 
-std::string BofWebApp::GenerateSessionId(uint32_t _SessionIdLen_U32)
-{
-  std::string Rts_S;
-  static std::string S_CharToUse_S = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-  uint32_t i_U32;
-
-  for (i_U32 = 0; i_U32 < _SessionIdLen_U32; i_U32++)
-  {
-    Rts_S += S_CharToUse_S[rand() % S_CharToUse_S.size()];
-  }
-  return Rts_S;
-}
-
-bool BofWebApp::ParseContentRangeRequest(const std::string &_rContentRangeRequest_S, size_t &_rRangeMin, size_t &_rRangeMax, size_t &_rDataSize)
+bool BofWebApp::S_ParseContentRangeRequest(const std::string &_rContentRangeRequest_S, size_t &_rRangeMin, size_t &_rRangeMax, size_t &_rDataSize)
 {
   bool Rts_B = false;
   std::regex RegExContentRange(R"(bytes (\d+)-(\d+)/(\d+))");
@@ -197,6 +173,84 @@ bool BofWebApp::ParseContentRangeRequest(const std::string &_rContentRangeReques
         printf("Error parsing Content-Range: %s\n", e.what());
       }
     }
+  }
+  return Rts_B;
+}
+bool BofWebApp::S_SplitCmdAndArg(const std::string &_rCmdArgRequest_S, std::string &_rCmd_S, std::string &_rArg_S)
+{
+  bool Rts_B = false;
+  std::regex RegExCmdArg(R"((\w+)(?:\s+(.*))?)");
+  std::smatch Match;
+
+  if (std::regex_match(_rCmdArgRequest_S, Match, RegExCmdArg))
+  {
+    if (Match.size() >= 2)
+    {
+      _rCmd_S = Match[1].str();
+      if (Match.size() == 3)
+      {
+        _rArg_S = Match[2].str();
+      }
+      else
+      {
+        _rArg_S.clear(); // Clear the argument if it's not present
+      }
+      Rts_B = true;
+    }
+  }
+  return Rts_B;
+}
+std::vector<std::string> BofWebApp::S_SplitArg(const std::string &_rArg_S)
+{
+  std::vector<std::string> Rts;
+  std::stringstream Ss(_rArg_S);
+  std::string Item_S;
+
+  while (std::getline(Ss, Item_S, ','))
+  {
+    Rts.push_back(Item_S);
+  }
+
+  return Rts;
+}
+std::string BofWebApp::S_GenerateSessionId(uint32_t _SessionIdLen_U32)
+{
+  std::string Rts_S;
+  static std::string S_CharToUse_S = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  uint32_t i_U32;
+
+  for (i_U32 = 0; i_U32 < _SessionIdLen_U32; i_U32++)
+  {
+    Rts_S += S_CharToUse_S[rand() % S_CharToUse_S.size()];
+  }
+  return Rts_S;
+}
+
+bool BofWebApp::S_CreateTestFile(const std::string &_rPath_S, uint32_t _SizeInByte_U32, uint8_t _ValueStart_U32)
+{
+  bool Rts_B = false;
+  FILE *pIo_X;
+  uint8_t *pBuffer_U8;
+  uint32_t i_U32;
+
+  pIo_X = fopen(_rPath_S.c_str(), "wb");
+  if (pIo_X != nullptr)
+  {
+    pBuffer_U8 = new uint8_t[_SizeInByte_U32];
+    if (pBuffer_U8)
+    {
+      for (i_U32 = 0; i_U32 < _SizeInByte_U32; i_U32++)
+      {
+        pBuffer_U8[i_U32] = _ValueStart_U32++;
+      }
+      if (fwrite(pBuffer_U8, _SizeInByte_U32, 1, pIo_X) == 1)
+      {
+        Rts_B = true;
+      }
+
+      delete[] pBuffer_U8;
+    }
+    fclose(pIo_X);
   }
   return Rts_B;
 }

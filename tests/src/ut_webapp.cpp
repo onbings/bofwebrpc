@@ -263,7 +263,7 @@ private:
       Path_S = mWebServerParam_X.RootDir_S + "/" + Dir_S + "/" + File_S;
       if (Path_S.find("..") == std::string::npos)
       {
-        if (ParseContentRangeRequest(ContentRange_S, RangeMin, RangeMax, DataSize))
+        if (BofWebApp::S_ParseContentRangeRequest(ContentRange_S, RangeMin, RangeMax, DataSize))
         {
           Continue_B = true;
         }
@@ -397,7 +397,7 @@ private:
       Path_S = mWebServerParam_X.RootDir_S + "/" + Dir_S + "/" + File_S;
       if (Path_S.find("..") == std::string::npos)
       {
-        if (ParseContentRangeRequest(ContentRange_S, RangeMin, RangeMax, DataSize))
+        if (BofWebApp::S_ParseContentRangeRequest(ContentRange_S, RangeMin, RangeMax, DataSize))
         {
           Continue_B = true;
         }
@@ -537,34 +537,7 @@ protected:
   void SetUp() override
   {
   }
-  bool CreateFile(const std::string &_rPath_S, uint32_t _SizeInByte_U32, uint8_t _ValueStart_U32)
-  {
-    bool Rts_B = false;
-    FILE *pIo_X;
-    uint8_t *pBuffer_U8;
-    uint32_t i_U32;
 
-    pIo_X = fopen(_rPath_S.c_str(), "wb");
-    if (pIo_X != nullptr)
-    {
-      pBuffer_U8 = new uint8_t[_SizeInByte_U32];
-      if (pBuffer_U8)
-      {
-        for (i_U32 = 0; i_U32 < _SizeInByte_U32; i_U32++)
-        {
-          pBuffer_U8[i_U32] = _ValueStart_U32++;
-        }
-        if (fwrite(pBuffer_U8, _SizeInByte_U32, 1, pIo_X) == 1)
-        {
-          Rts_B = true;
-        }
-
-        delete[] pBuffer_U8;
-      }
-      fclose(pIo_X);
-    }
-    return Rts_B;
-  }
   bool CreateClientAndServer(bool _UseHttps_B)
   {
     bool Rts_B = false;
@@ -589,10 +562,10 @@ protected:
     Path_S = mWebServerParam_X.RootDir_S + "/local/";
     EXPECT_EQ(BOF::Bof_CreateDirectory(BOF::BOF_FILE_PERMISSION_ALL_FOR_OWNER, Path_S), BOF_ERR_NO_ERROR);
     EXPECT_EQ(BOF::Bof_CleanupDirectory(true, Path_S, false), BOF_ERR_NO_ERROR);
-    EXPECT_TRUE(CreateFile(Path_S + "/MulticamDeveloper_21.00.00.83879.tar.gz", UPDOWN_CHUNK_SIZE * 100, 0));
-    EXPECT_TRUE(CreateFile(Path_S + "/less_than_one_chunk_size.bin", UPDOWN_CHUNK_SIZE / 2, 1));
-    EXPECT_TRUE(CreateFile(Path_S + "/one_chunk_size.bin", UPDOWN_CHUNK_SIZE, 2));
-    EXPECT_TRUE(CreateFile(Path_S + "/more_than_one_chunk_size.bin", (UPDOWN_CHUNK_SIZE * 4) + 5678, 4));
+    EXPECT_TRUE(BOFWEBRPC::BofWebApp::S_CreateTestFile(Path_S + "/MulticamDeveloper_21.00.00.83879.tar.gz", UPDOWN_CHUNK_SIZE * 100, 0));
+    EXPECT_TRUE(BOFWEBRPC::BofWebApp::S_CreateTestFile(Path_S + "/less_than_one_chunk_size.bin", UPDOWN_CHUNK_SIZE / 2, 1));
+    EXPECT_TRUE(BOFWEBRPC::BofWebApp::S_CreateTestFile(Path_S + "/one_chunk_size.bin", UPDOWN_CHUNK_SIZE, 2));
+    EXPECT_TRUE(BOFWEBRPC::BofWebApp::S_CreateTestFile(Path_S + "/more_than_one_chunk_size.bin", (UPDOWN_CHUNK_SIZE * 4) + 5678, 4));
 
     mWebServerParam_X.RootDir_S += "/www/";
     EXPECT_EQ(BOF::Bof_CreateDirectory(BOF::BOF_FILE_PERMISSION_ALL_FOR_OWNER, mWebServerParam_X.RootDir_S), BOF_ERR_NO_ERROR);
@@ -600,9 +573,9 @@ protected:
 
     Path_S = mWebServerParam_X.RootDir_S + "/log/";
     EXPECT_EQ(BOF::Bof_CreateDirectory(BOF::BOF_FILE_PERMISSION_ALL_FOR_OWNER, Path_S), BOF_ERR_NO_ERROR);
-    EXPECT_TRUE(CreateFile(Path_S + "/less_than_one_chunk_size.log", UPDOWN_CHUNK_SIZE / 3, 10));
-    EXPECT_TRUE(CreateFile(Path_S + "/one_chunk_size.log", UPDOWN_CHUNK_SIZE, 11));
-    EXPECT_TRUE(CreateFile(Path_S + "/more_than_one_chunk_size.log", (UPDOWN_CHUNK_SIZE * 3000) + 9876, 12));
+    EXPECT_TRUE(BOFWEBRPC::BofWebApp::S_CreateTestFile(Path_S + "/less_than_one_chunk_size.log", UPDOWN_CHUNK_SIZE / 3, 10));
+    EXPECT_TRUE(BOFWEBRPC::BofWebApp::S_CreateTestFile(Path_S + "/one_chunk_size.log", UPDOWN_CHUNK_SIZE, 11));
+    EXPECT_TRUE(BOFWEBRPC::BofWebApp::S_CreateTestFile(Path_S + "/more_than_one_chunk_size.log", (UPDOWN_CHUNK_SIZE * 3000) + 9876, 12));
 
     Path_S = mWebServerParam_X.RootDir_S + "/update/";
     EXPECT_EQ(BOF::Bof_CreateDirectory(BOF::BOF_FILE_PERMISSION_ALL_FOR_OWNER, Path_S), BOF_ERR_NO_ERROR);

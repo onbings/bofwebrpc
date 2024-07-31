@@ -174,17 +174,20 @@ public:
   BofWebApp &operator=(const BofWebApp &) = delete;
   BofWebApp(BofWebApp &&) = delete;
   BofWebApp &operator=(BofWebApp &&) = delete;
+  static bool S_SplitCmdAndArg(const std::string &_rCmdArgRequest_S, std::string &_rCmd_S, std::string &_rArg_S);
+  static std::vector<std::string> S_SplitArg(const std::string &_rArg_S);
+  static std::string S_GenerateSessionId(uint32_t _SessionIdLen_U32);
+  static bool S_CreateTestFile(const std::string &_rPath_S, uint32_t _SizeInByte_U32, uint8_t _ValueStart_U32);
+  static bool S_ParseContentRangeRequest(const std::string &_rContentRangeRequest_S, size_t &_rRangeMin, size_t &_rRangeMax, size_t &_rDataSize);
 
 protected:
   bool Initialize(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory);
   bool Shutdown();
   std::string LogRequestAndResponse(const httplib::Request &_rReq, const httplib::Response &_rRes);
-  std::string GenerateSessionId(uint32_t _SessionIdLen_U32);
 
   BOF_WEB_APP_PARAM mWebAppParam_X;
   BOF_WEB_JSON mWebAppConfig;
   static std::array<std::shared_ptr<BOF::IBofLogger>, WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_MAX> S_mpsWebAppLoggerCollection;
-  bool ParseContentRangeRequest(const std::string &_rContentRangeRequest_S, size_t &_rRangeMin, size_t &_rRangeMax, size_t &_rDataSize);
 
 private:
   bool ReadConfig(BOF_WEB_JSON &_rConfig);

@@ -107,8 +107,11 @@ BofWebServer::BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
     mpHttpServer->set_expect_100_continue_handler(
         [this](const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes) -> BOF_WEB_STATUS { return this->V_OnExpect100Continue(_rReq, _rRes); });
     mpHttpServer->set_socket_options([this](BOF_WEB_SOCKET _Socket) { this->V_OnSetSocketOption(_Socket); });
-    mpHttpServer->set_logger([this](const BOF_WEB_REQUEST &_rReq, const BOF_WEB_RESPONSE &_rRes) { this->LogRequestAndResponse(_rReq, _rRes); });
 
+    if (mWebServerParam_X.LogRequestAndResponse_B)
+    {
+      mpHttpServer->set_logger([this](const BOF_WEB_REQUEST &_rReq, const BOF_WEB_RESPONSE &_rRes) { this->LogRequestAndResponse(_rReq, _rRes); });
+    }
     if (mWebServerParam_X.KeepAliveMaxCount_U32 == 0)
     {
       mWebServerParam_X.KeepAliveMaxCount_U32 = 1;

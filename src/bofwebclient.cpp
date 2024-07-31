@@ -183,8 +183,8 @@ BOF_WEB_RESULT BofWebClient::Head(const std::string &_rUri_S, bool _Compress_B, 
   }
   return Rts;
 }
-bool BofWebClient ::Upload(const std::string _rFilePathToUpload_S, const std::string _rDestinationUri_S, bool _Compress_B, bool _KeepAlive_B,
-                           uint32_t _ChunkSizeInByte_U32)
+bool BofWebClient::Upload(const std::string _rFilePathToUpload_S, const std::string _rDestinationUri_S, bool _Compress_B, bool _KeepAlive_B,
+                          uint32_t _ChunkSizeInByte_U32)
 {
   bool Rts_B = false;
   FILE *pIo_X;
@@ -210,7 +210,7 @@ bool BofWebClient ::Upload(const std::string _rFilePathToUpload_S, const std::st
       pChunk_U8 = new uint8_t[_ChunkSizeInByte_U32];
       if (pChunk_U8)
       {
-        SessionId_S = GenerateSessionId(38); // Like guid
+        SessionId_S = BofWebApp::S_GenerateSessionId(36); // Like UUID without start and stop delimiter {}
         RangeMin = 0;
         if (DataSize <= _ChunkSizeInByte_U32)
         {
@@ -240,8 +240,8 @@ bool BofWebClient ::Upload(const std::string _rFilePathToUpload_S, const std::st
               break;
             }
             ContentRange_S = Res->get_header_value("Content-Range");
-            if (ParseContentRangeRequest(ContentRange_S, NewRangeMin, NewRangeMax, NewDataSize) && (RangeMin == NewRangeMin) && (RangeMax == NewRangeMax) &&
-                (DataSize == NewDataSize))
+            if (BofWebApp::S_ParseContentRangeRequest(ContentRange_S, NewRangeMin, NewRangeMax, NewDataSize) && (RangeMin == NewRangeMin) &&
+                (RangeMax == NewRangeMax) && (DataSize == NewDataSize))
             {
               if (Res->status == BOF_WEB_STATUS::OK_200)
               {
@@ -313,7 +313,7 @@ bool BofWebClient::Download(const std::string _rSourceUri_S, const std::string _
     pIo_X = fopen(_rFilePathWhereToStore_S.c_str(), "wb");
     if (pIo_X != nullptr)
     {
-      SessionId_S = GenerateSessionId(38); // Like guid
+      SessionId_S = BofWebApp::S_GenerateSessionId(36); // Like UUID without start and stop delimiter {}
       RangeMin = 0;
       RangeMax = _ChunkSizeInByte_U32 - 1;
       DataSize = 0;
@@ -337,8 +337,8 @@ bool BofWebClient::Download(const std::string _rSourceUri_S, const std::string _
         if (Res->body.size())
         {
           ContentRange_S = Res->get_header_value("Content-Range");
-          if (ParseContentRangeRequest(ContentRange_S, NewRangeMin, NewRangeMax, NewDataSize) && (RangeMin == NewRangeMin) && (RangeMax == NewRangeMax) &&
-              (DataSize == NewDataSize))
+          if (BofWebApp::S_ParseContentRangeRequest(ContentRange_S, NewRangeMin, NewRangeMax, NewDataSize) && (RangeMin == NewRangeMin) &&
+              (RangeMax == NewRangeMax) && (DataSize == NewDataSize))
           {
             ChunkSize_U32 = (RangeMax - RangeMin + 1);
             if (ChunkSize_U32 != Res->body.size())
