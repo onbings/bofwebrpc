@@ -92,6 +92,18 @@ BofWebServer::BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
     }
     mpHttpServer->new_task_queue = [this]() { return new BofWebServerTaskQueue(this, this->mWebServerParam_X.ThreadPoolSize_U32); };
     HeaderCollection.insert(std::make_pair("User-Agent", "BofWebRpcAgent/1.0.0"));
+    if (mWebServerParam_X.DisableCors_B)
+    {
+      // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
+      HeaderCollection.insert(std::make_pair("Access-Control-Allow-Origin", "*"));
+      // https: // github.com/yhirose/cpp-httplib/pull/62
+      mpHttpServer->Options(R"(/.*)", [](const BOFWEBRPC::BOF_WEB_REQUEST &_rReq, BOFWEBRPC::BOF_WEB_RESPONSE &_rRes) {
+        // This one is in default header (needed by response) _rRes.set_header("Access-Control-Allow-Origin", _rReq.get_header_value("Origin").c_str());
+        _rRes.set_header("Allow", "GET, PUT, POST, DELETE, HEAD, OPTIONS");
+        _rRes.set_header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Accept, Origin, Authorization");
+        _rRes.set_header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, HEAD, OPTIONS");
+      });
+    }
     mpHttpServer->set_default_headers(HeaderCollection);
 
     SetFileExtensionAndMimetypeMapping(".tar.gz", "application/octet-stream");

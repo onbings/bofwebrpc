@@ -79,6 +79,42 @@ Best Practices for URI Design in REST APIs
 Keep it lowercase: Paths are generally kept lowercase with hyphens (-) to separate words.
 - Use query parameters for filtering: Use query parameters for operations that don't involve directly manipulating resources, like filtering or sorting.
 By following these conventions, REST APIs achieve a level of standardization that makes them more intuitive and easier to use for developers.
+
+- Never use CRUD function names in URIs
+We should not use URIs to indicate a CRUD function. URIs should only be used to identify the resources and not any action upon them uniquely.
+We should use HTTP request methods to indicate which CRUD function is performed.
+
+HTTP GET /device-management/managed-devices  			//Get all devices
+HTTP POST /device-management/managed-devices  			//Create new Device
+HTTP GET /device-management/managed-devices/{id}  		//Get device for given Id
+HTTP PUT /device-management/managed-devices/{id}  		//Update device for given Id
+HTTP DELETE /device-management/managed-devices/{id}  	//Delete device for given Id
+
+-Use query component to filter URI collection
+Often, you will encounter requirements where you will need a collection of resources sorted, filtered, or limited based on some specific resource attribute.
+For this requirement, do not create new APIs – instead, enable sorting, filtering, and pagination capabilities in resource collection API and pass the input
+parameters as query parameters. e.g.
+
+/device-management/managed-devices
+/device-management/managed-devices?region=USA
+/device-management/managed-devices?region=USA&brand=XYZ
+/device-management/managed-devices?region=USA&brand=XYZ&sort=installation-date
+
+-Do not Use Verbs in the URI
+It is not correct to put the verbs in REST URIs. REST uses nouns to represent resources, and HTTP methods (GET, POST, PUT, DELETE, etc.) are then used to
+perform actions on those resources, effectively acting as verbs.
+If we use verbs in the URI, we are most probably creating an RPC-style method call having a JSON or XML request/response format. It would be incorrect to call
+it REST.
+
+/device-management/managed-devices/{id}/scripts/{id}/execute    //It is RPC, and not REST
+In cases, where we need to perform some action that does not apply naturally to the definition of resources, we can create the custom URIs that can be
+considered nouns/resources and perform an action over them.
+For example, instead of invoking /scripts/{id}/execute , we can create a resource for all scripts currently executing and submit a script to it if we want to
+execute a script.
+
+/device-management/managed-devices/{id}/scripts/{id}/execute	//DON't DO THIS!
+/device-management/managed-devices/{id}/scripts/{id}/status		//POST request with action=execute
+You may also consider using the custom methods with colon(:) as described in custom methods by Google Cloud Docs, although many may find it in violation of REST
 */
 
 #pragma once

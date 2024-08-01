@@ -59,6 +59,11 @@ bool BofWebClient::Connect(uint32_t _TimeOutInMs_U32, const std::string &_rIpAdd
     mpuHttpClient->set_ca_cert_path(mWebClientParam_X.CertificateAuthorityPath_S);
     mpuHttpClient->enable_server_certificate_verification(!mWebClientParam_X.DisableServerCertificateVerification_B);
     HeaderCollection.insert(std::make_pair("User-Agent", "BofWebRpcAgent/1.0.0"));
+
+    // if (mWebClientParam_X)
+    {
+      // HeaderCollection.insert(std::make_pair("Access-Control-Allow-Origin", "*"));
+    }
     mpuHttpClient->set_default_headers(HeaderCollection);
   }
   else

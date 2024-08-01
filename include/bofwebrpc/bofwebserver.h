@@ -29,6 +29,7 @@ struct BOF_WEB_SERVER_PARAM
   uint32_t PayloadMaxLengthInByte_U32;
   uint32_t ThreadPoolSize_U32;
   std::string RootDir_S;
+  bool DisableCors_B;
   BOF_WEB_APP_PARAM WebAppParam_X;
 
   BOF_WEB_SERVER_PARAM()
@@ -50,6 +51,7 @@ struct BOF_WEB_SERVER_PARAM
     PayloadMaxLengthInByte_U32 = 0;
     ThreadPoolSize_U32 = 0;
     RootDir_S = "";
+    DisableCors_B = false;
     WebAppParam_X.Reset();
   }
 };
@@ -72,13 +74,31 @@ public:
   bool RemoveMountPoint(const std::string &_rMountPoint_S);
   bool SetFileExtensionAndMimetypeMapping(const std::string &_rExt_S, const std::string &_rMime_S);
   bool IsRunning() const;
-
+  /*
+  GET on file which are on mounted directory:
+  if (!head && file_request_handler_) {
+    file_request_handler_(req, res);
+  }
+  */
   virtual void V_OnFileRequest(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes)
   {
   }
+  /*
+  For status code above and equal to 400
+    if (400 <= res.status && error_handler_ &&
+        error_handler_(req, res) == HandlerResponse::Handled) {
+      need_apply_ranges = true;
+    }
+  */
   virtual void V_OnError(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes)
   {
   }
+  /*
+    try {
+    routed = routing(req, res, strm);
+  } catch (std::exception &e) {
+    if (exception_handler_) {
+  */
   virtual void V_OnException(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes, std::exception_ptr ep)
   {
     char pBuffer_c[0x100];
