@@ -23,65 +23,73 @@ BEGIN_WEBRPC_NAMESPACE()
 constexpr const char *WS_CLT_KEY_ARG = "bof_ws_clt_key=";
 constexpr const char *WS_CLT_KEY_VAL_FMT = "BofWsClt_%08X";
 // #define WS_CLT_KEY_ARG "bof_ws_clt_key="
-//#define DBG_PROTO
+// #define DBG_PROTO
 #if defined(_WIN32)
-#define BOF_LOG_TO_DBG(pFormat,...)  {std::string Dbg;Dbg=BOF::Bof_Sprintf(pFormat, ##__VA_ARGS__);OutputDebugString(Dbg.c_str());}
+#define BOF_LOG_TO_DBG(pFormat, ...)                                                                                                                           \
+  {                                                                                                                                                            \
+    std::string Dbg;                                                                                                                                           \
+    Dbg = BOF::Bof_Sprintf(pFormat, ##__VA_ARGS__);                                                                                                            \
+    OutputDebugString(Dbg.c_str());                                                                                                                            \
+  }
 #else
-#define BOF_LOG_TO_DBG(pFormat,...)  {printf(pFormat, ##__VA_ARGS__);}
+#define BOF_LOG_TO_DBG(pFormat, ...)                                                                                                                           \
+  {                                                                                                                                                            \
+    printf(pFormat, ##__VA_ARGS__);                                                                                                                            \
+  }
 #endif
 #define DBG_LOG lwsl_info
 
 #if defined(DBG_PROTO)
-#define BOF_LWS_WRITE(Sts, Wsi, pBuf, Len, Proto)                       \
-  {                                                                 \
-    Sts = lws_write(Wsi, pBuf, Len, Proto);                         \
-    /*BOF_LOG_TO_DBG("Write %zx:%p %s", Len, pBuf, pBuf ? (char *)pBuf : ""); */ \
+#define BOF_LWS_WRITE(Sts, Wsi, pBuf, Len, Proto)                                                                                                              \
+  {                                                                                                                                                            \
+    Sts = lws_write(Wsi, pBuf, Len, Proto);                                                                                                                    \
+    /*BOF_LOG_TO_DBG("Write %zx:%p %s", Len, pBuf, pBuf ? (char *)pBuf : ""); */                                                                               \
   }
 #else
-#define BOF_LWS_WRITE(Sts, Wsi, pBuf, Len, Proto) \
-  {                                           \
-    Sts = lws_write(Wsi, pBuf, Len, Proto);   \
+#define BOF_LWS_WRITE(Sts, Wsi, pBuf, Len, Proto)                                                                                                              \
+  {                                                                                                                                                            \
+    Sts = lws_write(Wsi, pBuf, Len, Proto);                                                                                                                    \
   }
 #endif
 constexpr uint32_t PUSH_POP_TIMEOUT = 150; // Global To for getting command out of incoming queue, in ListeningMode_B it is half of the To specified for listen
-#define BOF_LWS_CLIENT_DISCONNECT()            \
-  {                                        \
-    if (mpLwsContext_X)                    \
-    {                                      \
-      lws_context_destroy(mpLwsContext_X); \
-      mpLwsContext_X = nullptr;            \
-    }                                      \
-    mWebSocketState_X.Reset();             \
-    mpuRxBufferCollection->Reset();        \
+#define BOF_LWS_CLIENT_DISCONNECT()                                                                                                                            \
+  {                                                                                                                                                            \
+    if (mpLwsContext_X)                                                                                                                                        \
+    {                                                                                                                                                          \
+      lws_context_destroy(mpLwsContext_X);                                                                                                                     \
+      mpLwsContext_X = nullptr;                                                                                                                                \
+    }                                                                                                                                                          \
+    mWebSocketState_X.Reset();                                                                                                                                 \
+    mpuRxBufferCollection->Reset();                                                                                                                            \
   }
-#define BOF_LWS_WAKEUP_SERVICE()              \
-  {                                       \
-    if (mpLwsContext_X)                   \
-    {                                     \
-      lws_cancel_service(mpLwsContext_X); \
-    }                                     \
+#define BOF_LWS_WAKEUP_SERVICE()                                                                                                                               \
+  {                                                                                                                                                            \
+    if (mpLwsContext_X)                                                                                                                                        \
+    {                                                                                                                                                          \
+      lws_cancel_service(mpLwsContext_X);                                                                                                                      \
+    }                                                                                                                                                          \
   }
 
-#define BOF_WEB_RPC_PROGRAM_OPERATION(Field, Operation)                                              \
-  BOFERR Rts_E;                                                                                  \
-  BOF_WEB_RPC_SOCKET_OPERATION_PARAM Param_X;                                                        \
-  Param_X.Ticket_U32 = mTicket_U32;                                                              \
-  BOF_INC_TICKET_NUMBER(mTicket_U32);                                                            \
-  Param_X.TimeOut_U32 = _TimeOut_U32;                                                            \
-  Param_X.Timer_U32 = BOF::Bof_GetMsTickCount();                                                 \
-  Param_X.Operation_E = Operation;                                                               \
-  Param_X.Field = _rParam_X;                                                                     \
-  Rts_E = mpuSocketOperationParamCollection->Push(&Param_X, PUSH_POP_TIMEOUT, nullptr, nullptr); \
-  if (Rts_E == BOF_ERR_NO_ERROR)                                                                 \
-  {                                                                                              \
-    BOF_LWS_WAKEUP_SERVICE();                                                                        \
-    _rOpTicket_U32 = Param_X.Ticket_U32;                                                         \
-    mOperationPending_B = true;                                                                  \
-  }                                                                                              \
-  else                                                                                           \
-  {                                                                                              \
-    _rOpTicket_U32 = 0;                                                                          \
-  }                                                                                              \
+#define BOF_WEB_RPC_PROGRAM_OPERATION(Field, Operation)                                                                                                        \
+  BOFERR Rts_E;                                                                                                                                                \
+  BOF_WEB_RPC_SOCKET_OPERATION_PARAM Param_X;                                                                                                                  \
+  Param_X.Ticket_U32 = mTicket_U32;                                                                                                                            \
+  BOF_INC_TICKET_NUMBER(mTicket_U32);                                                                                                                          \
+  Param_X.TimeOut_U32 = _TimeOut_U32;                                                                                                                          \
+  Param_X.Timer_U32 = BOF::Bof_GetMsTickCount();                                                                                                               \
+  Param_X.Operation_E = Operation;                                                                                                                             \
+  Param_X.Field = _rParam_X;                                                                                                                                   \
+  Rts_E = mpuSocketOperationParamCollection->Push(&Param_X, PUSH_POP_TIMEOUT, nullptr, nullptr);                                                               \
+  if (Rts_E == BOF_ERR_NO_ERROR)                                                                                                                               \
+  {                                                                                                                                                            \
+    BOF_LWS_WAKEUP_SERVICE();                                                                                                                                  \
+    _rOpTicket_U32 = Param_X.Ticket_U32;                                                                                                                       \
+    mOperationPending_B = true;                                                                                                                                \
+  }                                                                                                                                                            \
+  else                                                                                                                                                         \
+  {                                                                                                                                                            \
+    _rOpTicket_U32 = 0;                                                                                                                                        \
+  }                                                                                                                                                            \
   return Rts_E;
 
 static BOF::BofEnum<BOF_WEB_RPC_SOCKET_OPERATION> S_WebRpcSocketOpEnumConverter(
@@ -235,37 +243,22 @@ static int S_Lws_Callback_Http(struct lws *_pWsi_X, enum lws_callback_reasons _L
 
 // Set up HTTP mount for serving static files
 struct lws_http_mount S_MountPoint_X = {
-    nullptr,
-    "/",
+    nullptr,      "/",
     "./",         // Serve files from the current directory
     "index.html", // Default file to serve
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    LWSMPRO_FILE,
-    1,
-    nullptr,
+    nullptr,      nullptr, nullptr, nullptr, 0, 0, 0, 0, 0, 0, LWSMPRO_FILE, 1, nullptr,
 };
 
 // This array of struct will be completed before calling lws_create_context to setup per_session_data_size and user
 /* The first protocol must always be the HTTP handler */
 static struct lws_protocols S_pLwsServerProtocol_X[] = {
-    {"http",
-     S_Lws_Callback_Http,
+    {"http", S_Lws_Callback_Http,
      0, // per session data size
      0,
      0,       // user defined ID, not used by LWS
      nullptr, // user defined pointer
      0},
-    {"webrpc",
-     S_Lws_Callback_Http,
+    {"webrpc", S_Lws_Callback_Http,
      0, // per session data size
      0,
      0,       // user defined ID, not used by LWS
@@ -274,8 +267,7 @@ static struct lws_protocols S_pLwsServerProtocol_X[] = {
     {NULL, NULL, 0, 0} // End of list
 };
 static struct lws_protocols S_pLwsClientProtocol_X[] = {
-    {"webrpc",
-     S_Lws_Callback_Http,
+    {"webrpc", S_Lws_Callback_Http,
      0, // per session data size
      0,
      0,       // user defined ID, not used by LWS
@@ -284,8 +276,7 @@ static struct lws_protocols S_pLwsClientProtocol_X[] = {
 
     {NULL, NULL, 0, 0} // End of list
 };
-BofWebSocket::BofWebSocket(const BOF_WEB_SOCKET_PARAM &_rWebSocketParam_X)
-    : BOF::BofThread()
+BofWebSocket::BofWebSocket(const BOF_WEB_SOCKET_PARAM &_rWebSocketParam_X) : BOF::BofThread()
 {
   uint32_t Start_U32;
   BOF::BOF_CIRCULAR_BUFFER_PARAM CircularBufferParam_X;
@@ -294,8 +285,10 @@ BofWebSocket::BofWebSocket(const BOF_WEB_SOCKET_PARAM &_rWebSocketParam_X)
   bool Sts_B;
 
   mWebSocketParam_X = _rWebSocketParam_X;
-  // lws_set_log_level(LLLF_LOG_TIMESTAMP | LLL_ERR | LLL_WARN | LLL_NOTICE | LLL_INFO | LLL_DEBUG | LLL_PARSER | LLL_HEADER | LLL_EXT | LLL_CLIENT | LLL_LATENCY | LLL_USER | LLL_THREAD, nullptr);
-  lws_set_log_level(LLLF_LOG_TIMESTAMP | LLL_ERR | LLL_WARN | LLL_NOTICE | LLL_INFO | LLL_HEADER | LLL_EXT | LLL_CLIENT | LLL_LATENCY | LLL_USER | LLL_THREAD, nullptr);
+  // lws_set_log_level(LLLF_LOG_TIMESTAMP | LLL_ERR | LLL_WARN | LLL_NOTICE | LLL_INFO | LLL_DEBUG | LLL_PARSER | LLL_HEADER | LLL_EXT | LLL_CLIENT |
+  // LLL_LATENCY | LLL_USER | LLL_THREAD, nullptr);
+  lws_set_log_level(LLLF_LOG_TIMESTAMP | LLL_ERR | LLL_WARN | LLL_NOTICE | LLL_INFO | LLL_HEADER | LLL_EXT | LLL_CLIENT | LLL_LATENCY | LLL_USER | LLL_THREAD,
+                    nullptr);
   //                    LLL_DEBUG | LLL_INFO | LLL_NOTICE | LLL_WARN | LLL_ERR | LLL_CLIENT | LLL_LATENCY, nullptr);  //);
   lws_set_log_level(0, nullptr);
   Sts_E = Bof_CreateEvent(mWebSocketParam_X.WebSocketThreadParam_X.Name_S, false, 1, false, false, false, mCancelEvent_X);
@@ -372,7 +365,9 @@ BOFERR BofWebSocket::GetWebSocketOperationResult(uint32_t _TimeOut_U32, BOF_WEB_
 
   _rOperationResult_X.Reset();
   Rts_E = mpuSocketOperationResultCollection->Pop(&_rOperationResult_X, _TimeOut_U32, nullptr, nullptr);
-  // BOF_LOG_TO_DBG("%d WEB_RPC_SOCKET_OPERATION_GET_RESULT %s Err %s Ticket %d Op %s Sts %s\n", BOF::Bof_GetMsTickCount(), mWebSocketParam_X.WebSocketThreadParam_X.Name_S.c_str(), BOF::Bof_ErrorCode(Rts_E), _rOperationResult_X.OpTicket_U32, S_WebRpcSocketOpEnumConverter.ToString(_rOperationResult_X.Operation_E).c_str(), BOF::Bof_ErrorCode(_rOperationResult_X.Sts_E));
+  // BOF_LOG_TO_DBG("%d WEB_RPC_SOCKET_OPERATION_GET_RESULT %s Err %s Ticket %d Op %s Sts %s\n", BOF::Bof_GetMsTickCount(),
+  // mWebSocketParam_X.WebSocketThreadParam_X.Name_S.c_str(), BOF::Bof_ErrorCode(Rts_E), _rOperationResult_X.OpTicket_U32,
+  // S_WebRpcSocketOpEnumConverter.ToString(_rOperationResult_X.Operation_E).c_str(), BOF::Bof_ErrorCode(_rOperationResult_X.Sts_E));
   return Rts_E;
 }
 
@@ -434,7 +429,7 @@ BOFERR BofWebSocket::ResetWebSocketOperation()
 
   return Rts_E;
 }
-BOFERR BofWebSocket::Connect(uint32_t TimeoutInMs_U32, const std::string &_rWsEndpoint_S, const std::string &_rWsCltKey_S)  // "ws ://10.129.171.112:8080";
+BOFERR BofWebSocket::Connect(uint32_t TimeoutInMs_U32, const std::string &_rWsEndpoint_S, const std::string &_rWsCltKey_S) // "ws ://10.129.171.112:8080";
 {
   BOFERR Rts_E;
   BOF::BOF_SOCKET_ADDRESS WsEndpoint_X(_rWsEndpoint_S);
@@ -458,8 +453,7 @@ BOFERR BofWebSocket::Connect(uint32_t TimeoutInMs_U32, const std::string &_rWsEn
           break;
         }
       }
-    }
-    while (Rts_E == BOF_ERR_NO_ERROR);
+    } while (Rts_E == BOF_ERR_NO_ERROR);
   }
   return Rts_E;
 }
@@ -487,8 +481,7 @@ BOFERR BofWebSocket::Write(uint32_t TimeoutInMs_U32, uint32_t &_rNbToWrite_U32, 
           break;
         }
       }
-    }
-    while (Rts_E == BOF_ERR_NO_ERROR);
+    } while (Rts_E == BOF_ERR_NO_ERROR);
   }
   return Rts_E;
 }
@@ -517,8 +510,7 @@ BOFERR BofWebSocket::Read(uint32_t TimeoutInMs_U32, uint32_t &_rNbMaxToRead_U32,
           break;
         }
       }
-    }
-    while (Rts_E == BOF_ERR_NO_ERROR);
+    } while (Rts_E == BOF_ERR_NO_ERROR);
   }
   return Rts_E;
 }
@@ -543,8 +535,7 @@ BOFERR BofWebSocket::Disconnect(uint32_t TimeoutInMs_U32)
           break;
         }
       }
-    }
-    while (Rts_E == BOF_ERR_NO_ERROR);
+    } while (Rts_E == BOF_ERR_NO_ERROR);
   }
   return Rts_E;
 }
@@ -556,7 +547,9 @@ BOFERR BofWebSocket::Run()
   uint32_t Start_U32, OpTicket_U32;
   BOFWEBRPC::BOF_WEB_RPC_SOCKET_LISTEN_PARAM ListenParam_X;
 
-  Rts_E = LaunchBofProcessingThread(mWebSocketParam_X.WebSocketThreadParam_X.Name_S, false, false, 0, mWebSocketParam_X.WebSocketThreadParam_X.ThreadSchedulerPolicy_E, mWebSocketParam_X.WebSocketThreadParam_X.ThreadPriority_E, 0, 2000, 0);
+  Rts_E = LaunchBofProcessingThread(mWebSocketParam_X.WebSocketThreadParam_X.Name_S, false, false, 0,
+                                    mWebSocketParam_X.WebSocketThreadParam_X.ThreadSchedulerPolicy_E, mWebSocketParam_X.WebSocketThreadParam_X.ThreadPriority_E,
+                                    0, 2000, 0);
   BOF_ASSERT(Rts_E == BOF_ERR_NO_ERROR);
   Sts_B = IsThreadRunning(100);
   BOF_ASSERT(Sts_B);
@@ -597,7 +590,8 @@ BOFERR BofWebSocket::Stop()
   {
     // DBGLOG("%d: ProgramSocketOperation rts %d\n", BOF::Bof_GetMsTickCount(), e);
   }
-  // Must kill the thread from here and not in the BofThread destructor because between both destructor, all mem var of BofSocketThread will disappear (unique pointer)
+  // Must kill the thread from here and not in the BofThread destructor because between both destructor, all mem var of BofSocketThread will disappear (unique
+  // pointer)
   DestroyBofProcessingThread("~WebSocket");
   BOF_LWS_CLIENT_DISCONNECT();
   return Rts_E;
@@ -754,13 +748,15 @@ BOFERR BofWebSocket::SetSocketBufferSize(struct lws *_pWsi_X, uint32_t &_rRcvBuf
     }
     Rts_E = BOF::BofSocket::S_SetSocketBufferSize(WebSocketHandle, RcvBufferSize_U32, SndBufferSize_U32);
 #if defined(DBG_PROTO)
-    BOF_LOG_TO_DBG("SetSocketBufferSize pWsi %p hndl %zd rcv %x snd %X sts %d\n", _pWsi_X, (uint64_t)WebSocketHandle, RcvBufferSize_U32, SndBufferSize_U32, Rts_E);
+    BOF_LOG_TO_DBG("SetSocketBufferSize pWsi %p hndl %zd rcv %x snd %X sts %d\n", _pWsi_X, (uint64_t)WebSocketHandle, RcvBufferSize_U32, SndBufferSize_U32,
+                   Rts_E);
 #endif
   }
   return Rts_E;
 }
 /*
-In libwebsockets, the return value from your protocol callback function (LWS_CALLBACK_PROTOCOL) depends on the specific callback reason. The protocol callback is responsible for handling various events in the WebSocket lifecycle. Here are some common return values for different reasons:
+In libwebsockets, the return value from your protocol callback function (LWS_CALLBACK_PROTOCOL) depends on the specific callback reason. The protocol callback
+is responsible for handling various events in the WebSocket lifecycle. Here are some common return values for different reasons:
 
 LWS_CALLBACK_ESTABLISHED:
 
@@ -777,7 +773,8 @@ Cleanup or perform any necessary actions when the connection is closed.
 LWS_CALLBACK_HTTP:
 
 Return 0 to indicate that the HTTP processing is complete.
-You may return a value other than zero to signal libwebsockets to not complete the HTTP processing, allowing you to handle it further. For example, you might return 1 to indicate that your application has responded to an HTTP request, and libwebsockets should not send a default response.
+You may return a value other than zero to signal libwebsockets to not complete the HTTP processing, allowing you to handle it further. For example, you might
+return 1 to indicate that your application has responded to an HTTP request, and libwebsockets should not send a default response.
 LWS_CALLBACK_SERVER_WRITEABLE:
 
 Return 0 to continue processing the connection.
@@ -821,7 +818,8 @@ int BofWebSocket::LwsCallback(struct lws *_pWsi_X, enum lws_callback_reasons _Lw
     {
     }
 #if defined(DBG_PROTO)
-    BOF_LOG_TO_DBG("%d [[[LwsCallback]]] %36.36s pWsi %p Usr %p Buf %08zx:%p\n", BOF::Bof_GetMsTickCount(), S_LwsCallbackReasonEnumConverter.ToString(_LwsReason_E).c_str(), _pWsi_X, _pLwsUser, _Len, _pInput);
+    BOF_LOG_TO_DBG("%d [[[LwsCallback]]] %36.36s pWsi %p Usr %p Buf %08zx:%p\n", BOF::Bof_GetMsTickCount(),
+                   S_LwsCallbackReasonEnumConverter.ToString(_LwsReason_E).c_str(), _pWsi_X, _pLwsUser, _Len, _pInput);
 #endif
     FinalFragment_B = false;
     switch (_LwsReason_E)
@@ -927,7 +925,8 @@ int BofWebSocket::LwsCallback(struct lws *_pWsi_X, enum lws_callback_reasons _Lw
             lws_close_reason(_pWsi_X, LWS_CLOSE_STATUS_POLICY_VIOLATION, (uint8_t *)pWsCltKey_c, strlen(pWsCltKey_c));
           }
         }
-        // BOF_LOG_TO_DBG("LWS_CALLBACK_ADD_HEADERS Rts %d Nb %zd/%d Key %s\n", Rts_i, mClientCollection.size(), mWebSocketParam_X.NbMaxClient_U32, pWsCltKey_c);
+        // BOF_LOG_TO_DBG("LWS_CALLBACK_ADD_HEADERS Rts %d Nb %zd/%d Key %s\n", Rts_i, mClientCollection.size(), mWebSocketParam_X.NbMaxClient_U32,
+        // pWsCltKey_c);
 #if 0
         // Add custom headers to the response
         lws_return_http_status(_pWsi_X, HTTP_STATUS_UNAUTHORIZED, nullptr);
@@ -954,21 +953,23 @@ int BofWebSocket::LwsCallback(struct lws *_pWsi_X, enum lws_callback_reasons _Lw
           mWebSocketState_X.pWebSocket_X = _pWsi_X;
           pWebSocketDataPerSession_X->pWebSocket_X = _pWsi_X;
           // WsCltKey_S = std::string(pWebSocketDataPerSession_X->pWsCltKey_c);
-          // BOF_LOG_TO_DBG("==1=>this: %p nb clt %zd inst %p pWsi_X %p pWebSocketDataPerSession_X %p WsCltKey %s\n", this, mClientCollection.size(), &mWebSocketState_X, _pWsi_X, pWebSocketDataPerSession_X, pWsCltKey_c);
+          // BOF_LOG_TO_DBG("==1=>this: %p nb clt %zd inst %p pWsi_X %p pWebSocketDataPerSession_X %p WsCltKey %s\n", this, mClientCollection.size(),
+          // &mWebSocketState_X, _pWsi_X, pWebSocketDataPerSession_X, pWsCltKey_c);
           Rts_i = (AddClient(pWsCltKey_c, pWebSocketDataPerSession_X) == BOF_ERR_NO_ERROR) ? 0 : 1; // 1 Reject con
           if (Rts_i == 0)
           {
             mWebSocketState_X.ConnectDone_B = true;
             if (mWebSocketParam_X.OnOpen)
             {
-              mWebSocketParam_X.OnOpen(mWebSocketParam_X.pUser);  // mWebSocketState_X.pWebSocket_X);
+              mWebSocketParam_X.OnOpen(mWebSocketParam_X.pUser); // mWebSocketState_X.pWebSocket_X);
             }
           }
           else
           {
             lws_close_reason(_pWsi_X, LWS_CLOSE_STATUS_POLICY_VIOLATION, (uint8_t *)pWsCltKey_c, strlen(pWsCltKey_c));
           }
-          // BOF_LOG_TO_DBG("==2=>this: %p nb clt %zd inst %p Val %p Rts %d Con %d\n", this, mClientCollection.size(), &mWebSocketState_X, _pWsi_X, Rts_i, mWebSocketState_X.ConnectDone_B);
+          // BOF_LOG_TO_DBG("==2=>this: %p nb clt %zd inst %p Val %p Rts %d Con %d\n", this, mClientCollection.size(), &mWebSocketState_X, _pWsi_X, Rts_i,
+          // mWebSocketState_X.ConnectDone_B);
         }
         break;
 
@@ -984,7 +985,7 @@ int BofWebSocket::LwsCallback(struct lws *_pWsi_X, enum lws_callback_reasons _Lw
           Rts_i = 0;
           if (mWebSocketParam_X.OnOpen)
           {
-            mWebSocketParam_X.OnOpen(mWebSocketParam_X.pUser);  //mWebSocketState_X.pWebSocket_X);
+            mWebSocketParam_X.OnOpen(mWebSocketParam_X.pUser); // mWebSocketState_X.pWebSocket_X);
           }
         }
         break;
@@ -998,8 +999,11 @@ int BofWebSocket::LwsCallback(struct lws *_pWsi_X, enum lws_callback_reasons _Lw
           {
             // Data is ENCODED/MASKED/COMPRESSED
             //  lws_set_timeout(Wsi, NO_PENDING_TIMEOUT, 0);
-            // BOF_LOG_TO_DBG("-->WRITEIO buf %zx:%p sz %zx WRITE %zx:%p\n", SocketOperationWriteOp_X.Buffer_X.Capacity_U64, SocketOperationWriteOp_X.Buffer_X.pData_U8, SocketOperationWriteOp_X.Buffer_X.Size_U64, SocketOperationWriteOp_X.Buffer_X.RemainToRead(), &SocketOperationWriteOp_X.Buffer_X.pData_U8[SocketOperationWriteOp_X.Buffer_X.Offset_U64]);
-            BOF_LWS_WRITE(Sts_i,_pWsi_X, &SocketOperationWriteOp_X.Buffer_X.pData_U8[SocketOperationWriteOp_X.Buffer_X.Offset_U64], SocketOperationWriteOp_X.Buffer_X.RemainToRead(), LWS_WRITE_BINARY); // LWS_WRITE_HTTP);
+            // BOF_LOG_TO_DBG("-->WRITEIO buf %zx:%p sz %zx WRITE %zx:%p\n", SocketOperationWriteOp_X.Buffer_X.Capacity_U64,
+            // SocketOperationWriteOp_X.Buffer_X.pData_U8, SocketOperationWriteOp_X.Buffer_X.Size_U64, SocketOperationWriteOp_X.Buffer_X.RemainToRead(),
+            // &SocketOperationWriteOp_X.Buffer_X.pData_U8[SocketOperationWriteOp_X.Buffer_X.Offset_U64]);
+            BOF_LWS_WRITE(Sts_i, _pWsi_X, &SocketOperationWriteOp_X.Buffer_X.pData_U8[SocketOperationWriteOp_X.Buffer_X.Offset_U64],
+                          SocketOperationWriteOp_X.Buffer_X.RemainToRead(), LWS_WRITE_BINARY); // LWS_WRITE_HTTP);
             NbWritten_U64 = (uint64_t)Sts_i;
             // TODO: All LWS_WRITE_BUFFER macro call have this assert, so in sometime we can simplify the code below
             BOF_ASSERT(NbWritten_U64 == SocketOperationWriteOp_X.Buffer_X.RemainToRead());
@@ -1012,7 +1016,9 @@ int BofWebSocket::LwsCallback(struct lws *_pWsi_X, enum lws_callback_reasons _Lw
             {
               mNbTxByClient_U64 += NbWritten_U64;
             }
-            // BOF_LOG_TO_DBG("%-24.24s Tx wsi %p write %zx:%p -> NbWritten %zx Data Masked\n", S_LwsCallbackReasonEnumConverter.ToString(_LwsReason_E).c_str(), _pWsi_X, SocketOperationWriteOp_X.Buffer_X.RemainToRead(), &SocketOperationWriteOp_X.Buffer_X.pData_U8[SocketOperationWriteOp_X.Buffer_X.Offset_U64], NbWritten_U64);
+            // BOF_LOG_TO_DBG("%-24.24s Tx wsi %p write %zx:%p -> NbWritten %zx Data Masked\n", S_LwsCallbackReasonEnumConverter.ToString(_LwsReason_E).c_str(),
+            // _pWsi_X, SocketOperationWriteOp_X.Buffer_X.RemainToRead(),
+            // &SocketOperationWriteOp_X.Buffer_X.pData_U8[SocketOperationWriteOp_X.Buffer_X.Offset_U64], NbWritten_U64);
             Remain_U64 = 0;
             SocketOperationWriteOp_X.Result_X.Time_U32 = BOF::Bof_ElapsedMsTime(SocketOperationWriteOp_X.Timer_U32);
             SocketOperationWriteOp_X.Result_X.pBuffer_U8 = &SocketOperationWriteOp_X.Buffer_X.pData_U8[LWS_PRE];
@@ -1022,11 +1028,15 @@ int BofWebSocket::LwsCallback(struct lws *_pWsi_X, enum lws_callback_reasons _Lw
               SocketOperationWriteOp_X.Result_X.Sts_E = BOF_ERR_WRITE;
               SocketOperationWriteOp_X.Result_X.Size_U32 = SocketOperationWriteOp_X.Buffer_X.Size_U64 - LWS_PRE;
               Sts_E = mpuSocketOperationResultCollection->Push(&SocketOperationWriteOp_X.Result_X, PUSH_POP_TIMEOUT, nullptr, nullptr);
-              // BOF_LOG_TO_DBG("%d PUSH_RESULT1 Err %s Ticket %d Op %s Sts %s\n", BOF::Bof_GetMsTickCount(), BOF::Bof_ErrorCode(Sts_E), SocketOperationWriteOp_X.Result_X.OpTicket_U32, S_WebRpcSocketOpEnumConverter.ToString(SocketOperationWriteOp_X.Result_X.Operation_E).c_str(), BOF::Bof_ErrorCode(SocketOperationWriteOp_X.Result_X.Sts_E));
+              // BOF_LOG_TO_DBG("%d PUSH_RESULT1 Err %s Ticket %d Op %s Sts %s\n", BOF::Bof_GetMsTickCount(), BOF::Bof_ErrorCode(Sts_E),
+              // SocketOperationWriteOp_X.Result_X.OpTicket_U32, S_WebRpcSocketOpEnumConverter.ToString(SocketOperationWriteOp_X.Result_X.Operation_E).c_str(),
+              // BOF::Bof_ErrorCode(SocketOperationWriteOp_X.Result_X.Sts_E));
 
               if (mWebSocketParam_X.OnOperation)
               {
-                Sts_E = mWebSocketParam_X.OnOperation(mWebSocketParam_X.pUser, SocketOperationWriteOp_X.Result_X.Operation_E, SocketOperationWriteOp_X.Result_X.OpTicket_U32, SocketOperationWriteOp_X.Result_X.Size_U32, SocketOperationWriteOp_X.Result_X.pBuffer_U8, Sts_E);
+                Sts_E = mWebSocketParam_X.OnOperation(mWebSocketParam_X.pUser, SocketOperationWriteOp_X.Result_X.Operation_E,
+                                                      SocketOperationWriteOp_X.Result_X.OpTicket_U32, SocketOperationWriteOp_X.Result_X.Size_U32,
+                                                      SocketOperationWriteOp_X.Result_X.pBuffer_U8, Sts_E);
               }
               mpuSocketOperationWriteOpCollection->Skip(nullptr, true, nullptr, nullptr, nullptr);
               SocketOperationWriteOp_X.Buffer_X.ReleaseStorage();
@@ -1038,10 +1048,14 @@ int BofWebSocket::LwsCallback(struct lws *_pWsi_X, enum lws_callback_reasons _Lw
               SocketOperationWriteOp_X.Result_X.Sts_E = BOF_ERR_NO_ERROR;
               SocketOperationWriteOp_X.Result_X.Size_U32 = SocketOperationWriteOp_X.Buffer_X.Size_U64 - LWS_PRE;
               Sts_E = mpuSocketOperationResultCollection->Push(&SocketOperationWriteOp_X.Result_X, PUSH_POP_TIMEOUT, nullptr, nullptr);
-              // BOF_LOG_TO_DBG("%d PUSH_RESULT2 Err %s Ticket %d Op %s Sts %s\n", BOF::Bof_GetMsTickCount(), BOF::Bof_ErrorCode(Sts_E), SocketOperationWriteOp_X.Result_X.OpTicket_U32, S_WebRpcSocketOpEnumConverter.ToString(SocketOperationWriteOp_X.Result_X.Operation_E).c_str(), BOF::Bof_ErrorCode(SocketOperationWriteOp_X.Result_X.Sts_E));
+              // BOF_LOG_TO_DBG("%d PUSH_RESULT2 Err %s Ticket %d Op %s Sts %s\n", BOF::Bof_GetMsTickCount(), BOF::Bof_ErrorCode(Sts_E),
+              // SocketOperationWriteOp_X.Result_X.OpTicket_U32, S_WebRpcSocketOpEnumConverter.ToString(SocketOperationWriteOp_X.Result_X.Operation_E).c_str(),
+              // BOF::Bof_ErrorCode(SocketOperationWriteOp_X.Result_X.Sts_E));
               if (mWebSocketParam_X.OnOperation)
               {
-                Sts_E = mWebSocketParam_X.OnOperation(mWebSocketParam_X.pUser, SocketOperationWriteOp_X.Result_X.Operation_E, SocketOperationWriteOp_X.Result_X.OpTicket_U32, SocketOperationWriteOp_X.Result_X.Size_U32, SocketOperationWriteOp_X.Result_X.pBuffer_U8, Sts_E);
+                Sts_E = mWebSocketParam_X.OnOperation(mWebSocketParam_X.pUser, SocketOperationWriteOp_X.Result_X.Operation_E,
+                                                      SocketOperationWriteOp_X.Result_X.OpTicket_U32, SocketOperationWriteOp_X.Result_X.Size_U32,
+                                                      SocketOperationWriteOp_X.Result_X.pBuffer_U8, Sts_E);
               }
               mpuSocketOperationWriteOpCollection->Skip(nullptr, true, nullptr, nullptr, nullptr);
               SocketOperationWriteOp_X.Buffer_X.ReleaseStorage();
@@ -1057,10 +1071,15 @@ int BofWebSocket::LwsCallback(struct lws *_pWsi_X, enum lws_callback_reasons _Lw
                   SocketOperationWriteOp_X.Result_X.Sts_E = BOF_ERR_ETIMEDOUT;
                   SocketOperationWriteOp_X.Result_X.Size_U32 = SocketOperationWriteOp_X.Buffer_X.Size_U64 - LWS_PRE;
                   Sts_E = mpuSocketOperationResultCollection->Push(&SocketOperationWriteOp_X.Result_X, PUSH_POP_TIMEOUT, nullptr, nullptr);
-                  // BOF_LOG_TO_DBG("%d PUSH_RESULT3 Err %s Ticket %d Op %s Sts %s\n", BOF::Bof_GetMsTickCount(), BOF::Bof_ErrorCode(Sts_E), SocketOperationWriteOp_X.Result_X.OpTicket_U32, S_WebRpcSocketOpEnumConverter.ToString(SocketOperationWriteOp_X.Result_X.Operation_E).c_str(), BOF::Bof_ErrorCode(SocketOperationWriteOp_X.Result_X.Sts_E));
+                  // BOF_LOG_TO_DBG("%d PUSH_RESULT3 Err %s Ticket %d Op %s Sts %s\n", BOF::Bof_GetMsTickCount(), BOF::Bof_ErrorCode(Sts_E),
+                  // SocketOperationWriteOp_X.Result_X.OpTicket_U32,
+                  // S_WebRpcSocketOpEnumConverter.ToString(SocketOperationWriteOp_X.Result_X.Operation_E).c_str(),
+                  // BOF::Bof_ErrorCode(SocketOperationWriteOp_X.Result_X.Sts_E));
                   if (mWebSocketParam_X.OnOperation)
                   {
-                    Sts_E = mWebSocketParam_X.OnOperation(mWebSocketParam_X.pUser, SocketOperationWriteOp_X.Result_X.Operation_E, SocketOperationWriteOp_X.Result_X.OpTicket_U32, SocketOperationWriteOp_X.Result_X.Size_U32, SocketOperationWriteOp_X.Result_X.pBuffer_U8, Sts_E);
+                    Sts_E = mWebSocketParam_X.OnOperation(mWebSocketParam_X.pUser, SocketOperationWriteOp_X.Result_X.Operation_E,
+                                                          SocketOperationWriteOp_X.Result_X.OpTicket_U32, SocketOperationWriteOp_X.Result_X.Size_U32,
+                                                          SocketOperationWriteOp_X.Result_X.pBuffer_U8, Sts_E);
                   }
                   mpuSocketOperationWriteOpCollection->Skip(nullptr, true, nullptr, nullptr, nullptr);
                   SocketOperationWriteOp_X.Buffer_X.ReleaseStorage();
@@ -1069,11 +1088,12 @@ int BofWebSocket::LwsCallback(struct lws *_pWsi_X, enum lws_callback_reasons _Lw
                 else
                 {
                   Sts_i = lws_callback_on_writable(mWebSocketState_X.pWebSocket_X);
-                  //No because if client disconnect BOF_ASSERT(Sts_i > 0);
+                  // No because if client disconnect BOF_ASSERT(Sts_i > 0);
                 }
               }
             }
-            // BOF_LOG_TO_DBG("LwsCallback TxData>>> 2:%zd Rem %zd/%zd Sent %d Status %d\n", NbWritten_U64, SocketOperationWriteOp_X.Buffer_X.RemainToRead(), Remain_U64, Sts_i, mWebSocketState_X.IoSts_E);
+            // BOF_LOG_TO_DBG("LwsCallback TxData>>> 2:%zd Rem %zd/%zd Sent %d Status %d\n", NbWritten_U64, SocketOperationWriteOp_X.Buffer_X.RemainToRead(),
+            // Remain_U64, Sts_i, mWebSocketState_X.IoSts_E);
           }
         }
         break;
@@ -1088,7 +1108,7 @@ int BofWebSocket::LwsCallback(struct lws *_pWsi_X, enum lws_callback_reasons _Lw
           mNbRxByServer_U64 += _Len;
 #if defined(DBG_PROTO)
           char pDbg_c[0x2000];
-          sprintf(pDbg_c, "%d [[[RCV]]] Srv Len %08zx Tot %zd Data:\n", BOF::Bof_GetMsTickCount(), _Len, mNbRxByServer_U64);
+          snprintf(pDbg_c, sizeof(pDbg_c), "%d [[[RCV]]] Srv Len %08zx Tot %zd Data:\n", BOF::Bof_GetMsTickCount(), _Len, mNbRxByServer_U64);
           OutputDebugString(pDbg_c);
 #endif
         }
@@ -1097,7 +1117,7 @@ int BofWebSocket::LwsCallback(struct lws *_pWsi_X, enum lws_callback_reasons _Lw
           mNbRxByClient_U64 += _Len;
 #if defined(DBG_PROTO)
           char pDbg_c[0x2000];
-          sprintf(pDbg_c, "%d [[[RCV]]] Clt Len %08zx Tot %zd Data:\n", BOF::Bof_GetMsTickCount(), _Len, mNbRxByClient_U64);
+          snprintf(pDbg_c, sizeof(pDbg_c), "%d [[[RCV]]] Clt Len %08zx Tot %zd Data:\n", BOF::Bof_GetMsTickCount(), _Len, mNbRxByClient_U64);
           OutputDebugString(pDbg_c);
           OutputDebugString((char *)_pInput);
 #endif
@@ -1116,19 +1136,22 @@ int BofWebSocket::LwsCallback(struct lws *_pWsi_X, enum lws_callback_reasons _Lw
       // Data is NOT encoded/masked/compressed
 #if defined(DBG_PROTO)
       char pDbg_c[0x2000];
-      sprintf(pDbg_c, "%-24.24s FinalRx %d wsi %p\n", S_LwsCallbackReasonEnumConverter.ToString(_LwsReason_E).c_str(), FinalFragment_B, _pWsi_X);
+      snprintf(pDbg_c, sizeof(pDbg_c), "%-24.24s FinalRx %d wsi %p\n", S_LwsCallbackReasonEnumConverter.ToString(_LwsReason_E).c_str(), FinalFragment_B,
+               _pWsi_X);
       OutputDebugString(pDbg_c);
 #endif
       if (FinalFragment_B)
-      { 
+      {
 #if defined(DBG_PROTO)
         char pDbg_c[0x2000];
-        sprintf(pDbg_c, "%-24.24s Buff %d:%p Data:\n", S_LwsCallbackReasonEnumConverter.ToString(_LwsReason_E).c_str(), pRawBuffer_X->Size1_U32, pRawBuffer_X->pData1_U8);
+        snprintf(pDbg_c, sizeof(pDbg_c), "%-24.24s Buff %d:%p Data:\n", S_LwsCallbackReasonEnumConverter.ToString(_LwsReason_E).c_str(),
+                 pRawBuffer_X->Size1_U32, pRawBuffer_X->pData1_U8);
         OutputDebugString(pDbg_c);
         OutputDebugString((char *)_pInput);
 #endif
         // Data is NOT encoded/masked/compressed
-        //BOF_LOG_TO_DBG("%-24.24s FinalRx wsi %p %x:%p Data Masked\n", S_LwsCallbackReasonEnumConverter.ToString(_LwsReason_E).c_str(), _pWsi_X, pRawBuffer_X->Size1_U32, pRawBuffer_X->pData1_U8);
+        // BOF_LOG_TO_DBG("%-24.24s FinalRx wsi %p %x:%p Data Masked\n", S_LwsCallbackReasonEnumConverter.ToString(_LwsReason_E).c_str(), _pWsi_X,
+        // pRawBuffer_X->Size1_U32, pRawBuffer_X->pData1_U8);
         BOF_ASSERT(pRawBuffer_X->Size2_U32 == 0);
         BOF_ASSERT(pRawBuffer_X->pData2_U8 == nullptr);
         DoReleaseBuffer_B = false;
@@ -1146,9 +1169,11 @@ int BofWebSocket::LwsCallback(struct lws *_pWsi_X, enum lws_callback_reasons _Lw
             DoReleaseBuffer_B = true;
             if (Reply_X.Size_U64)
             {
-              // BOF_LOG_TO_DBG("-->WRITErp buf %zx:%p sz %zx WRITE %zx:%p\n", Reply_X.Capacity_U64, Reply_X.pData_U8, Reply_X.Size_U64, Reply_X.RemainToRead(), &Reply_X.pData_U8[Reply_X.Offset_U64]);
+              // BOF_LOG_TO_DBG("-->WRITErp buf %zx:%p sz %zx WRITE %zx:%p\n", Reply_X.Capacity_U64, Reply_X.pData_U8, Reply_X.Size_U64, Reply_X.RemainToRead(),
+              // &Reply_X.pData_U8[Reply_X.Offset_U64]);
               BOF_LWS_WRITE(Sts_i, _pWsi_X, &Reply_X.pData_U8[LWS_PRE], Reply_X.Size_U64 - LWS_PRE, LWS_WRITE_BINARY); // LWS_WRITE_HTTP);
-              // BOF_LOG_TO_DBG("%-24.24s FinalRx wsi %p SendBack %zx:%p Data %-32.32s\n", S_LwsCallbackReasonEnumConverter.ToString(_LwsReason_E).c_str(), _pWsi_X, Reply_X.Size_U64 - LWS_PRE, &Reply_X.pData_U8[LWS_PRE], &Reply_X.pData_U8[LWS_PRE]);
+              // BOF_LOG_TO_DBG("%-24.24s FinalRx wsi %p SendBack %zx:%p Data %-32.32s\n", S_LwsCallbackReasonEnumConverter.ToString(_LwsReason_E).c_str(),
+              // _pWsi_X, Reply_X.Size_U64 - LWS_PRE, &Reply_X.pData_U8[LWS_PRE], &Reply_X.pData_U8[LWS_PRE]);
             }
           }
         }
@@ -1223,13 +1248,15 @@ int BofWebSocket::LwsCallback(struct lws *_pWsi_X, enum lws_callback_reasons _Lw
 
     if ((_LwsReason_E == LWS_CALLBACK_SERVER_WRITEABLE) || (_LwsReason_E == LWS_CALLBACK_CLIENT_WRITEABLE))
     {
-      // BOF_LOG_TO_DBG("[[[LwsCallback]]] ===>>> [Rx] Clt %08zx Srv %08zx [Tx] Clt %08zx Srv %08zx\n", mNbRxByClient_U64, mNbRxByServer_U64, mNbTxByClient_U64, mNbTxByServer_U64);
+      // BOF_LOG_TO_DBG("[[[LwsCallback]]] ===>>> [Rx] Clt %08zx Srv %08zx [Tx] Clt %08zx Srv %08zx\n", mNbRxByClient_U64, mNbRxByServer_U64, mNbTxByClient_U64,
+      // mNbTxByServer_U64);
     }
     if ((_LwsReason_E == LWS_CALLBACK_RECEIVE) || (_LwsReason_E == LWS_CALLBACK_CLIENT_RECEIVE))
     {
       // if (FinalFragment_B)
       {
-        // BOF_LOG_TO_DBG("[[[LwsCallback]]] ===>>> [Rx] Clt %08zx Srv %08zx [Tx] Clt %08zx Srv %08zx\n", mNbRxByClient_U64, mNbRxByServer_U64, mNbTxByClient_U64, mNbTxByServer_U64);
+        // BOF_LOG_TO_DBG("[[[LwsCallback]]] ===>>> [Rx] Clt %08zx Srv %08zx [Tx] Clt %08zx Srv %08zx\n", mNbRxByClient_U64, mNbRxByServer_U64,
+        // mNbTxByClient_U64, mNbTxByServer_U64);
       }
     }
   }
@@ -1277,14 +1304,17 @@ BOFERR BofWebSocket::V_OnProcessing()
     {
       if (NewCommandRcv_B)
       {
-        // mCurrentOpParam_X.TimeOut_U32, mpuSocketOperationParamCollection->GetNbElement(), mpuSocketOperationResultCollection->GetNbElement()); First init of operation param
+        // mCurrentOpParam_X.TimeOut_U32, mpuSocketOperationParamCollection->GetNbElement(), mpuSocketOperationResultCollection->GetNbElement()); First init of
+        // operation param
         Result_X.Reset();
         Result_X.Sts_E = BOF_ERR_NO_ERROR;
         Result_X.Operation_E = mCurrentOp_X.Operation_E;
         Result_X.OpTicket_U32 = mCurrentOp_X.Ticket_U32;
         Result_X.Time_U32 = BOF::Bof_ElapsedMsTime(mCurrentOp_X.Timer_U32); // Time to get the command in processing thread
         mCurrentOp_X.Timer_U32 = BOF::Bof_GetMsTickCount();                 // Restart op timer to have the time to execute this one
-        // BOF_LOG_TO_DBG("%d ==CMD==> PopCmd rts %d cmd %s Ticket %d NewCommandRcv %d IoPending %d ListeningMode %d FifoSz %d\n", BOF::Bof_GetMsTickCount(), Rts_E, S_WebRpcSocketOpEnumConverter.ToString(mCurrentOp_X.Operation_E).c_str(), mCurrentOp_X.Ticket_U32, NewCommandRcv_B, IoPending_B, ListeningMode_B, mpuSocketOperationParamCollection->GetNbElement());
+        // BOF_LOG_TO_DBG("%d ==CMD==> PopCmd rts %d cmd %s Ticket %d NewCommandRcv %d IoPending %d ListeningMode %d FifoSz %d\n", BOF::Bof_GetMsTickCount(),
+        // Rts_E, S_WebRpcSocketOpEnumConverter.ToString(mCurrentOp_X.Operation_E).c_str(), mCurrentOp_X.Ticket_U32, NewCommandRcv_B, IoPending_B,
+        // ListeningMode_B, mpuSocketOperationParamCollection->GetNbElement());
         //  So ListeningMode_B is perhaps true, but nevertheless a new command must be processed
         mOperationPending_B = true; // can be resetted by canceled
         SendResult_B = true;
@@ -1343,13 +1373,13 @@ BOFERR BofWebSocket::V_OnProcessing()
                 LwsCreationInfo_X.port = CONTEXT_PORT_NO_LISTEN;
                 LwsCreationInfo_X.gid = -1;
                 LwsCreationInfo_X.uid = -1;
-                
+
                 for (i_U32 = 0; i_U32 < BOF_NB_ELEM_IN_ARRAY(S_pLwsClientProtocol_X); i_U32++)
                 {
                   S_pLwsClientProtocol_X[i_U32].per_session_data_size = sizeof(BOF_WEB_SOCKET_DATA_PER_SESSION);
                   S_pLwsClientProtocol_X[i_U32].user = this;
                 }
-                
+
                 LwsCreationInfo_X.protocols = S_pLwsClientProtocol_X;
                 LwsCreationInfo_X.user = this;
                 // LwsCreationInfo_X.max_http_header_data = 16384; // Set the maximum header size
@@ -1368,7 +1398,7 @@ BOFERR BofWebSocket::V_OnProcessing()
                   FullIp_S = mCurrentOp_X.OpParam.Connect_X.DstIpAddr_X.ToString(mCurrentOp_X.OpParam.Connect_X.DstPort_U16);
                   // The '=' is inside URI_CLIENT_NAME_ARG
                   BOF_SNPRINTF_NULL_CLIPPED(pWsCltKey_c, sizeof(pWsCltKey_c), "/?%s%s", WS_CLT_KEY_ARG, mCurrentOp_X.OpParam.Connect_X.pWsCltKey_c);
-                  //BOF_SNPRINTF_NULL_CLIPPED(pWsCltKey_c, sizeof(pWsCltKey_c), "/");
+                  // BOF_SNPRINTF_NULL_CLIPPED(pWsCltKey_c, sizeof(pWsCltKey_c), "/");
 
                   memset(&ClientConnectInfo_X, 0, sizeof(ClientConnectInfo_X));
                   ClientConnectInfo_X.context = mpLwsContext_X;
@@ -1378,13 +1408,15 @@ BOFERR BofWebSocket::V_OnProcessing()
                   ClientConnectInfo_X.host = lws_canonical_hostname(mpLwsContext_X);
                   ClientConnectInfo_X.origin = FullIp_S.c_str();
                   ClientConnectInfo_X.protocol = S_pLwsClientProtocol_X[0].name;
-                  //ClientConnectInfo_X.ietf_version_or_minus_one = -1; // IETF version
+                  // ClientConnectInfo_X.ietf_version_or_minus_one = -1; // IETF version
 
                   mWebSocketState_X.pWebSocket_X = lws_client_connect_via_info(&ClientConnectInfo_X);
 #if defined(DBG_PROTO)
-                  BOF_LOG_TO_DBG("V_OnProcessing WEB_RPC_SOCKET_OPERATION_CONNECT pWebSocket_X %p on %s:%d %s\n", mWebSocketState_X.pWebSocket_X, Ip_S.c_str(), mCurrentOp_X.OpParam.Connect_X.DstPort_U16, FullIp_S.c_str());
+                  BOF_LOG_TO_DBG("V_OnProcessing WEB_RPC_SOCKET_OPERATION_CONNECT pWebSocket_X %p on %s:%d %s\n", mWebSocketState_X.pWebSocket_X, Ip_S.c_str(),
+                                 mCurrentOp_X.OpParam.Connect_X.DstPort_U16, FullIp_S.c_str());
 #endif
-                  // BOF_LOG_TO_DBG("lws_client_connect_via_info %s pWebSocket_X %p ConnectDone %d\n", pWsCltKey_c, mWebSocketState_X.pWebSocket_X, mWebSocketState_X.ConnectDone_B);
+                  // BOF_LOG_TO_DBG("lws_client_connect_via_info %s pWebSocket_X %p ConnectDone %d\n", pWsCltKey_c, mWebSocketState_X.pWebSocket_X,
+                  // mWebSocketState_X.ConnectDone_B);
                   if (mWebSocketState_X.pWebSocket_X)
                   {
                     Result_X.Sts_E = BOF_ERR_NO_ERROR;
@@ -1463,17 +1495,20 @@ BOFERR BofWebSocket::V_OnProcessing()
             {
               if ((mCurrentOp_X.OpParam.Write_X.pBuffer_U8) && (mCurrentOp_X.OpParam.Write_X.Nb_U32))
               {
-                // NO because this is a stack var and it can contains a still active buffer which has been pushed on mpuSocketOperationWriteOpCollection and is storing data in an async way
-                // NO SocketOperationWriteOp_X.Reset(); IF SocketOperationWriteOp_X.Buffer_X.pData_U8 is not null buffer will be deleted
+                // NO because this is a stack var and it can contains a still active buffer which has been pushed on mpuSocketOperationWriteOpCollection and is
+                // storing data in an async way NO SocketOperationWriteOp_X.Reset(); IF SocketOperationWriteOp_X.Buffer_X.pData_U8 is not null buffer will be
+                // deleted
                 SocketOperationWriteOp_X.Buffer_X.pData_U8 = nullptr; // Detach storage
                 SocketOperationWriteOp_X.Reset();
                 BOF_LWS_ALLOCATE_BUFFER(SocketOperationWriteOp_X.Buffer_X, mCurrentOp_X.OpParam.Write_X.Nb_U32);
                 BOF_LWS_WRITE_BUFFER(SocketOperationWriteOp_X.Buffer_X, mCurrentOp_X.OpParam.Write_X.Nb_U32, mCurrentOp_X.OpParam.Write_X.pBuffer_U8);
-                //BOF_LOG_TO_DBG("-->ALLOCIO buf %zx:%p sz %zx BEGIN %zx:%p\n", SocketOperationWriteOp_X.Buffer_X.Capacity_U64, SocketOperationWriteOp_X.Buffer_X.pData_U8, SocketOperationWriteOp_X.Buffer_X.Size_U64, SocketOperationWriteOp_X.Buffer_X.RemainToRead(), &SocketOperationWriteOp_X.Buffer_X.pData_U8[SocketOperationWriteOp_X.Buffer_X.Offset_U64]);
+                // BOF_LOG_TO_DBG("-->ALLOCIO buf %zx:%p sz %zx BEGIN %zx:%p\n", SocketOperationWriteOp_X.Buffer_X.Capacity_U64,
+                // SocketOperationWriteOp_X.Buffer_X.pData_U8, SocketOperationWriteOp_X.Buffer_X.Size_U64, SocketOperationWriteOp_X.Buffer_X.RemainToRead(),
+                // &SocketOperationWriteOp_X.Buffer_X.pData_U8[SocketOperationWriteOp_X.Buffer_X.Offset_U64]);
 
                 /*
-                SocketOperationWriteOp_X.Buffer_X.SetStorage(mCurrentOp_X.OpParam.Write_X.Nb_U32 + LWS_PRE, mCurrentOp_X.OpParam.Write_X.Nb_U32 + LWS_PRE, mCurrentOp_X.OpParam.Write_X.pBuffer_U8);
-                SocketOperationWriteOp_X.Buffer_X.SeekAbs(LWS_PRE, Remain_U64);
+                SocketOperationWriteOp_X.Buffer_X.SetStorage(mCurrentOp_X.OpParam.Write_X.Nb_U32 + LWS_PRE, mCurrentOp_X.OpParam.Write_X.Nb_U32 + LWS_PRE,
+                mCurrentOp_X.OpParam.Write_X.pBuffer_U8); SocketOperationWriteOp_X.Buffer_X.SeekAbs(LWS_PRE, Remain_U64);
                 */
                 SocketOperationWriteOp_X.TimeOut_U32 = mCurrentOp_X.TimeOut_U32;
                 SocketOperationWriteOp_X.Timer_U32 = mCurrentOp_X.Timer_U32;
@@ -1482,7 +1517,7 @@ BOFERR BofWebSocket::V_OnProcessing()
                 if (Result_X.Sts_E == BOF_ERR_NO_ERROR)
                 {
                   Sts_i = lws_callback_on_writable(mWebSocketState_X.pWebSocket_X);
-                  //No because if client disconnect                  BOF_ASSERT(Sts_i > 0);
+                  // No because if client disconnect                  BOF_ASSERT(Sts_i > 0);
                   if (Sts_i > 0)
                   {
                     Start_U32 = BOF::Bof_GetMsTickCount();
@@ -1509,7 +1544,7 @@ BOFERR BofWebSocket::V_OnProcessing()
           IoPending_B = true;
         }
       } // if (NewCommandRcv_B)
-    }   // if (!IoPending_B)
+    } // if (!IoPending_B)
 
     if (IoPending_B)
     {
@@ -1547,7 +1582,8 @@ BOFERR BofWebSocket::V_OnProcessing()
         case BOF_WEB_RPC_SOCKET_OPERATION::BOF_WEB_RPC_SOCKET_OPERATION_READ:
           Nb_U32 = mCurrentOp_X.OpParam.Read_X.Nb_U32;
           Result_X.Sts_E = mpuRxBufferCollection->PopBuffer(PollTimeout_U32, &Nb_U32, mCurrentOp_X.OpParam.Read_X.pBuffer_U8);
-          // BOF_LOG_TO_DBG("%d: sts %d to %d try pop WEB_RPC_SOCKET_OPERATION_READ mpuRxBufferCollection %p SizeOfFirst %d FifoSz %d\n", BOF::Bof_GetMsTickCount(), Result_X.Sts_E, PollTimeout_U32, mpuRxBufferCollection.get(), SizeOfFirst_U32, Nb_U32);
+          // BOF_LOG_TO_DBG("%d: sts %d to %d try pop WEB_RPC_SOCKET_OPERATION_READ mpuRxBufferCollection %p SizeOfFirst %d FifoSz %d\n",
+          // BOF::Bof_GetMsTickCount(), Result_X.Sts_E, PollTimeout_U32, mpuRxBufferCollection.get(), SizeOfFirst_U32, Nb_U32);
           //  BOF_LOG_TO_DBG("WEB_RPC_SOCKET_OPERATION_READ sts %d Nb %d\n", Result_X.Sts_E, Nb_U32);
           if (Result_X.Sts_E == BOF_ERR_NO_ERROR)
           {
@@ -1574,11 +1610,15 @@ BOFERR BofWebSocket::V_OnProcessing()
           break;
       } // switch (mCurrentOp_X.Operation_E)
       Result_X.Time_U32 = BOF::Bof_ElapsedMsTime(mCurrentOp_X.Timer_U32);
-      if ((!ListeningMode_B) && (mCurrentOp_X.Operation_E != BOF_WEB_RPC_SOCKET_OPERATION::BOF_WEB_RPC_SOCKET_OPERATION_WRITE)) // Made by case LWS_CALLBACK_SERVER_WRITEABLE:/ case LWS_CALLBACK_CLIENT_WRITEABLE: in LwsCallback
+      if ((!ListeningMode_B) &&
+          (mCurrentOp_X.Operation_E != BOF_WEB_RPC_SOCKET_OPERATION::BOF_WEB_RPC_SOCKET_OPERATION_WRITE)) // Made by case LWS_CALLBACK_SERVER_WRITEABLE:/ case
+                                                                                                          // LWS_CALLBACK_CLIENT_WRITEABLE: in LwsCallback
       {
         if (Result_X.Time_U32 > mCurrentOp_X.TimeOut_U32)
         {
-          BOF_LOG_TO_DBG("WebSocket::V_OnProcessing Op %s Ticket %d TIMEOUT %d > %d\n !!!", S_WebRpcSocketOpEnumConverter.ToString(mCurrentOp_X.Operation_E).c_str(), mCurrentOp_X.Ticket_U32, Result_X.Time_U32, mCurrentOp_X.TimeOut_U32);
+          BOF_LOG_TO_DBG("WebSocket::V_OnProcessing Op %s Ticket %d TIMEOUT %d > %d\n !!!",
+                         S_WebRpcSocketOpEnumConverter.ToString(mCurrentOp_X.Operation_E).c_str(), mCurrentOp_X.Ticket_U32, Result_X.Time_U32,
+                         mCurrentOp_X.TimeOut_U32);
           if (mCurrentOp_X.Operation_E == BOF_WEB_RPC_SOCKET_OPERATION::BOF_WEB_RPC_SOCKET_OPERATION_CONNECT)
           {
             BOF_LWS_CLIENT_DISCONNECT();
@@ -1620,7 +1660,8 @@ BOFERR BofWebSocket::V_OnProcessing()
 
       if (mWebSocketParam_X.OnOperation)
       {
-        Sts_E = mWebSocketParam_X.OnOperation(mWebSocketParam_X.pUser, mCurrentOp_X.Operation_E, mCurrentOp_X.Ticket_U32, Result_X.Size_U32, Result_X.pBuffer_U8, Sts_E);
+        Sts_E = mWebSocketParam_X.OnOperation(mWebSocketParam_X.pUser, mCurrentOp_X.Operation_E, mCurrentOp_X.Ticket_U32, Result_X.Size_U32,
+                                              Result_X.pBuffer_U8, Sts_E);
       }
     }
   } while ((!IsThreadLoopMustExit()) && (Rts_E == BOF_ERR_NO_ERROR));

@@ -39,7 +39,7 @@ bool BofWebClient::Connect(uint32_t _TimeOutInMs_U32, const std::string &_rIpAdd
 
   if (mWebClientParam_X.IsHttpsClient_B)
   {
-    sprintf(pIpAddress_c, "https://%s:%d", _rIpAddress_S.c_str(), _Port_U16);
+    snprintf(pIpAddress_c, sizeof(pIpAddress_c), "https://%s:%d", _rIpAddress_S.c_str(), _Port_U16);
     mpuHttpClient = std::make_unique<httplib::Client>(pIpAddress_c);
   }
   else
@@ -232,7 +232,7 @@ bool BofWebClient::Upload(const std::string _rFilePathToUpload_S, const std::str
           {
             HeaderCollection_X.clear();
             HeaderCollection_X.insert(std::make_pair("Session-Id", SessionId_S));
-            sprintf(pRangeRequest_c, "bytes %zu-%zu/%zu", RangeMin, RangeMax, DataSize);
+            snprintf(pRangeRequest_c, sizeof(pRangeRequest_c), "bytes %zu-%zu/%zu", RangeMin, RangeMax, DataSize);
             HeaderCollection_X.insert(std::make_pair("Content-Range", std::string(pRangeRequest_c)));
             Res = Post(_rDestinationUri_S, _Compress_B, _KeepAlive_B, HeaderCollection_X, ReadSize, (const char *)pChunk_U8, "application/octet-stream");
             if ((!Res) || ((Res->status != BOF_WEB_STATUS::OK_200) && (Res->status != BOF_WEB_STATUS::PartialContent_206)))
@@ -327,7 +327,7 @@ bool BofWebClient::Download(const std::string _rSourceUri_S, const std::string _
       {
         HeaderCollection_X.clear();
         HeaderCollection_X.insert(std::make_pair("Session-Id", SessionId_S));
-        sprintf(pRangeRequest_c, "bytes %zu-%zu/%zu", RangeMin, RangeMax, DataSize);
+        snprintf(pRangeRequest_c, sizeof(pRangeRequest_c), "bytes %zu-%zu/%zu", RangeMin, RangeMax, DataSize);
         HeaderCollection_X.insert(std::make_pair("Content-Range", std::string(pRangeRequest_c)));
         Res = Get(_rSourceUri_S, _Compress_B, _KeepAlive_B, HeaderCollection_X);
         if ((!Res) || ((Res->status != BOF_WEB_STATUS::OK_200) && (Res->status != BOF_WEB_STATUS::PartialContent_206)))

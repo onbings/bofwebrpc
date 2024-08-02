@@ -83,7 +83,7 @@ bool BofWebApp::ReadConfig(BOF_WEB_JSON &_rConfig)
 
 void BofWebApp::ConfigureLogger(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory)
 {
-  char pLibName_c[128];
+  char pLibName_c[0x100];
 
   for (auto &rpsLogger : S_mpsWebAppLoggerCollection)
   {
@@ -91,7 +91,7 @@ void BofWebApp::ConfigureLogger(std::shared_ptr<BOF::IBofLoggerFactory> _psLogge
   }
   if (_psLoggerFactory)
   {
-    sprintf(pLibName_c, "%s_BofWebApp_%04d_", mServer_B ? "Srv" : "Clt", S_mInstanceId_U32);
+    snprintf(pLibName_c, sizeof(pLibName_c), "%s_BofWebApp_%04d_", mServer_B ? "Srv" : "Clt", S_mInstanceId_U32);
     S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP] = _psLoggerFactory->V_Create(pLibName_c, "APP");
   }
 }

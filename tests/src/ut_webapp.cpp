@@ -193,7 +193,7 @@ private:
   {
     static int S_Id_i = 0;
     char pRes_c[0x1000];
-    int Len_i = sprintf(pRes_c, "Hello %d\n", ++S_Id_i);
+    int Len_i = snprintf(pRes_c, sizeof(pRes_c), "Hello %d\n", ++S_Id_i);
     printf("=================GetHi================%d:%s\n", Len_i, pRes_c);
     mGetHi_U32++;
     _rRes.set_content(pRes_c, Len_i, "text/plain");
@@ -355,7 +355,7 @@ private:
         if (fread(UpDownTask_X.pBuffer_U8, ReadSize, 1, UpDownTask_X.pIo_X) == 1)
         {
           _rRes.set_content(reinterpret_cast<char *>(UpDownTask_X.pBuffer_U8), ReadSize, "application/octet-stream");
-          sprintf(pRangeRequest_c, "bytes %zu-%zu/%zu", UpDownTask_X.RangeMin, UpDownTask_X.RangeMax, UpDownTask_X.DataSize);
+          snprintf(pRangeRequest_c, sizeof(pRangeRequest_c), "bytes %zu-%zu/%zu", UpDownTask_X.RangeMin, UpDownTask_X.RangeMax, UpDownTask_X.DataSize);
           _rRes.set_header("Content-Range", std::string(pRangeRequest_c));
           if (RangeMax >= (UpDownTask_X.DataSize - 1))
           {
@@ -469,7 +469,7 @@ private:
         {
           if (fwrite(_rReq.body.c_str(), WriteSize, 1, UpDownTask_X.pIo_X) == 1)
           {
-            sprintf(pRangeRequest_c, "bytes %zu-%zu/%zu", UpDownTask_X.RangeMin, UpDownTask_X.RangeMax, UpDownTask_X.DataSize);
+            snprintf(pRangeRequest_c, sizeof(pRangeRequest_c), "bytes %zu-%zu/%zu", UpDownTask_X.RangeMin, UpDownTask_X.RangeMax, UpDownTask_X.DataSize);
             _rRes.set_header("Content-Range", std::string(pRangeRequest_c));
             if (RangeMax >= (UpDownTask_X.DataSize - 1))
             {
