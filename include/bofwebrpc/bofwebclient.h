@@ -60,7 +60,7 @@ public:
   bool Download(const std::string _rSourceUri_S, const std::string _rFilePathWhereToStore_S, bool _Compress_B, bool _KeepAlive_B,
                 uint32_t _ChunkSizeInByte_U32);
 
-  virtual void V_OnSetSocketOption(BOF_WEB_SOCKET _Socket)
+  virtual void V_OnSetSocketOption(BOF_WEB_SOCKET /*_Socket*/)
   {
   }
 

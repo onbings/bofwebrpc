@@ -80,7 +80,7 @@ public:
     file_request_handler_(req, res);
   }
   */
-  virtual void V_OnFileRequest(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes)
+  virtual void V_OnFileRequest(const BOF_WEB_REQUEST & /*_rReq*/, BOF_WEB_RESPONSE & /*_rRes*/)
   {
   }
   /*
@@ -90,7 +90,7 @@ public:
       need_apply_ranges = true;
     }
   */
-  virtual void V_OnError(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes)
+  virtual void V_OnError(const BOF_WEB_REQUEST & /*_rReq*/, BOF_WEB_RESPONSE & /*_rRes*/)
   {
   }
   /*
@@ -99,7 +99,7 @@ public:
   } catch (std::exception &e) {
     if (exception_handler_) {
   */
-  virtual void V_OnException(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes, std::exception_ptr ep)
+  virtual void V_OnException(const BOF_WEB_REQUEST & /*_rReq*/, BOF_WEB_RESPONSE &_rRes, std::exception_ptr ep)
   {
     char pBuffer_c[0x100];
     try
@@ -117,19 +117,19 @@ public:
     _rRes.set_content(pBuffer_c, "text/html");
     _rRes.status = BOF_WEB_STATUS::InternalServerError_500;
   }
-  virtual bool V_OnPreRouting(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes)
+  virtual bool V_OnPreRouting(const BOF_WEB_REQUEST & /*_rReq*/, BOF_WEB_RESPONSE & /*_rRes*/)
   {
     return false;
   }
-  virtual void V_OnPostRouting(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes)
+  virtual void V_OnPostRouting(const BOF_WEB_REQUEST & /*_rReq*/, BOF_WEB_RESPONSE & /*_rRes*/)
   {
   }
   // By default, the server sends a 100 Continue response for an Expect: 100-continue header.
-  virtual BOF_WEB_STATUS V_OnExpect100Continue(const BOF_WEB_REQUEST &_rReq, BOF_WEB_RESPONSE &_rRes)
+  virtual BOF_WEB_STATUS V_OnExpect100Continue(const BOF_WEB_REQUEST & /*_rReq*/, BOF_WEB_RESPONSE & /*_rRes*/)
   {
     return BOF_WEB_STATUS::Continue_100;
   }
-  virtual void V_OnSetSocketOption(BOF_WEB_SOCKET _Socket)
+  virtual void V_OnSetSocketOption(BOF_WEB_SOCKET /*_Socket*/)
   {
   }
   virtual void V_OnIdle()
