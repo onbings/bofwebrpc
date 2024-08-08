@@ -57,8 +57,8 @@ bool BofWebApp::ReadConfig(BOF_WEB_JSON &_rConfig)
   {
     BOF::Bof_GetCurrentDirectory(Cwd_S);
     CfgPath_S = Cwd_S + "/assets/" + mWebAppParam_X.AppName_S + (mServer_B ? "-clt.json" : "-srv.json");
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Reading configuration from %s (Cwd is %s)\n", CfgPath_S.c_str(),
-             Cwd_S.c_str());
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Reading configuration from %s (Cwd is %s)\n",
+                 CfgPath_S.c_str(), Cwd_S.c_str());
     std::ifstream ConfigFile(CfgPath_S);
 
     ConfigFile >> _rConfig;
@@ -75,8 +75,8 @@ bool BofWebApp::ReadConfig(BOF_WEB_JSON &_rConfig)
   */
   if (!Rts_B)
   {
-    LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot read configuration from %s (Cwd is %s)\n",
-              CfgPath_S.c_str(), Cwd_S.c_str());
+    BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot read configuration from %s (Cwd is %s)\n",
+                  CfgPath_S.c_str(), Cwd_S.c_str());
   }
   return Rts_B;
 }
@@ -147,7 +147,7 @@ std::string BofWebApp::LogRequestAndResponse(const BOF_WEB_REQUEST &_rReq, const
 
   Rts_S += "\n";
   Rts_S += "===End===============================\n";
-  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "%s", Rts_S.c_str());
+  BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "%s", Rts_S.c_str());
   return Rts_S;
 }
 

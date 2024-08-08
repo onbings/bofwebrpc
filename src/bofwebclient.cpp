@@ -17,14 +17,14 @@ BofWebClient::BofWebClient(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
     : BofWebApp(_psLoggerFactory, false, _rWebClientParam_X.WebAppParam_X)
 {
   mWebClientParam_X = _rWebClientParam_X;
-  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Create %s Http client '%s' with:\n",
-           mWebClientParam_X.IsHttpsClient_B ? "Secure" : "Non-Secure", mWebClientParam_X.WebAppParam_X.AppName_S.c_str());
-  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  CertificateAuthorityPath: '%s'\n",
-           mWebClientParam_X.CertificateAuthorityPath_S.c_str());
-  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  ReadTimeout:              %d ms\n",
-           mWebClientParam_X.ReadTimeoutInMs_U32);
-  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  WriteTimeout:             %d ms\n",
-           mWebClientParam_X.WriteTimeoutInMs_U32);
+  BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Create %s Http client '%s' with:\n",
+               mWebClientParam_X.IsHttpsClient_B ? "Secure" : "Non-Secure", mWebClientParam_X.WebAppParam_X.AppName_S.c_str());
+  BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  CertificateAuthorityPath: '%s'\n",
+               mWebClientParam_X.CertificateAuthorityPath_S.c_str());
+  BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  ReadTimeout:              %d ms\n",
+               mWebClientParam_X.ReadTimeoutInMs_U32);
+  BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  WriteTimeout:             %d ms\n",
+               mWebClientParam_X.WriteTimeoutInMs_U32);
 }
 BofWebClient ::~BofWebClient()
 {
@@ -46,8 +46,9 @@ bool BofWebClient::Connect(uint32_t _TimeOutInMs_U32, const std::string &_rIpAdd
   {
     mpuHttpClient = std::make_unique<httplib::Client>(_rIpAddress_S, _Port_U16);
   }
-  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Connect %s Http client '%s' to %s:%d\n",
-           mWebClientParam_X.IsHttpsClient_B ? "Secure" : "Non-Secure", mWebClientParam_X.WebAppParam_X.AppName_S.c_str(), _rIpAddress_S.c_str(), _Port_U16);
+  BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Connect %s Http client '%s' to %s:%d\n",
+               mWebClientParam_X.IsHttpsClient_B ? "Secure" : "Non-Secure", mWebClientParam_X.WebAppParam_X.AppName_S.c_str(), _rIpAddress_S.c_str(),
+               _Port_U16);
   // Rts_B = mpuWebServerProxy->Start(_rIpAddress_S, _Port_U16);
   Rts_B = (mpuHttpClient != nullptr);
   if (Rts_B)
@@ -63,8 +64,9 @@ bool BofWebClient::Connect(uint32_t _TimeOutInMs_U32, const std::string &_rIpAdd
   }
   else
   {
-    LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot connect %s Http client '%s' to %s:%d\n",
-              mWebClientParam_X.IsHttpsClient_B ? "Secure" : "Non-Secure", mWebClientParam_X.WebAppParam_X.AppName_S.c_str(), _rIpAddress_S.c_str(), _Port_U16);
+    BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot connect %s Http client '%s' to %s:%d\n",
+                  mWebClientParam_X.IsHttpsClient_B ? "Secure" : "Non-Secure", mWebClientParam_X.WebAppParam_X.AppName_S.c_str(), _rIpAddress_S.c_str(),
+                  _Port_U16);
   }
   return Rts_B;
 }
@@ -72,8 +74,8 @@ bool BofWebClient::Disconnect()
 {
   bool Rts_B = false;
 
-  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Disconnect %s Http client '%s'\n",
-           mWebClientParam_X.IsHttpsClient_B ? "Secure" : "Non-Secure", mWebClientParam_X.WebAppParam_X.AppName_S.c_str());
+  BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Disconnect %s Http client '%s'\n",
+               mWebClientParam_X.IsHttpsClient_B ? "Secure" : "Non-Secure", mWebClientParam_X.WebAppParam_X.AppName_S.c_str());
 
   if (mpuHttpClient)
   {
@@ -83,8 +85,8 @@ bool BofWebClient::Disconnect()
   }
   if (!Rts_B)
   {
-    LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot disconnect %s Http client '%s'\n",
-              mWebClientParam_X.IsHttpsClient_B ? "Secure" : "Non-Secure", mWebClientParam_X.WebAppParam_X.AppName_S.c_str());
+    BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot disconnect %s Http client '%s'\n",
+                  mWebClientParam_X.IsHttpsClient_B ? "Secure" : "Non-Secure", mWebClientParam_X.WebAppParam_X.AppName_S.c_str());
   }
   return Rts_B;
 }
@@ -183,6 +185,33 @@ BOF_WEB_RESULT BofWebClient::Head(const std::string &_rUri_S, bool _Compress_B, 
   }
   return Rts;
 }
+
+bool BofWebClient::Benchmark(uint32_t _NbTests_U32, uint32_t _SleepTime_U32)
+{
+  bool Rts_B = true;
+  uint32_t i_U32, Start_U32, Delta_U32, StartTest_U32, DeltaTest_U32;
+  BOF_WEB_RESULT Res;
+  std::string Uri_S = "/cli/v1/benchmark?sleep=0";
+  BOF_WEB_HEADER HeaderCollection_X;
+  float TimePerCall_f;
+
+  Start_U32 = BOF::Bof_GetUsTickCount();
+  for (i_U32 = 0; i_U32 < _NbTests_U32; i_U32++)
+  {
+    // StartTest_U32 = BOF::Bof_GetUsTickCount();
+    Res = Get(Uri_S, false, true, HeaderCollection_X);
+    // DeltaTest_U32 = BOF::Bof_ElapsedUsTime(StartTest_U32);
+    if (Res->status != BOF_WEB_STATUS::OK_200)
+    {
+      printf("[%04d]  %u uS: Sts %d Str %s\n", i_U32, DeltaTest_U32, Res->status, Res->body.c_str());
+    }
+  }
+  Delta_U32 = BOF::Bof_ElapsedUsTime(Start_U32);
+  TimePerCall_f = static_cast<float>(Delta_U32) / static_cast<float>(i_U32);
+  printf("%d calls in %u uS->%u uS per call\n", i_U32, Delta_U32, static_cast<uint32_t>(TimePerCall_f));
+  return Rts_B;
+}
+
 bool BofWebClient::Upload(const std::string _rFilePathToUpload_S, const std::string _rDestinationUri_S, bool _Compress_B, bool _KeepAlive_B,
                           uint32_t _ChunkSizeInByte_U32)
 {
@@ -196,8 +225,9 @@ bool BofWebClient::Upload(const std::string _rFilePathToUpload_S, const std::str
   uint8_t *pChunk_U8;
   BOF_WEB_RESULT Res;
 
-  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Upload '%s' in '%s': Compress %s KeepAlive %s ChunkSize %d B\n",
-           _rFilePathToUpload_S.c_str(), _rDestinationUri_S.c_str(), _Compress_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
+  BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP],
+               "Upload '%s' in '%s': Compress %s KeepAlive %s ChunkSize %d B\n", _rFilePathToUpload_S.c_str(), _rDestinationUri_S.c_str(),
+               _Compress_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
   if (mpuHttpClient)
   {
     pIo_X = fopen(_rFilePathToUpload_S.c_str(), "rb");
@@ -234,8 +264,8 @@ bool BofWebClient::Upload(const std::string _rFilePathToUpload_S, const std::str
             {
               if (Res)
               {
-                LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Upload error %d: %s\n", Res->status,
-                          BOF_WEB_LIB::status_message(Res->status));
+                BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Upload error %d: %s\n", Res->status,
+                              BOF_WEB_LIB::status_message(Res->status));
               }
               break;
             }
@@ -260,15 +290,15 @@ bool BofWebClient::Upload(const std::string _rFilePathToUpload_S, const std::str
             }
             else
             {
-              LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Bad control data %zu/%zu,%zu/%zu,%zu/%zu\n", RangeMin,
-                        NewRangeMin, RangeMax, NewRangeMax, DataSize, NewDataSize);
+              BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Bad control data %zu/%zu,%zu/%zu,%zu/%zu\n",
+                            RangeMin, NewRangeMin, RangeMax, NewRangeMax, DataSize, NewDataSize);
               break;
             }
           }
           else
           {
-            LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot read buffer %d:%p\n", Res->body.size(),
-                      Res->body.c_str());
+            BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot read buffer %d:%p\n", Res->body.size(),
+                          Res->body.c_str());
             break;
           }
         } // while(1)
@@ -276,20 +306,21 @@ bool BofWebClient::Upload(const std::string _rFilePathToUpload_S, const std::str
       }
       else
       {
-        LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot allocate %d byte of memory\n", _ChunkSizeInByte_U32);
+        BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot allocate %d byte of memory\n",
+                      _ChunkSizeInByte_U32);
       }
       fclose(pIo_X);
     }
     else
     {
-      LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot open file '%s'\n", _rFilePathToUpload_S.c_str());
+      BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot open file '%s'\n", _rFilePathToUpload_S.c_str());
     }
   }
   if (!Rts_B)
   {
-    LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP],
-              "Cannot upload '%s' in '%s': Compress %s KeepAlive %s ChunkSize %d B\n", _rFilePathToUpload_S.c_str(), _rDestinationUri_S.c_str(),
-              _Compress_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
+    BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP],
+                  "Cannot upload '%s' in '%s': Compress %s KeepAlive %s ChunkSize %d B\n", _rFilePathToUpload_S.c_str(), _rDestinationUri_S.c_str(),
+                  _Compress_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
   }
   return Rts_B;
 }
@@ -306,8 +337,9 @@ bool BofWebClient::Download(const std::string _rSourceUri_S, const std::string _
   BOF_WEB_RESULT Res;
   uint32_t ChunkSize_U32;
 
-  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Download '%s' in '%s': Compress %s KeepAlive %s ChunkSize %d B\n",
-           _rSourceUri_S.c_str(), _rFilePathWhereToStore_S.c_str(), _Compress_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
+  BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP],
+               "Download '%s' in '%s': Compress %s KeepAlive %s ChunkSize %d B\n", _rSourceUri_S.c_str(), _rFilePathWhereToStore_S.c_str(),
+               _Compress_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
   if (mpuHttpClient)
   {
     pIo_X = fopen(_rFilePathWhereToStore_S.c_str(), "wb");
@@ -329,8 +361,8 @@ bool BofWebClient::Download(const std::string _rSourceUri_S, const std::string _
         {
           if (Res)
           {
-            LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Download error %d: %s\n", Res->status,
-                      BOF_WEB_LIB::status_message(Res->status));
+            BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Download error %d: %s\n", Res->status,
+                          BOF_WEB_LIB::status_message(Res->status));
           }
           break;
         }
@@ -343,8 +375,8 @@ bool BofWebClient::Download(const std::string _rSourceUri_S, const std::string _
             ChunkSize_U32 = (RangeMax - RangeMin + 1);
             if (ChunkSize_U32 != Res->body.size())
             {
-              LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Data size mismatch %d != %d\n", RangeMax - RangeMin,
-                        Res->body.size());
+              BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Data size mismatch %d != %d\n",
+                            RangeMax - RangeMin, Res->body.size());
               break;
             }
             else
@@ -360,22 +392,22 @@ bool BofWebClient::Download(const std::string _rSourceUri_S, const std::string _
               }
               else
               {
-                LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot write buffer %d:%p\n", Res->body.size(),
-                          Res->body.c_str());
+                BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot write buffer %d:%p\n", Res->body.size(),
+                              Res->body.c_str());
                 break;
               }
             }
           }
           else
           {
-            LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Bad control data %zu/%zu,%zu/%zu,%zu/%zu\n", RangeMin,
-                      NewRangeMin, RangeMax, NewRangeMax, DataSize, NewDataSize);
+            BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Bad control data %zu/%zu,%zu/%zu,%zu/%zu\n",
+                          RangeMin, NewRangeMin, RangeMax, NewRangeMax, DataSize, NewDataSize);
             break;
           }
         }
         else
         {
-          LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "No data received\n");
+          BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "No data received\n");
           break;
         }
         if (Res->status == BOF_WEB_STATUS::OK_200)
@@ -391,14 +423,15 @@ bool BofWebClient::Download(const std::string _rSourceUri_S, const std::string _
     }
     else
     {
-      LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot create file '%s'\n", _rFilePathWhereToStore_S.c_str());
+      BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot create file '%s'\n",
+                    _rFilePathWhereToStore_S.c_str());
     }
   }
   if (!Rts_B)
   {
-    LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP],
-              "Cannot download '%s' in '%s': Compress %s KeepAlive %s ChunkSize %d B\n", _rSourceUri_S.c_str(), _rFilePathWhereToStore_S.c_str(),
-              _Compress_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
+    BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP],
+                  "Cannot download '%s' in '%s': Compress %s KeepAlive %s ChunkSize %d B\n", _rSourceUri_S.c_str(), _rFilePathWhereToStore_S.c_str(),
+                  _Compress_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
   }
   return Rts_B;
 }

@@ -147,38 +147,38 @@ BofWebServer::BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
     mpHttpServer->set_payload_max_length(mWebServerParam_X.PayloadMaxLengthInByte_U32);
     mpHttpServer->set_base_dir("/", mWebServerParam_X.RootDir_S);
 
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Create %s Http server '%s' with:\n",
-             mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str());
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  RootDir:                '%s'\n",
-             mWebServerParam_X.RootDir_S.c_str());
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  ThreadPoolSize:         %d\n",
-             mWebServerParam_X.ThreadPoolSize_U32);
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  LogRequestAndResponse:  '%s'\n",
-             mWebServerParam_X.LogRequestAndResponse_B ? "True" : "False");
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  CertificatePath_S:      '%s'\n",
-             mWebServerParam_X.CertificatePath_S.c_str());
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  PrivateKeyPath:         '%s'\n",
-             mWebServerParam_X.PrivateKeyPath_S.c_str());
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  ServerStartStopTimeout: %d ms\n",
-             mWebServerParam_X.ServerStartStopTimeoutInMs_U32);
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  KeepAliveMaxCount:      %d\n",
-             mWebServerParam_X.KeepAliveMaxCount_U32);
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  KeepAliveTimeout:       %d ms\n",
-             mWebServerParam_X.KeepAliveTimeoutInMs_U32);
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  ReadTimeout:            %d ms\n",
-             mWebServerParam_X.ReadTimeoutInMs_U32);
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  WriteTimeout:           %d ms\n",
-             mWebServerParam_X.WriteTimeoutInMs_U32);
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  IdleInterval:           %d ms\n",
-             mWebServerParam_X.IdleIntervalInMs_U32);
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], " PayloadMaxLength:        %d B\n",
-             mWebServerParam_X.PayloadMaxLengthInByte_U32);
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Create %s Http server '%s' with:\n",
+                 mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str());
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  RootDir:                '%s'\n",
+                 mWebServerParam_X.RootDir_S.c_str());
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  ThreadPoolSize:         %d\n",
+                 mWebServerParam_X.ThreadPoolSize_U32);
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  LogRequestAndResponse:  '%s'\n",
+                 mWebServerParam_X.LogRequestAndResponse_B ? "True" : "False");
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  CertificatePath_S:      '%s'\n",
+                 mWebServerParam_X.CertificatePath_S.c_str());
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  PrivateKeyPath:         '%s'\n",
+                 mWebServerParam_X.PrivateKeyPath_S.c_str());
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  ServerStartStopTimeout: %d ms\n",
+                 mWebServerParam_X.ServerStartStopTimeoutInMs_U32);
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  KeepAliveMaxCount:      %d\n",
+                 mWebServerParam_X.KeepAliveMaxCount_U32);
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  KeepAliveTimeout:       %d ms\n",
+                 mWebServerParam_X.KeepAliveTimeoutInMs_U32);
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  ReadTimeout:            %d ms\n",
+                 mWebServerParam_X.ReadTimeoutInMs_U32);
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  WriteTimeout:           %d ms\n",
+                 mWebServerParam_X.WriteTimeoutInMs_U32);
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  IdleInterval:           %d ms\n",
+                 mWebServerParam_X.IdleIntervalInMs_U32);
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], " PayloadMaxLength:        %d B\n",
+                 mWebServerParam_X.PayloadMaxLengthInByte_U32);
   }
 }
 BofWebServer ::~BofWebServer()
 {
-  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Destroy %s Http server '%s'\n",
-           mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str());
+  BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Destroy %s Http server '%s'\n",
+               mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str());
   Stop();
   if (mpHttpsServer)
   {
@@ -213,12 +213,12 @@ bool BofWebServer::Start(const std::string &_rIpAddress_S, uint16_t _Port_U16)
     mHost_X.Port_U16 = _Port_U16;
   }
 
-  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Starting %s Http Server '%s' on %s:%d\n",
-           mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str(), mHost_X.IpAddress_S.c_str(), mHost_X.Port_U16);
+  BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Starting %s Http Server '%s' on %s:%d\n",
+               mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str(), mHost_X.IpAddress_S.c_str(), mHost_X.Port_U16);
 
   for (auto &rBannedIp : mHost_X.BannedIpAddressCollection)
   {
-    LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  Banned IP: %s\n", rBannedIp.c_str());
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  Banned IP: %s\n", rBannedIp.c_str());
   }
 
   mStopServerThread.store(false);
@@ -249,8 +249,8 @@ bool BofWebServer::Start(const std::string &_rIpAddress_S, uint16_t _Port_U16)
   Rts_B = IsRunning();
   if (!Rts_B)
   {
-    LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot start %s Http Server '%s' on %s:%d\n",
-              mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str(), mHost_X.IpAddress_S.c_str(), mHost_X.Port_U16);
+    BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot start %s Http Server '%s' on %s:%d\n",
+                  mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str(), mHost_X.IpAddress_S.c_str(), mHost_X.Port_U16);
   }
   return Rts_B;
 }
@@ -260,8 +260,8 @@ bool BofWebServer::Stop()
   bool Rts_B = false;
   uint32_t Start_U32, Delta_U32;
 
-  LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Stopping %s Http Server '%s'\n",
-           mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str());
+  BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Stopping %s Http Server '%s'\n",
+               mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str());
   mpHttpServer->stop();
   Start_U32 = BOF::Bof_GetMsTickCount();
   do
@@ -279,8 +279,8 @@ bool BofWebServer::Stop()
   Rts_B = !IsRunning();
   if (!Rts_B)
   {
-    LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot stop %s Http Server '%s'\n",
-              mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str());
+    BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot stop %s Http Server '%s'\n",
+                  mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str());
   }
   mStopServerThread.store(true);
   if (mServerThread.joinable())
