@@ -104,6 +104,7 @@ BOF_WEB_RESULT BofWebClient::Get(const std::string &_rUri_S, bool _Compress_B, b
   }
   return Rts;
 }
+
 BOF_WEB_RESULT BofWebClient::Post(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeaderCollection_X,
                                   size_t _BodyLength, const char *_pBody_c, const std::string &_rBodyType_S)
 {
@@ -189,7 +190,7 @@ BOF_WEB_RESULT BofWebClient::Head(const std::string &_rUri_S, bool _Compress_B, 
 bool BofWebClient::Benchmark(uint32_t _NbTests_U32, uint32_t _SleepTime_U32)
 {
   bool Rts_B = true;
-  uint32_t i_U32, Start_U32, Delta_U32, StartTest_U32, DeltaTest_U32;
+  uint32_t i_U32, Start_U32, Delta_U32, StartGet_U32, DeltaGet_U32;
   BOF_WEB_RESULT Res;
   std::string Uri_S = "/cli/v1/benchmark?sleep=0";
   BOF_WEB_HEADER HeaderCollection_X;
@@ -198,17 +199,23 @@ bool BofWebClient::Benchmark(uint32_t _NbTests_U32, uint32_t _SleepTime_U32)
   Start_U32 = BOF::Bof_GetUsTickCount();
   for (i_U32 = 0; i_U32 < _NbTests_U32; i_U32++)
   {
-    // StartTest_U32 = BOF::Bof_GetUsTickCount();
+    StartGet_U32 = BOF::Bof_GetUsTickCount();
+    HeaderCollection_X.clear();
+    HeaderCollection_X.insert(std::make_pair("timestamp", std::to_string(StartGet_U32)));
     Res = Get(Uri_S, false, true, HeaderCollection_X);
-    // DeltaTest_U32 = BOF::Bof_ElapsedUsTime(StartTest_U32);
+    DeltaGet_U32 = BOF::Bof_ElapsedUsTime(StartGet_U32);
+    Delta_U32 = BOF::Bof_ElapsedUsTime(Start_U32);
+
     if (Res->status != BOF_WEB_STATUS::OK_200)
     {
-      printf("[%04d]  %u uS: Sts %d Str %s\n", i_U32, DeltaTest_U32, Res->status, Res->body.c_str());
+      printf("CLT [%04d] Start %u Now %u DeltaGet %u uS DeltaStart %u uS: Sts %d FromSrv '%s'\n", i_U32, Start_U32, StartGet_U32, DeltaGet_U32, Delta_U32,
+             Res->status, Res->body.c_str());
     }
   }
   Delta_U32 = BOF::Bof_ElapsedUsTime(Start_U32);
   TimePerCall_f = static_cast<float>(Delta_U32) / static_cast<float>(i_U32);
-  printf("%d calls in %u uS->%u uS per call\n", i_U32, Delta_U32, static_cast<uint32_t>(TimePerCall_f));
+  printf("%d calls in %u uS->%u uS per call->%u calls/S\n", i_U32, Delta_U32, static_cast<uint32_t>(TimePerCall_f),
+         static_cast<uint32_t>(1000000.0f / TimePerCall_f));
   return Rts_B;
 }
 
@@ -369,33 +376,50 @@ bool BofWebClient::Download(const std::string _rSourceUri_S, const std::string _
         if (Res->body.size())
         {
           ContentRange_S = Res->get_header_value("Content-Range");
-          if (BofWebApp::S_ParseContentRangeRequest(ContentRange_S, NewRangeMin, NewRangeMax, NewDataSize) && (RangeMin == NewRangeMin) &&
-              (RangeMax == NewRangeMax) && (DataSize == NewDataSize))
+          if (BofWebApp::S_ParseContentRangeRequest(ContentRange_S, NewRangeMin, NewRangeMax, NewDataSize) && (NewDataSize))
           {
-            ChunkSize_U32 = (RangeMax - RangeMin + 1);
-            if (ChunkSize_U32 != Res->body.size())
+            if (DataSize == 0)
             {
-              BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Data size mismatch %d != %d\n",
-                            RangeMax - RangeMin, Res->body.size());
-              break;
-            }
-            else
-            {
-              if (fwrite(Res->body.c_str(), Res->body.size(), 1, pIo_X) == 1)
+              DataSize = NewDataSize;
+              if ((NewRangeMax + 1) >= DataSize)
               {
-                RangeMin = RangeMax + 1;
-                RangeMax = RangeMin + ChunkSize_U32 - 1;
-                if (RangeMax >= (DataSize - 1))
-                {
-                  RangeMax = DataSize - 1;
-                }
+                RangeMax = DataSize - 1;
+              }
+            }
+            if ((RangeMin == NewRangeMin) && (RangeMax == NewRangeMax) && (DataSize == NewDataSize))
+            {
+              ChunkSize_U32 = (RangeMax - RangeMin + 1);
+              if (ChunkSize_U32 != Res->body.size())
+              {
+                BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Data size mismatch %d != %d\n",
+                              RangeMax - RangeMin, Res->body.size());
+                break;
               }
               else
               {
-                BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot write buffer %d:%p\n", Res->body.size(),
-                              Res->body.c_str());
-                break;
+                if (fwrite(Res->body.c_str(), Res->body.size(), 1, pIo_X) == 1)
+                {
+                  RangeMin = RangeMax + 1;
+                  RangeMax = RangeMin + ChunkSize_U32 - 1;
+                  if (RangeMax >= (DataSize - 1))
+                  {
+                    RangeMin = NewRangeMax;
+                    RangeMax = DataSize - 1;
+                  }
+                }
+                else
+                {
+                  BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot write buffer %d:%p\n",
+                                Res->body.size(), Res->body.c_str());
+                  break;
+                }
               }
+            }
+            else
+            {
+              BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Invalid control data %zu/%zu,%zu/%zu,%zu/%zu\n",
+                            RangeMin, NewRangeMin, RangeMax, NewRangeMax, DataSize, NewDataSize);
+              break;
             }
           }
           else

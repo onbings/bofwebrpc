@@ -122,10 +122,10 @@ std::string BofWebApp::LogRequestAndResponse(const BOF_WEB_REQUEST &_rReq, const
   snprintf(pBuffer_c, sizeof(pBuffer_c), "%s %s %s", _rReq.method.c_str(), _rReq.version.c_str(), _rReq.path.c_str());
   Rts_S += pBuffer_c;
 
-  for (auto it = _rReq.params.begin(); it != _rReq.params.end(); ++it)
+  for (auto It = _rReq.params.begin(); It != _rReq.params.end(); ++It)
   {
-    const auto &x = *it;
-    snprintf(pBuffer_c, sizeof(pBuffer_c), "%c%s=%s", (it == _rReq.params.begin()) ? '?' : '&', x.first.c_str(), x.second.c_str());
+    const auto &x = *It;
+    snprintf(pBuffer_c, sizeof(pBuffer_c), "%c%s=%s", (It == _rReq.params.begin()) ? '?' : '&', x.first.c_str(), x.second.c_str());
     Query_S += pBuffer_c;
   }
   snprintf(pBuffer_c, sizeof(pBuffer_c), "%s\n", Query_S.c_str());
@@ -179,7 +179,8 @@ bool BofWebApp::S_ParseContentRangeRequest(const std::string &_rContentRangeRequ
 bool BofWebApp::S_SplitCmdAndArg(const std::string &_rCmdArgRequest_S, std::string &_rCmd_S, std::string &_rArg_S)
 {
   bool Rts_B = false;
-  std::regex RegExCmdArg(R"((\w+)(?:\s+(.*))?)");
+  // std::regex RegExCmdArg(R"((\w+)(?:\s+(.*))?)");
+  std::regex RegExCmdArg(R"((\w+)\((.*?)\))");
   std::smatch Match;
 
   if (std::regex_match(_rCmdArgRequest_S, Match, RegExCmdArg))
