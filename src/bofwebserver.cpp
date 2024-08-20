@@ -62,7 +62,7 @@ private:
 BofWebServer::BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory, const BOF_WEB_SERVER_PARAM &_rWebServerParam_X)
     : BofWebApp(_psLoggerFactory, true, _rWebServerParam_X.WebAppParam_X)
 {
-  bool CreateHttpsServer_B;
+  bool CreateHttpsServer_B, ItIsADirectory_B;
   BOF_WEB_HEADER HeaderCollection;
 
   mWebServerParam_X = _rWebServerParam_X;
@@ -145,7 +145,10 @@ BofWebServer::BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
       mWebServerParam_X.KeepAliveMaxCount_U32 = 0x1000;
     }
     mpHttpServer->set_payload_max_length(mWebServerParam_X.PayloadMaxLengthInByte_U32);
-    mpHttpServer->set_base_dir("/", mWebServerParam_X.RootDir_S);
+    if (BOF::Bof_IsPathExist(mWebServerParam_X.RootDir_S, ItIsADirectory_B) && (ItIsADirectory_B))
+    {
+      mpHttpServer->set_base_dir("/", mWebServerParam_X.RootDir_S);
+    }
 
     BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Create %s Http server '%s' with:\n",
                  mpHttpsServer ? "Secure" : "Non-Secure", mWebServerParam_X.WebAppParam_X.AppName_S.c_str());
