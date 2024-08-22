@@ -439,7 +439,7 @@ BOFERR BofWebSocket::Connect(uint32_t TimeoutInMs_U32, const std::string &_rWsEn
 
   ConnectParam_X.DstIpAddr_X = BOF::BOF_IPV4_ADDR_U32(WsEndpoint_X);
   ConnectParam_X.DstPort_U16 = WsEndpoint_X.Port();
-  BOF_SNPRINTF_NULL_CLIPPED(ConnectParam_X.pWsCltKey_c, sizeof(ConnectParam_X.pWsCltKey_c), "%s", _rWsCltKey_S.c_str());
+  snprintf(ConnectParam_X.pWsCltKey_c, sizeof(ConnectParam_X.pWsCltKey_c), "%s", _rWsCltKey_S.c_str());
   Rts_E = ProgramWebSocketOperation(TimeoutInMs_U32, ConnectParam_X, OpTicket_U32);
   if (Rts_E == BOF_ERR_NO_ERROR)
   {
@@ -1397,8 +1397,8 @@ BOFERR BofWebSocket::V_OnProcessing()
                   Ip_S = mCurrentOp_X.OpParam.Connect_X.DstIpAddr_X.ToString();
                   FullIp_S = mCurrentOp_X.OpParam.Connect_X.DstIpAddr_X.ToString(mCurrentOp_X.OpParam.Connect_X.DstPort_U16);
                   // The '=' is inside URI_CLIENT_NAME_ARG
-                  BOF_SNPRINTF_NULL_CLIPPED(pWsCltKey_c, sizeof(pWsCltKey_c), "/?%s%s", WS_CLT_KEY_ARG, mCurrentOp_X.OpParam.Connect_X.pWsCltKey_c);
-                  // BOF_SNPRINTF_NULL_CLIPPED(pWsCltKey_c, sizeof(pWsCltKey_c), "/");
+                  snprintf(pWsCltKey_c, sizeof(pWsCltKey_c), "/?%s%s", WS_CLT_KEY_ARG, mCurrentOp_X.OpParam.Connect_X.pWsCltKey_c);
+                  // snprintf(pWsCltKey_c, sizeof(pWsCltKey_c), "/");
 
                   memset(&ClientConnectInfo_X, 0, sizeof(ClientConnectInfo_X));
                   ClientConnectInfo_X.context = mpLwsContext_X;
