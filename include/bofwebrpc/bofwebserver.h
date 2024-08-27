@@ -16,6 +16,7 @@
 BEGIN_WEBRPC_NAMESPACE()
 struct BOF_WEB_SERVER_PARAM
 {
+  uint32_t DiscoverTimeoutInMs_U32;
   uint32_t ServerStartStopTimeoutInMs_U32;
   std::string CertificatePath_S; // If empty create an HTTP server instead of an HTTPS
   std::string PrivateKeyPath_S;
@@ -38,6 +39,7 @@ struct BOF_WEB_SERVER_PARAM
   }
   void Reset()
   {
+    DiscoverTimeoutInMs_U32 = 0;
     ServerStartStopTimeoutInMs_U32 = 0;
     CertificatePath_S = "";
     PrivateKeyPath_S = "";

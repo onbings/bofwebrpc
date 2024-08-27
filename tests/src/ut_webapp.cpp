@@ -548,6 +548,7 @@ protected:
       mWebServerParam_X.CertificatePath_S = "/home/bha/pro/evs-hwfw-sb-xts/cert.pem";
       mWebServerParam_X.PrivateKeyPath_S = "/home/bha/pro/evs-hwfw-sb-xts/key.pem";
     }
+    mWebServerParam_X.DiscoverTimeoutInMs_U32 = 1000;
     mWebServerParam_X.ServerStartStopTimeoutInMs_U32 = 2000;
     mWebServerParam_X.LogRequestAndResponse_B = true;
     mWebServerParam_X.KeepAliveMaxCount_U32 = 25000;
