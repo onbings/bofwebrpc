@@ -22,8 +22,9 @@
 #Windows build
 #cmake -DCMAKE_INSTALL_PREFIX=C:/bld/github-win/binaries -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Debug -SC:/pro/evs-hwfw-xts/bofwebrpc -BC:/bld/bofwebrpc-win
 
+# git clone git@github.com:onbings/bofwebrpc.git
 #Linux build
-#cmake -DCMAKE_INSTALL_PREFIX=/home/bha/bld/github-lin/binaries -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Debug -S/home/bha/pro/github/bofwebrpc -B/home/bha/bld/bofwebrpc-lin
+#cmake -DCMAKE_INSTALL_PREFIX=/home/bha/bld/xts/binaries -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Debug -DRHEL:STRING="el9" -S/home/bha/pro/bofwebrpc -B/home/bha/bld/bofwebrpc-lin
 
 #cmake --install . --config Debug
 
@@ -82,6 +83,7 @@ target_include_directories(${PROJECT_NAME_LOWER_MINUS}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>       #for flat model (.h and .cpp in source dir)
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>		#for bofwebrpc_export.h install (below) 
+    $<INSTALL_INTERFACE:include> 
 )
 target_link_libraries(${PROJECT_NAME_LOWER_MINUS}
   PRIVATE
