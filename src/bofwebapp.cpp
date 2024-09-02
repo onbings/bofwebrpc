@@ -255,4 +255,41 @@ bool BofWebApp::S_CreateTestFile(const std::string &_rPath_S, uint32_t _SizeInBy
   }
   return Rts_B;
 }
+// https://www.moesif.com/blog/technical/api-design/REST-API-Design-Best-Practices-for-Parameters-and-Query-String-Usage/
+#if 0
+std::map<std::string, std::string> BofWebApp::S_ParseMapString(const std::string &mapString)
+{
+  std::map<std::string, std::string> Rts;
+  std::istringstream Iss(mapString);
+  std::string ParamPair_S, Key_S, Value_S;
+  size_t EqualPos;
+
+  while (std::getline(Iss, ParamPair_S, '&'))
+  {
+    EqualPos = ParamPair_S.find('=');
+    if (EqualPos != std::string::npos)
+    {
+      Key_S = ParamPair_S.substr(0, equalPos);
+      Value_S = httplib::detail::decode_url(ParamPair_S.substr(EqualPos + 1));
+      Rts[Key_S] = Value_S;
+    }
+  }
+  return Rts;
+}
+std::string BofWebApp::S_ConstructMapString(const std::map<std::string, std::string> &_rParamCollection)
+{
+  std::ostringstream Oss;
+  bool First_B = true;
+  for (const auto &rParam : _rParamCollection)
+  {
+    if (!First_B)
+    {
+      Oss << "&";
+    }
+    Oss << rParam.first << "=" << httplib::detail::encode_url(rParam.second);
+    First_B = false;
+  }
+  return Oss.str();
+}
+#endif
 END_WEBRPC_NAMESPACE()

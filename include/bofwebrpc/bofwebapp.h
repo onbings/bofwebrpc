@@ -215,6 +215,7 @@ public:
   static std::string S_GenerateSessionId(uint32_t _SessionIdLen_U32);
   static bool S_CreateTestFile(const std::string &_rPath_S, uint32_t _SizeInByte_U32, uint8_t _ValueStart_U32);
   static bool S_ParseContentRangeRequest(const std::string &_rContentRangeRequest_S, size_t &_rRangeMin, size_t &_rRangeMax, size_t &_rDataSize);
+  //  static std::string S_ConstructMapString(const std::map<std::string, std::string> &_rParamCollection);
 
 protected:
   bool Initialize(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory);
