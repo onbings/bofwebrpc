@@ -52,7 +52,7 @@ if (MSVC OR EMSCRIPTEN)
 else()
 #  include(cmake/cpack_archive.cmake)
 #  include(cmake/cpack_deb.cmake)
-  include(cmake/cpack_rpm.cmake)
+#  include(cmake/cpack_rpm.cmake)
 endif()
 
 include(CPack)

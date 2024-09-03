@@ -33,8 +33,9 @@ target_link_libraries(${UT_NAME}
   PRIVATE
     ONBINGS::bofwebrpc
 	#vcpkg 
-    GTest::gtest
-	#Fetch GTest::gtest_main
+    #GTest::gtest
+	#Fetch 
+	GTest::gtest_main
     ONBINGS::bofstd
 	
 )
