@@ -33,6 +33,10 @@
       "platform": "!wasm32"
     },
     {
+      "name": "thrift",
+      "platform": "!wasm32"
+    },
+    {
       "name": "grpc",
       "platform": "!wasm32"
     }

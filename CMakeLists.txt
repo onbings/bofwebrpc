@@ -94,6 +94,9 @@ target_link_libraries(${PROJECT_NAME_LOWER_MINUS}
     protobuf::libprotoc protobuf::libprotobuf protobuf::libprotobuf-lite
     gRPC::gpr gRPC::grpc gRPC::grpc++ gRPC::grpc++_alts		
     httplib::httplib
+    thrift::thrift 
+    thriftz::thriftz 
+    ##thriftnb::thriftnb    
 )
 
 if(${PROJECT_NAME_UPPER_UNDERSCORE}_BUILD_TESTS)
