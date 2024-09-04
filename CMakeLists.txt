@@ -24,8 +24,9 @@
 
 # git clone git@github.com:onbings/bofwebrpc.git
 #Linux build
-#cmake -DCMAKE_INSTALL_PREFIX=/home/bha/bld/xts/binaries -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Debug -DRHEL:STRING="el9" -S/home/bha/pro/bofwebrpc -B/home/bha/bld/bofwebrpc-lin
+#cmake -DCMAKE_INSTALL_PREFIX=/home/bha/bld/xts/binaries/bofwebrpc -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Debug -DRHEL:STRING="el9" -S/home/bha/pro/github/bofwebrpc -B/home/bha/bld/bofwebrpc-lin
 
+#cmake --build .
 #cmake --install . --config Debug
 
 cmake_minimum_required(VERSION 3.28)
