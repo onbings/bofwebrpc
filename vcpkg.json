@@ -7,6 +7,9 @@
       "name": "bofstd"
     },
     {
+      "name": "mdns"
+    },    
+    {
       "name": "libwebsockets",
       "platform": "!wasm32"
     },
