@@ -20,11 +20,11 @@
 #Select VcRun::WebNode::ut_bofwebrpc in debug icon
 
 #Windows build
-#cmake -DCMAKE_INSTALL_PREFIX=C:/bld/github-win/binaries -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Debug -SC:/pro/evs-hwfw-xts/bofwebrpc -BC:/bld/bofwebrpc-win
+#cmake -DCMAKE_INSTALL_PREFIX=C:/bld/github-win/binaries -DCMAKE_TOOLCHAIN_FILE=C:/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Debug -SC:/pro/github/bofwebrpc -BC:/bld/bofwebrpc-win
 
 # git clone git@github.com:onbings/bofwebrpc.git
 #Linux build
-#cmake -DCMAKE_INSTALL_PREFIX=/home/bha/bld/xts/binaries/bofwebrpc -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Debug -DRHEL:STRING="el9" -S/home/bha/pro/github/bofwebrpc -B/home/bha/bld/bofwebrpc-lin
+#cmake -DCMAKE_INSTALL_PREFIX=/home/bha/bld/github-win/binaries -DCMAKE_TOOLCHAIN_FILE=/home/bha/pro/vcpkg/scripts/buildsystems/vcpkg.cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Debug -DRHEL:STRING="el9" -S/home/bha/pro/github/bofwebrpc -B/home/bha/bld/bofwebrpc-lin
 
 #cmake --build .
 #cmake --install . --config Debug
@@ -40,7 +40,7 @@ include(cmake/fixup_vs_crt.cmake)
 include(cmake/vcpkg_install.cmake)
 include(cmake/fetch_content.cmake)
 
-project(bofwebrpc VERSION 1.0.0.0)
+project(bofwebrpc VERSION 2.4.1.2)
 include(cmake/compile.cmake)
 include(Dependencies.cmake)
 
