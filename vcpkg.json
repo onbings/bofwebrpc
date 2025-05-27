@@ -1,13 +1,10 @@
 {
   "name": "bofwebrpc",
-  "version": "2.4.1.2",
+  "version": "2.4.2.2",
   "description": "The OnBings Web Rpc c++ library",
   "dependencies": [
     {
       "name": "bofstd"
-    },
-    {
-      "name": "mdns"
     },
     {
       "name": "libwebsockets",
