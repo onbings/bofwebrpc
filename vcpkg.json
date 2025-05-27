@@ -35,6 +35,10 @@
     {
       "name": "grpc",
       "platform": "!wasm32"
+    },
+    {
+      "name": "zstd",
+      "platform": "!windows"
     }
   ]
 }
