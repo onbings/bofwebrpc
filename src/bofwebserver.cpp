@@ -201,6 +201,10 @@ BOF_WEB_HANDLER_RESPONSE BofWebServer::OnPreRouting(const BOF_WEB_REQUEST &_rReq
   }
   return Rts;
 }
+const BOF_WEB_SERVER_PARAM BofWebServer::GetWebServerParam() const
+{
+  return mWebServerParam_X;
+}
 bool BofWebServer::Start(const std::string &_rIpAddress_S, uint16_t _Port_U16)
 {
   bool Rts_B = false;

@@ -41,7 +41,7 @@ class BofWebClient : public BofWebApp
 public:
   BofWebClient(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory, const BOF_WEB_CLIENT_PARAM &_rWebClientParam_X);
   virtual ~BofWebClient();
-
+  const BOF_WEB_CLIENT_PARAM GetWebClientParam() const;
   bool Connect(uint32_t _TimeOutInMs_U32, const std::string &_rIpAddress_S, uint16_t _Port_U16);
   bool Disconnect();
 

@@ -1,6 +1,6 @@
 {
   "name": "bofwebrpc",
-  "version": "2.4.2.4",
+  "version": "2.4.2.5",
   "description": "The OnBings Web Rpc c++ library",
   "dependencies": [
     {

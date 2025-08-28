@@ -31,6 +31,10 @@ BofWebClient ::~BofWebClient()
   Disconnect();
 }
 
+const BOF_WEB_CLIENT_PARAM BofWebClient::GetWebClientParam() const
+{
+  return mWebClientParam_X;
+}
 bool BofWebClient::Connect(uint32_t _TimeOutInMs_U32, const std::string &_rIpAddress_S, uint16_t _Port_U16)
 {
   bool Rts_B = false;

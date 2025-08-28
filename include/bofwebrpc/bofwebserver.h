@@ -63,6 +63,7 @@ class BofWebServer : public BofWebApp
 public:
   BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFactory, const BOF_WEB_SERVER_PARAM &_rWebServerParam_X);
   virtual ~BofWebServer();
+  const BOF_WEB_SERVER_PARAM GetWebServerParam() const;
   bool Start(const std::string &_rIpAddress_S, uint16_t _Port_U16);
   bool Stop();
 
