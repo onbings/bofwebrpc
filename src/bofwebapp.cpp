@@ -56,9 +56,8 @@ bool BofWebApp::ReadConfig(BOF_WEB_JSON &_rConfig)
   try
   {
     BOF::Bof_GetCurrentDirectory(Cwd_S);
-    CfgPath_S = Cwd_S + "/assets/" + mWebAppParam_X.AppName_S + (mServer_B ? "-clt.json" : "-srv.json");
-    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Reading configuration from %s (Cwd is %s)\n",
-                 CfgPath_S.c_str(), Cwd_S.c_str());
+    CfgPath_S = Cwd_S + "assets/" + mWebAppParam_X.AppName_S + (mServer_B ? "-clt.json" : "-srv.json");
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Reading configuration from %s (Cwd is %s and mServer_B is %d)\n", CfgPath_S.c_str(), Cwd_S.c_str(), mServer_B);
     std::ifstream ConfigFile(CfgPath_S);
 
     ConfigFile >> _rConfig;
@@ -73,7 +72,11 @@ bool BofWebApp::ReadConfig(BOF_WEB_JSON &_rConfig)
     throw "Can't open config";
   }
   */
-  if (!Rts_B)
+  if (Rts_B)
+  {
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Config:\n%s\n", _rConfig.dump(2).c_str());
+  }
+  else
   {
     BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Cannot read configuration from %s (Cwd is %s)\n",
                   CfgPath_S.c_str(), Cwd_S.c_str());

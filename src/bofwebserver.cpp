@@ -174,7 +174,7 @@ BofWebServer::BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
                  mWebServerParam_X.WriteTimeoutInMs_U32);
     BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  IdleInterval:           %d ms\n",
                  mWebServerParam_X.IdleIntervalInMs_U32);
-    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], " PayloadMaxLength:        %d B\n",
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], " PayloadMaxLength:        0x%X B\n",
                  mWebServerParam_X.PayloadMaxLengthInByte_U32);
   }
 }
