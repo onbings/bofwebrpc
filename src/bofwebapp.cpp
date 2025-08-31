@@ -56,7 +56,7 @@ bool BofWebApp::ReadConfig(BOF_WEB_JSON &_rConfig)
   try
   {
     BOF::Bof_GetCurrentDirectory(Cwd_S);
-    CfgPath_S = Cwd_S + "assets/" + mWebAppParam_X.AppName_S + (mServer_B ? "-clt.json" : "-srv.json");
+    CfgPath_S = Cwd_S + "assets/" + mWebAppParam_X.AppName_S + (mServer_B ? "-srv.json" : "-clt.json");
     BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "Reading configuration from %s (Cwd is %s and mServer_B is %d)\n", CfgPath_S.c_str(), Cwd_S.c_str(), mServer_B);
     std::ifstream ConfigFile(CfgPath_S);
 
