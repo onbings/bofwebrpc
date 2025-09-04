@@ -69,6 +69,7 @@ public:
 
   bool Get(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler);
   bool Post(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler);
+  bool Post(const std::string &_rUri_S, BOF_WEB_HANDLER_CONTENT_READER _Handler);
   bool Put(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler);
   bool Patch(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler);
   bool Delete(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler);
@@ -137,6 +138,15 @@ public:
   }
   virtual void V_OnIdle()
   {
+  }
+//For debug or experimental test !!!
+  BOF_WEB_HTTPS_SERVER *GetHttpsServer()
+  {
+    return mpHttpsServer;
+  } 
+  BOF_WEB_HTTP_SERVER *GetHttpServer 
+  {
+    return mpHttpServer;
   }
 
 protected:
