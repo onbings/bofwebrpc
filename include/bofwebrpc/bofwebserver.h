@@ -144,7 +144,7 @@ public:
   {
     return mpHttpsServer;
   } 
-  BOF_WEB_HTTP_SERVER *GetHttpServer 
+  BOF_WEB_HTTP_SERVER *GetHttpServer()
   {
     return mpHttpServer;
   }
