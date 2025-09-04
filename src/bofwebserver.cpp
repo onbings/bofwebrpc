@@ -336,6 +336,16 @@ bool BofWebServer::Put(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler)
   }
   return Rts_B;
 }
+bool BofWebServer::Put(const std::string &_rUri_S, BOF_WEB_HANDLER_CONTENT_READER _Handler)
+{
+  bool Rts_B = false;
+  if (mpHttpServer)
+  {
+    mpHttpServer->Put(_rUri_S, _Handler);
+    Rts_B = true;
+  }
+  return Rts_B;
+}
 bool BofWebServer::Patch(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler)
 {
   bool Rts_B = false;

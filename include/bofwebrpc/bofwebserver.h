@@ -71,6 +71,7 @@ public:
   bool Post(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler);
   bool Post(const std::string &_rUri_S, BOF_WEB_HANDLER_CONTENT_READER _Handler);
   bool Put(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler);
+  bool Put(const std::string &_rUri_S, BOF_WEB_HANDLER_CONTENT_READER _Handler);
   bool Patch(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler);
   bool Delete(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler);
   bool Options(const std::string &_rUri_S, BOF_WEB_HANDLER _Handler);
