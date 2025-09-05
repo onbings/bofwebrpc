@@ -140,11 +140,11 @@ public:
   virtual void V_OnIdle()
   {
   }
-//For debug or experimental test !!!
+  // For debug or experimental test !!!
   BOF_WEB_HTTPS_SERVER *GetHttpsServer()
   {
     return mpHttpsServer;
-  } 
+  }
   BOF_WEB_HTTP_SERVER *GetHttpServer()
   {
     return mpHttpServer;

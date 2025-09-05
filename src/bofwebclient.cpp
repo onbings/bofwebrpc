@@ -215,6 +215,10 @@ bool BofWebClient::Benchmark(uint32_t _NbTests_U32, uint32_t _SleepTime_U32)
       printf("CLT [%04d] Start %u Now %u DeltaGet %u uS DeltaStart %u uS: Sts %d FromSrv '%s'\n", i_U32, Start_U32, StartGet_U32, DeltaGet_U32, Delta_U32,
              Res->status, Res->body.c_str());
     }
+    if (_SleepTime_U32)
+    {
+      BOF::Bof_MsSleep(_SleepTime_U32);
+    }
   }
   Delta_U32 = BOF::Bof_ElapsedUsTime(Start_U32);
   TimePerCall_f = static_cast<float>(Delta_U32) / static_cast<float>(i_U32);
@@ -232,7 +236,7 @@ bool BofWebClient::Upload(const std::string _rFilePathToUpload_S, const std::str
   BOF_WEB_HEADER HeaderCollection_X;
   size_t RangeMin, RangeMax, DataSize, ReadSize, NewRangeMin, NewRangeMax, NewDataSize;
   char pRangeRequest_c[0x100];
-  uint32_t ChunkSize_U32;
+  // uint32_t ChunkSize_U32;
   uint8_t *pChunk_U8;
   BOF_WEB_RESULT Res;
 

@@ -9,6 +9,7 @@
   History:
     V 1.00  August 24 2013  BHA : Original version
 */
+// sudo tcpdump -i any -A -s 0 port 8080
 #pragma once
 #include "bofwebrpc/bofwebapp.h"
 
