@@ -135,14 +135,18 @@ BofWebServer::BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
     {
       mWebServerParam_X.KeepAliveMaxCount_U32 = 1;
     }
+    if (mWebServerParam_X.KeepAliveTimeoutInMs_U32 < 1000)
+    {
+      mWebServerParam_X.KeepAliveTimeoutInMs_U32 = 1000;
+    }
     mpHttpServer->set_keep_alive_max_count(mWebServerParam_X.KeepAliveMaxCount_U32);
-    mpHttpServer->set_keep_alive_timeout(mWebServerParam_X.KeepAliveTimeoutInMs_U32);
+    mpHttpServer->set_keep_alive_timeout(mWebServerParam_X.KeepAliveTimeoutInMs_U32/1000);
     mpHttpServer->set_read_timeout(std::chrono::milliseconds(mWebServerParam_X.ReadTimeoutInMs_U32));
     mpHttpServer->set_write_timeout(std::chrono::milliseconds(mWebServerParam_X.WriteTimeoutInMs_U32));
     mpHttpServer->set_idle_interval(std::chrono::milliseconds(mWebServerParam_X.IdleIntervalInMs_U32));
     if (mWebServerParam_X.PayloadMaxLengthInByte_U32 == 0)
     {
-      mWebServerParam_X.KeepAliveMaxCount_U32 = 0x1000;
+      mWebServerParam_X.PayloadMaxLengthInByte_U32 = 0x1000;
     }
     mpHttpServer->set_payload_max_length(mWebServerParam_X.PayloadMaxLengthInByte_U32);
     if (BOF::Bof_IsPathExist(mWebServerParam_X.RootDir_S, ItIsADirectory_B) && (ItIsADirectory_B))
@@ -166,8 +170,8 @@ BofWebServer::BofWebServer(std::shared_ptr<BOF::IBofLoggerFactory> _psLoggerFact
                  mWebServerParam_X.ServerStartStopTimeoutInMs_U32);
     BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  KeepAliveMaxCount:      %d\n",
                  mWebServerParam_X.KeepAliveMaxCount_U32);
-    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  KeepAliveTimeout:       %d ms\n",
-                 mWebServerParam_X.KeepAliveTimeoutInMs_U32);
+    BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  KeepAliveTimeout:       %d sec\n",
+                 mWebServerParam_X.KeepAliveTimeoutInMs_U32/1000);
     BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  ReadTimeout:            %d ms\n",
                  mWebServerParam_X.ReadTimeoutInMs_U32);
     BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP], "  WriteTimeout:           %d ms\n",

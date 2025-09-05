@@ -23,7 +23,7 @@ struct BOF_WEB_SERVER_PARAM
 
   bool LogRequestAndResponse_B;
   uint32_t KeepAliveMaxCount_U32;
-  uint32_t KeepAliveTimeoutInMs_U32;
+  uint32_t KeepAliveTimeoutInMs_U32; // rounded in sec so not below 1000 ms
   uint32_t ReadTimeoutInMs_U32;
   uint32_t WriteTimeoutInMs_U32;
   uint32_t IdleIntervalInMs_U32;

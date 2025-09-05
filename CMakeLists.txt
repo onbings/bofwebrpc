@@ -40,7 +40,7 @@ include(cmake/fixup_vs_crt.cmake)
 include(cmake/vcpkg_install.cmake)
 include(cmake/fetch_content.cmake)
 
-project(bofwebrpc VERSION 2.4.2.10)
+project(bofwebrpc VERSION 2.4.2.11)
 include(cmake/compile.cmake)
 include(Dependencies.cmake)
 
