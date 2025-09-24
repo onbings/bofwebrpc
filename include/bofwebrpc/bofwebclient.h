@@ -46,21 +46,21 @@ public:
   bool Connect(uint32_t _TimeOutInMs_U32, const std::string &_rIpAddress_S, uint16_t _Port_U16);
   bool Disconnect();
 
-  BOF_WEB_RESULT Get(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X);
-  BOF_WEB_RESULT Post(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X, size_t _BodyLength,
+  BOF_WEB_RESULT Get(const std::string &_rUri_S,bool _CompressReq_B, bool _DecompressRes_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X);
+  BOF_WEB_RESULT Post(const std::string &_rUri_S,bool _CompressReq_B, bool _DecompressRes_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X, size_t _BodyLength,
                       const char *_pBody_c, const std::string &_rBodyType_S);
-  BOF_WEB_RESULT Put(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X, size_t _BodyLength,
+  BOF_WEB_RESULT Put(const std::string &_rUri_S,bool _CompressReq_B, bool _DecompressRes_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X, size_t _BodyLength,
                      const char *_pBody_c, const std::string &_rBodyType_S);
-  BOF_WEB_RESULT Patch(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X, size_t _BodyLength,
+  BOF_WEB_RESULT Patch(const std::string &_rUri_S,bool _CompressReq_B, bool _DecompressRes_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X, size_t _BodyLength,
                        const char *_pBody_c, const std::string &_rBodyType_S);
-  BOF_WEB_RESULT Delete(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X);
-  BOF_WEB_RESULT Options(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X);
-  BOF_WEB_RESULT Head(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X);
+  BOF_WEB_RESULT Delete(const std::string &_rUri_S,bool _CompressReq_B, bool _DecompressRes_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X);
+  BOF_WEB_RESULT Options(const std::string &_rUri_S,bool _CompressReq_B, bool _DecompressRes_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X);
+  BOF_WEB_RESULT Head(const std::string &_rUri_S,bool _CompressReq_B, bool _DecompressRes_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeader_X);
 
   bool Benchmark(uint32_t _NbTests_U32, uint32_t _SleepTime_U32);
 
-  bool Upload(const std::string _rFilePathToUpload_S, const std::string _rDestinationUrl_S, bool _Compress_B, bool _KeepAlive_B, uint32_t _ChunkSizeInByte_U32);
-  bool Download(const std::string _rSourceUri_S, const std::string _rFilePathWhereToStore_S, bool _Compress_B, bool _KeepAlive_B,
+  bool Upload(const std::string _rFilePathToUpload_S, const std::string _rDestinationUrl_S,bool _CompressReq_B, bool _DecompressRes_B, bool _KeepAlive_B, uint32_t _ChunkSizeInByte_U32);
+  bool Download(const std::string _rSourceUri_S, const std::string _rFilePathWhereToStore_S,bool _CompressReq_B, bool _DecompressRes_B, bool _KeepAlive_B,
                 uint32_t _ChunkSizeInByte_U32);
 
   virtual void V_OnSetSocketOption(BOF_WEB_SOCKET /*_Socket*/)

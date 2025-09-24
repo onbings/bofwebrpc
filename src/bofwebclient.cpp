@@ -95,21 +95,23 @@ bool BofWebClient::Disconnect()
   return Rts_B;
 }
 
-BOF_WEB_RESULT BofWebClient::Get(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeaderCollection_X)
+BOF_WEB_RESULT BofWebClient::Get(const std::string &_rUri_S, bool _CompressReq_B, bool _DecompressRes_B, bool _KeepAlive_B,
+                                 const BOF_WEB_HEADER &_rHeaderCollection_X)
 {
   BOF_WEB_RESULT Rts;
 
   if (mpuHttpClient)
   {
     mpuHttpClient->set_keep_alive(_KeepAlive_B);
-    mpuHttpClient->set_compress(_Compress_B);
-    mpuHttpClient->set_decompress(_Compress_B);
+    mpuHttpClient->set_compress(_CompressReq_B);
+    mpuHttpClient->set_decompress(_DecompressRes_B);
     Rts = mpuHttpClient->Get(_rUri_S, _rHeaderCollection_X);
   }
   return Rts;
 }
 
-BOF_WEB_RESULT BofWebClient::Post(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeaderCollection_X,
+BOF_WEB_RESULT BofWebClient::Post(const std::string &_rUri_S, bool _CompressReq_B, bool _DecompressRes_B, bool _KeepAlive_B,
+                                  const BOF_WEB_HEADER &_rHeaderCollection_X,
                                   size_t _BodyLength, const char *_pBody_c, const std::string &_rBodyType_S)
 {
   BOF_WEB_RESULT Rts;
@@ -117,13 +119,14 @@ BOF_WEB_RESULT BofWebClient::Post(const std::string &_rUri_S, bool _Compress_B, 
   if (mpuHttpClient)
   {
     mpuHttpClient->set_keep_alive(_KeepAlive_B);
-    mpuHttpClient->set_compress(_Compress_B);
-    mpuHttpClient->set_decompress(_Compress_B);
+    mpuHttpClient->set_compress(_CompressReq_B);
+    mpuHttpClient->set_decompress(_DecompressRes_B);
     Rts = mpuHttpClient->Post(_rUri_S, _rHeaderCollection_X, _pBody_c, _BodyLength, _rBodyType_S);
   }
   return Rts;
 }
-BOF_WEB_RESULT BofWebClient::Put(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeaderCollection_X,
+BOF_WEB_RESULT BofWebClient::Put(const std::string &_rUri_S, bool _CompressReq_B, bool _DecompressRes_B, bool _KeepAlive_B,
+                                 const BOF_WEB_HEADER &_rHeaderCollection_X,
                                  size_t _BodyLength, const char *_pBody_c, const std::string &_rBodyType_S)
 {
   BOF_WEB_RESULT Rts;
@@ -131,13 +134,14 @@ BOF_WEB_RESULT BofWebClient::Put(const std::string &_rUri_S, bool _Compress_B, b
   if (mpuHttpClient)
   {
     mpuHttpClient->set_keep_alive(_KeepAlive_B);
-    mpuHttpClient->set_compress(_Compress_B);
-    mpuHttpClient->set_decompress(_Compress_B);
+    mpuHttpClient->set_compress(_CompressReq_B);
+    mpuHttpClient->set_decompress(_DecompressRes_B);
     Rts = mpuHttpClient->Put(_rUri_S, _rHeaderCollection_X, _pBody_c, _BodyLength, _rBodyType_S);
   }
   return Rts;
 }
-BOF_WEB_RESULT BofWebClient::Patch(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeaderCollection_X,
+BOF_WEB_RESULT BofWebClient::Patch(const std::string &_rUri_S, bool _CompressReq_B, bool _DecompressRes_B, bool _KeepAlive_B,
+                                   const BOF_WEB_HEADER &_rHeaderCollection_X,
                                    size_t _BodyLength, const char *_pBody_c, const std::string &_rBodyType_S)
 {
   BOF_WEB_RESULT Rts;
@@ -145,47 +149,50 @@ BOF_WEB_RESULT BofWebClient::Patch(const std::string &_rUri_S, bool _Compress_B,
   if (mpuHttpClient)
   {
     mpuHttpClient->set_keep_alive(_KeepAlive_B);
-    mpuHttpClient->set_compress(_Compress_B);
-    mpuHttpClient->set_decompress(_Compress_B);
+    mpuHttpClient->set_compress(_CompressReq_B);
+    mpuHttpClient->set_decompress(_DecompressRes_B);
     Rts = mpuHttpClient->Patch(_rUri_S, _rHeaderCollection_X, _pBody_c, _BodyLength, _rBodyType_S);
   }
   return Rts;
 }
-BOF_WEB_RESULT BofWebClient::Delete(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeaderCollection_X)
+BOF_WEB_RESULT BofWebClient::Delete(const std::string &_rUri_S, bool _CompressReq_B, bool _DecompressRes_B, bool _KeepAlive_B,
+                                    const BOF_WEB_HEADER &_rHeaderCollection_X)
 {
   BOF_WEB_RESULT Rts;
 
   if (mpuHttpClient)
   {
     mpuHttpClient->set_keep_alive(_KeepAlive_B);
-    mpuHttpClient->set_compress(_Compress_B);
-    mpuHttpClient->set_decompress(_Compress_B);
+    mpuHttpClient->set_compress(_CompressReq_B);
+    mpuHttpClient->set_decompress(_DecompressRes_B);
     Rts = mpuHttpClient->Delete(_rUri_S, _rHeaderCollection_X);
   }
   return Rts;
 }
-BOF_WEB_RESULT BofWebClient::Options(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeaderCollection_X)
+BOF_WEB_RESULT BofWebClient::Options(const std::string &_rUri_S, bool _CompressReq_B, bool _DecompressRes_B, bool _KeepAlive_B,
+                                     const BOF_WEB_HEADER &_rHeaderCollection_X)
 {
   BOF_WEB_RESULT Rts;
 
   if (mpuHttpClient)
   {
     mpuHttpClient->set_keep_alive(_KeepAlive_B);
-    mpuHttpClient->set_compress(_Compress_B);
-    mpuHttpClient->set_decompress(_Compress_B);
+    mpuHttpClient->set_compress(_CompressReq_B);
+    mpuHttpClient->set_decompress(_DecompressRes_B);
     Rts = mpuHttpClient->Options(_rUri_S, _rHeaderCollection_X);
   }
   return Rts;
 }
-BOF_WEB_RESULT BofWebClient::Head(const std::string &_rUri_S, bool _Compress_B, bool _KeepAlive_B, const BOF_WEB_HEADER &_rHeaderCollection_X)
+BOF_WEB_RESULT BofWebClient::Head(const std::string &_rUri_S, bool _CompressReq_B, bool _DecompressRes_B, bool _KeepAlive_B,
+                                  const BOF_WEB_HEADER &_rHeaderCollection_X)
 {
   BOF_WEB_RESULT Rts;
 
   if (mpuHttpClient)
   {
     mpuHttpClient->set_keep_alive(_KeepAlive_B);
-    mpuHttpClient->set_compress(_Compress_B);
-    mpuHttpClient->set_decompress(_Compress_B);
+    mpuHttpClient->set_compress(_CompressReq_B);
+    mpuHttpClient->set_decompress(_DecompressRes_B);
     Rts = mpuHttpClient->Head(_rUri_S, _rHeaderCollection_X);
   }
   return Rts;
@@ -206,7 +213,7 @@ bool BofWebClient::Benchmark(uint32_t _NbTests_U32, uint32_t _SleepTime_U32)
     StartGet_U32 = BOF::Bof_GetUsTickCount();
     HeaderCollection_X.clear();
     HeaderCollection_X.insert(std::make_pair("timestamp", std::to_string(StartGet_U32)));
-    Res = Get(Uri_S, false, true, HeaderCollection_X);
+    Res = Get(Uri_S, false, true, true, HeaderCollection_X);
     DeltaGet_U32 = BOF::Bof_ElapsedUsTime(StartGet_U32);
     Delta_U32 = BOF::Bof_ElapsedUsTime(Start_U32);
 
@@ -227,7 +234,8 @@ bool BofWebClient::Benchmark(uint32_t _NbTests_U32, uint32_t _SleepTime_U32)
   return Rts_B;
 }
 
-bool BofWebClient::Upload(const std::string _rFilePathToUpload_S, const std::string _rDestinationUri_S, bool _Compress_B, bool _KeepAlive_B,
+bool BofWebClient::Upload(const std::string _rFilePathToUpload_S, const std::string _rDestinationUri_S, bool _CompressReq_B, bool _DecompressRes_B,
+                          bool _KeepAlive_B,
                           uint32_t _ChunkSizeInByte_U32)
 {
   bool Rts_B = false;
@@ -241,8 +249,8 @@ bool BofWebClient::Upload(const std::string _rFilePathToUpload_S, const std::str
   BOF_WEB_RESULT Res;
 
   BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP],
-               "Upload '%s' in '%s': Compress %s KeepAlive %s ChunkSize %d B\n", _rFilePathToUpload_S.c_str(), _rDestinationUri_S.c_str(),
-               _Compress_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
+               "Upload '%s' in '%s': CompressReq %s DecompressRes %s KeepAlive %s ChunkSize %d B\n", _rFilePathToUpload_S.c_str(), _rDestinationUri_S.c_str(),
+               _CompressReq_B ? "True" : "False", _DecompressRes_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
   if (mpuHttpClient)
   {
     pIo_X = fopen(_rFilePathToUpload_S.c_str(), "rb");
@@ -274,7 +282,8 @@ bool BofWebClient::Upload(const std::string _rFilePathToUpload_S, const std::str
             HeaderCollection_X.insert(std::make_pair("Session-Id", SessionId_S));
             snprintf(pRangeRequest_c, sizeof(pRangeRequest_c), "bytes %zu-%zu/%zu", RangeMin, RangeMax, DataSize);
             HeaderCollection_X.insert(std::make_pair("Content-Range", std::string(pRangeRequest_c)));
-            Res = Post(_rDestinationUri_S, _Compress_B, _KeepAlive_B, HeaderCollection_X, ReadSize, (const char *)pChunk_U8, "application/octet-stream");
+            Res = Post(_rDestinationUri_S, _CompressReq_B, _DecompressRes_B, _KeepAlive_B, HeaderCollection_X, ReadSize, (const char *)pChunk_U8,
+                       "application/octet-stream");
             if ((!Res) || ((Res->status != BOF_WEB_STATUS::OK_200) && (Res->status != BOF_WEB_STATUS::PartialContent_206)))
             {
               if (Res)
@@ -334,13 +343,14 @@ bool BofWebClient::Upload(const std::string _rFilePathToUpload_S, const std::str
   if (!Rts_B)
   {
     BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP],
-                  "Cannot upload '%s' in '%s': Compress %s KeepAlive %s ChunkSize %d B\n", _rFilePathToUpload_S.c_str(), _rDestinationUri_S.c_str(),
-                  _Compress_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
+                  "Cannot upload '%s' in '%s': CompressReq %s DecompressRes %s  KeepAlive %s ChunkSize %d B\n", _rFilePathToUpload_S.c_str(), _rDestinationUri_S.c_str(),
+                  _CompressReq_B ? "True" : "False", _DecompressRes_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
   }
   return Rts_B;
 }
 
-bool BofWebClient::Download(const std::string _rSourceUri_S, const std::string _rFilePathWhereToStore_S, bool _Compress_B, bool _KeepAlive_B,
+bool BofWebClient::Download(const std::string _rSourceUri_S, const std::string _rFilePathWhereToStore_S, bool _CompressReq_B, bool _DecompressRes_B,
+                            bool _KeepAlive_B,
                             uint32_t _ChunkSizeInByte_U32)
 {
   bool Rts_B = false;
@@ -353,8 +363,8 @@ bool BofWebClient::Download(const std::string _rSourceUri_S, const std::string _
   uint32_t ChunkSize_U32;
 
   BOF_LOG_INFO(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP],
-               "Download '%s' in '%s': Compress %s KeepAlive %s ChunkSize %d B\n", _rSourceUri_S.c_str(), _rFilePathWhereToStore_S.c_str(),
-               _Compress_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
+               "Download '%s' in '%s': CompressReq %s DecompressRes %s  KeepAlive %s ChunkSize %d B\n", _rSourceUri_S.c_str(), _rFilePathWhereToStore_S.c_str(),
+               _CompressReq_B ? "True" : "False", _DecompressRes_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
   if (mpuHttpClient)
   {
     pIo_X = fopen(_rFilePathWhereToStore_S.c_str(), "wb");
@@ -371,7 +381,7 @@ bool BofWebClient::Download(const std::string _rSourceUri_S, const std::string _
         HeaderCollection_X.insert(std::make_pair("Session-Id", SessionId_S));
         snprintf(pRangeRequest_c, sizeof(pRangeRequest_c), "bytes %zu-%zu/%zu", RangeMin, RangeMax, DataSize);
         HeaderCollection_X.insert(std::make_pair("Content-Range", std::string(pRangeRequest_c)));
-        Res = Get(_rSourceUri_S, _Compress_B, _KeepAlive_B, HeaderCollection_X);
+        Res = Get(_rSourceUri_S, _CompressReq_B, _DecompressRes_B, _KeepAlive_B, HeaderCollection_X);
         if ((!Res) || ((Res->status != BOF_WEB_STATUS::OK_200) && (Res->status != BOF_WEB_STATUS::PartialContent_206)))
         {
           if (Res)
@@ -462,8 +472,8 @@ bool BofWebClient::Download(const std::string _rSourceUri_S, const std::string _
   if (!Rts_B)
   {
     BOF_LOG_ERROR(S_mpsWebAppLoggerCollection[WEB_APP_LOGGER_CHANNEL::WEB_APP_LOGGER_CHANNEL_APP],
-                  "Cannot download '%s' in '%s': Compress %s KeepAlive %s ChunkSize %d B\n", _rSourceUri_S.c_str(), _rFilePathWhereToStore_S.c_str(),
-                  _Compress_B ? "True" : "False", _KeepAlive_B ? "True" : "False", _ChunkSizeInByte_U32);
+                  "Cannot download '%s' in '%s': CompressReq %s DecompressRes %s  KeepAlive %s ChunkSize %d B\n", _rSourceUri_S.c_str(), _rFilePathWhereToStore_S.c_str(), _CompressReq_B ? "True" : "False", _DecompressRes_B ? "True" : "False", _KeepAlive_B ? "True" : "False",
+                  _ChunkSizeInByte_U32);
   }
   return Rts_B;
 }
