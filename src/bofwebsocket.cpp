@@ -243,10 +243,24 @@ static int S_Lws_Callback_Http(struct lws *_pWsi_X, enum lws_callback_reasons _L
 
 // Set up HTTP mount for serving static files
 struct lws_http_mount S_MountPoint_X = {
-    nullptr,      "/",
-    "./",         // Serve files from the current directory
-    "index.html", // Default file to serve
-    nullptr,      nullptr, nullptr, nullptr, 0, 0, 0, 0, 0, 0, LWSMPRO_FILE, 1, nullptr,
+    nullptr,      // mount_next
+    "/",          // mountpoint -> see mountpoint_len below
+    "./",         // origin: Serve files from the current directory
+    "index.html", // def: Default file to serve
+    nullptr,      // protocol
+    nullptr,      // cgienv
+    nullptr,      // extra_mimetypes
+    nullptr,      // interpret
+    0,            // cgi_timeout
+    0,            // cache_max_age
+    0,            // auth_mask
+    0,            // cache_reusable:1
+    0,            // cache_revalidate:1
+    0,            // cache_intermediaries:1
+    0,            // cache_no:1
+    LWSMPRO_FILE, // origin_protocol
+    1,            // mountpoint_len: see mountpoint above
+    nullptr       // basic_auth_login_file
 };
 
 // This array of struct will be completed before calling lws_create_context to setup per_session_data_size and user
